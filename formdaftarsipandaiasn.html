@@ -3,122 +3,287 @@
 <head>
 <meta charset="UTF-8">
 <title>Pendaftaran SDMK</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
+:root{
+  --primary:#667eea;
+  --secondary:#764ba2;
+  --zoom:#00f2fe;
+  --yt:#ff416c;
+}
+
+*{box-sizing:border-box}
 body{
-  font-family: 'Segoe UI',sans-serif;
-  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  margin:0;
+  font-family:"Segoe UI",sans-serif;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  min-height:100vh;
   padding:30px;
 }
-.card{
-  max-width:850px;
+
+.container{
+  max-width:900px;
   margin:auto;
-  background:#fff;
-  padding:30px;
-  border-radius:16px;
-  box-shadow:0 20px 40px rgba(0,0,0,.2)
 }
-h2{text-align:center;margin-bottom:20px}
-label{font-weight:600;margin-top:10px;display:block}
-input,select{
+
+/* ===== QUOTA CARD ===== */
+.quota-card{
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  color:#fff;
+  padding:25px;
+  border-radius:18px;
+  box-shadow:0 20px 40px rgba(0,0,0,.25);
+  margin-bottom:30px;
+  animation:fadeIn .8s ease;
+}
+.quota-card h2{
+  margin:0 0 15px;
+  text-align:center;
+  letter-spacing:.5px;
+}
+
+.quota{
+  margin-bottom:16px;
+}
+.quota span{
+  font-weight:600;
+  display:block;
+  margin-bottom:6px;
+}
+.track{
   width:100%;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #ddd;
+  height:16px;
+  background:rgba(255,255,255,.3);
+  border-radius:20px;
+  overflow:hidden;
 }
-.radio{display:flex;gap:20px;margin:8px 0}
-.progress{
-  background:#eee;border-radius:10px;overflow:hidden;height:12px;margin:15px 0
-}
-.bar{
+.fill{
   height:100%;
   width:0%;
-  background:linear-gradient(90deg,#00c6ff,#0072ff);
-  transition:.4s
+  border-radius:20px;
+  transition:width 1.2s cubic-bezier(.4,0,.2,1);
 }
-button{
-  background:linear-gradient(135deg,#667eea,#764ba2);
-  color:#fff;
-  border:none;
-  padding:14px;
+.fill.zoom{background:var(--zoom)}
+.fill.yt{background:var(--yt)}
+
+.quota small{
+  display:block;
+  margin-top:6px;
+  font-size:13px;
+  opacity:.9;
+}
+
+/* ===== FORM CARD ===== */
+.card{
+  background:#fff;
+  border-radius:18px;
+  padding:30px;
+  box-shadow:0 20px 40px rgba(0,0,0,.25);
+  animation:slideUp .8s ease;
+}
+
+.card h3{
+  text-align:center;
+  margin-top:0;
+  margin-bottom:25px;
+  color:#333;
+}
+
+label{
+  font-weight:600;
+  margin-top:14px;
+  display:block;
+  color:#444;
+}
+
+input{
   width:100%;
+  padding:12px 14px;
+  margin-top:6px;
   border-radius:10px;
-  font-size:16px;
-  cursor:pointer
+  border:1px solid #ddd;
+  font-size:14px;
 }
-button:hover{opacity:.9}
-small{color:#666}
-#notif{text-align:center;margin-top:15px;font-weight:bold}
+input:focus{
+  outline:none;
+  border-color:var(--primary);
+}
+
+.radio-group{
+  display:flex;
+  gap:25px;
+  margin-top:8px;
+}
+
+.radio-group label{
+  font-weight:500;
+  cursor:pointer;
+}
+
+.progress{
+  background:#eee;
+  height:12px;
+  border-radius:20px;
+  overflow:hidden;
+  margin:22px 0;
+}
+.progress-bar{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,var(--primary),var(--secondary));
+  transition:width .6s ease;
+}
+
+button{
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  color:#fff;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+button:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 20px rgba(0,0,0,.2);
+}
+
+#notif{
+  text-align:center;
+  margin-top:16px;
+  font-weight:600;
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(-10px)}
+  to{opacity:1; transform:none}
+}
+@keyframes slideUp{
+  from{opacity:0; transform:translateY(30px)}
+  to{opacity:1; transform:none}
+}
 </style>
 </head>
+
 <body>
+<div class="container">
 
-<div class="card">
-<h2>Pendaftaran Kegiatan SDMK</h2>
+  <!-- ===== QUOTA ===== -->
+  <div class="quota-card">
+    <h2>Kapasitas Peserta</h2>
 
-<form id="form">
-<label>Nama Lengkap</label>
-<input required name="nama">
+    <div class="quota">
+      <span>Zoom Meeting</span>
+      <div class="track">
+        <div class="fill zoom" id="zoomBar"></div>
+      </div>
+      <small id="zoomText">Loading...</small>
+    </div>
 
-<label>NIP</label>
-<input required name="nip">
+    <div class="quota">
+      <span>YouTube</span>
+      <div class="track">
+        <div class="fill yt" id="ytBar"></div>
+      </div>
+      <small id="ytText">Loading...</small>
+    </div>
+  </div>
 
-<label>Unit Kerja</label>
-<input required name="unit">
+  <!-- ===== FORM ===== -->
+  <div class="card">
+    <h3>Form Pendaftaran SDMK</h3>
 
-<label>Status Pegawai</label>
-<div class="radio">
-<label><input type="radio" name="status" value="PNS" required> PNS</label>
-<label><input type="radio" name="status" value="PPPK"> PPPK</label>
-</div>
+    <form id="daftarForm">
+      <label>Nama Lengkap</label>
+      <input required name="nama">
 
-<label>Jenis SDMK</label>
-<input required name="jenis">
+      <label>NIP</label>
+      <input required name="nip">
 
-<label>Jumlah JP Terakhir</label>
-<input type="number" required name="jp_terakhir">
+      <label>Unit Kerja</label>
+      <input required name="unit">
 
-<label>Tema Pembelajaran</label>
-<input required name="tema">
+      <label>Status Pegawai</label>
+      <div class="radio-group">
+        <label><input type="radio" name="status" value="PNS" required> PNS</label>
+        <label><input type="radio" name="status" value="PPPK"> PPPK</label>
+      </div>
 
-<label>Tanggal Kegiatan</label>
-<input type="date" required name="tanggal">
+      <label>Jenis SDMK</label>
+      <input required name="jenis">
 
-<label>Jumlah JP</label>
-<input type="number" required name="jp">
+      <label>Jumlah JP Terakhir</label>
+      <input type="number" required name="jp_terakhir">
 
-<label>Platform Digital</label>
-<div class="radio">
-<label><input type="radio" name="platform" value="Zoom" required> Zoom</label>
-<label><input type="radio" name="platform" value="Youtube"> Youtube</label>
-</div>
+      <label>Tema Pembelajaran</label>
+      <input required name="tema">
 
-<label>Whatsapp / Telpon</label>
-<input required name="wa">
+      <label>Tanggal Kegiatan</label>
+      <input type="date" required name="tanggal">
 
-<label>Email Aktif</label>
-<input type="email" required name="email">
+      <label>Jumlah JP</label>
+      <input type="number" required name="jp">
 
-<div class="progress"><div class="bar" id="bar"></div></div>
+      <label>Platform Digital</label>
+      <div class="radio-group">
+        <label><input type="radio" name="platform" value="Zoom" required> Zoom</label>
+        <label><input type="radio" name="platform" value="Youtube"> YouTube</label>
+      </div>
 
-<button>DAFTAR SEKARANG</button>
-<div id="notif"></div>
-</form>
+      <label>Whatsapp / Telpon</label>
+      <input required name="wa">
+
+      <label>Email Aktif</label>
+      <input type="email" required name="email">
+
+      <div class="progress">
+        <div class="progress-bar" id="formBar"></div>
+      </div>
+
+      <button type="submit">DAFTAR SEKARANG</button>
+      <div id="notif"></div>
+    </form>
+  </div>
+
 </div>
 
 <script>
-const URL = "https://script.google.com/macros/s/AKfycbyEMbuyb80ZEMW9I23kQj-0fVZH7gSTT-9enW1FPBDO3SAq7LMWYBsMs4zp-pshFal45w/exec";
-const bar = document.getElementById("bar");
+const API_URL = "https://script.google.com/macros/s/AKfycbzLQbWSl-M6y_td-eH88Hc08yBfJiqTAoO0URVyCIzg7qE8VWWyt2IQR1n1DlOav5gd1Q/exec";
+
+/* ===== LOAD KUOTA ===== */
+fetch(API_URL)
+.then(r=>r.json())
+.then(d=>{
+  const zoomPct = Math.min(100, d.zoom / d.quotaZoom * 100);
+  const ytPct   = Math.min(100, d.youtube / d.quotaYoutube * 100);
+
+  document.getElementById("zoomBar").style.width = zoomPct + "%";
+  document.getElementById("ytBar").style.width = ytPct + "%";
+
+  document.getElementById("zoomText").innerText =
+    `${d.zoom} / ${d.quotaZoom} peserta`;
+
+  document.getElementById("ytText").innerText =
+    `${d.youtube} / ${d.quotaYoutube} peserta`;
+});
+
+/* ===== SUBMIT FORM ===== */
+const form = document.getElementById("daftarForm");
+const bar = document.getElementById("formBar");
 const notif = document.getElementById("notif");
 
-document.getElementById("form").onsubmit = e =>{
+form.addEventListener("submit", e=>{
   e.preventDefault();
   bar.style.width="40%";
   notif.innerHTML="Mengirim data...";
 
-  const data = Object.fromEntries(new FormData(e.target));
+  const data = Object.fromEntries(new FormData(form));
 
-  fetch(URL,{
+  fetch(API_URL,{
     method:"POST",
     body:JSON.stringify(data)
   })
@@ -126,18 +291,21 @@ document.getElementById("form").onsubmit = e =>{
   .then(r=>{
     if(r.success){
       bar.style.width="100%";
-      notif.innerHTML="✅ Berhasil mendaftar";
-      e.target.reset();
+      notif.style.color="green";
+      notif.innerHTML="✅ Pendaftaran berhasil";
+      form.reset();
     }else{
       bar.style.width="0%";
+      notif.style.color="red";
       notif.innerHTML="❌ "+r.message;
     }
   })
   .catch(()=>{
     bar.style.width="0%";
+    notif.style.color="red";
     notif.innerHTML="❌ Gagal koneksi server";
   });
-}
+});
 </script>
 
 </body>
