@@ -1,261 +1,221 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Form Pendaftaran Pengembangan Kompetensi ASN</title>
+coba di full kan skrip nya <div class="wrap">
+
+  <!-- HEADER JADWAL + TOMBOL DAFTAR -->
+  <div class="jadwal-header">
+    <h2>📅 Jadwal Kegiatan Terintegrasi</h2>
+
+    <a href="formdaftarsipandaiasn.html" class="btn-daftar">
+      <span class="btn-icon">📝</span>
+      <span class="btn-text">Daftar Sekarang</span>
+      <span class="btn-glow"></span>
+    </a>
+  </div>
+
+  <!-- FILTER -->
+  <div class="filter">
+    <input type="date" id="searchTanggal">
+    <select id="filterBulan">
+      <option value="">Semua Bulan</option>
+    </select>
+    <input id="filterTema" placeholder="Filter Tema">
+    <select id="filterJP">
+      <option value="">Semua JP</option>
+      <option value="<=2">≤ 2 JP</option>
+      <option value="3-6">3 - 6 JP</option>
+      <option value=">6">> 6 JP</option>
+    </select>
+  </div>
+
+  <!-- LIST -->
+  <div id="list"></div>
+</div>
 
 <style>
-body{
-  font-family:Segoe UI,Arial,sans-serif;
-  background:#eef2f7;
-  padding:20px
-}
-.container{
-  max-width:1150px;
+/* ================= WRAPPER ================= */
+.wrap{
+  max-width:1200px;
   margin:auto;
-  padding:22px;
-  background:#f8fafc;
-  border-radius:18px;
-  box-shadow:0 12px 35px rgba(0,0,0,.12)
+  font-family:Segoe UI,Arial;
+  padding:10px;
 }
-h2{text-align:center;margin-bottom:22px}
 
-/* INFO */
-.info-kegiatan{
-  background:linear-gradient(135deg,#ecfeff,#f0fdf4);
-  border-radius:18px;
-  padding:20px;
-  margin-bottom:24px;
-  box-shadow:0 8px 25px rgba(0,0,0,.08)
-}
-.info-kegiatan h3{text-align:center;color:#0f766e}
-.info-item{
-  display:grid;
-  grid-template-columns:200px 1fr;
+/* ================= HEADER ================= */
+.jadwal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
   gap:12px;
-  margin-bottom:12px
+  flex-wrap:wrap;
+  margin-bottom:10px;
 }
-.info-item .label{font-weight:800}
-@media(max-width:640px){
-  .info-item{grid-template-columns:1fr}
+.jadwal-header h2{
+  margin:0;
 }
 
-/* INPUT */
-input,select{
-  width:100%;
-  padding:12px;
-  margin-bottom:12px;
-  border-radius:12px;
-  border:1px solid #ddd
-}
-label{font-weight:700}
-
-/* BUTTON GROUP */
-.btn-group{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-  gap:10px;
-  margin-bottom:14px
-}
-.btn-group button{
-  padding:12px;
-  border:none;
-  border-radius:14px;
-  background:#e5e7eb;
+/* ================= TOMBOL DAFTAR ================= */
+.btn-daftar{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:12px 20px;
+  border-radius:999px;
+  background:linear-gradient(135deg,#2563eb,#1e40af);
+  color:#fff;
+  text-decoration:none;
   font-weight:700;
-  cursor:pointer
-}
-.btn-group button.active{
-  background:#2563eb;
-  color:#fff;
-  transform:scale(1.05)
+  overflow:hidden;
+  box-shadow:0 10px 30px rgba(37,99,235,.35);
+  transition:transform .25s ease, box-shadow .25s ease;
 }
 
-/* SUBMIT */
-.submit-btn{
-  width:100%;
-  padding:16px;
-  border:none;
-  border-radius:16px;
-  background:linear-gradient(135deg,#16a34a,#22c55e);
-  color:#fff;
-  font-weight:900;
-  cursor:pointer
+/* glow animasi */
+.btn-daftar::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:inherit;
+  background:linear-gradient(120deg,#60a5fa,#2563eb,#22c55e);
+  filter:blur(10px);
+  opacity:.6;
+  z-index:-1;
+  animation:glow 3s linear infinite;
 }
 
-/* COUNTER */
-.counter-box{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-  gap:12px;
-  margin-bottom:18px
-}
-.counter-item{
-  background:linear-gradient(135deg,#e0f2fe,#f0fdf4);
-  padding:14px;
-  border-radius:16px;
-  text-align:center;
-  font-weight:800
-}
-.counter-item span{
-  display:block;
-  font-size:28px;
-  color:#16a34a
-}
-.badge{
-  grid-column:1/-1;
-  text-align:center;
-  padding:12px;
-  border-radius:14px;
-  background:#dc2626;
-  color:#fff;
-  font-weight:900;
-  animation:pulse 1.5s infinite
-}
-.hidden{display:none}
-
-/* PROGRESS */
-.progress-bar-bg{
-  background:#e5e7eb;
-  border-radius:14px;
-  overflow:hidden
-}
-.progress-bar{
-  height:22px;
-  width:0%;
-  background:linear-gradient(135deg,#22c55e,#16a34a);
-  text-align:center;
-  color:white;
-  font-weight:900
+@keyframes glow{
+  0%{filter:blur(10px) hue-rotate(0deg)}
+  100%{filter:blur(10px) hue-rotate(360deg)}
 }
 
-#notif{text-align:center;margin-top:18px;font-weight:800}
+.btn-daftar:hover{
+  transform:translateY(-3px) scale(1.03);
+  box-shadow:0 18px 45px rgba(37,99,235,.5);
+}
+
+.btn-daftar:active{
+  transform:scale(.96);
+}
+
+.btn-icon{
+  font-size:18px;
+  animation:pulse 2s infinite;
+}
 
 @keyframes pulse{
-  0%{transform:scale(1)}
-  50%{transform:scale(1.05)}
-  100%{transform:scale(1)}
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.15)}
+}
+
+/* ================= FILTER ================= */
+.filter{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:8px;
+  margin-bottom:15px;
+}
+.filter input,.filter select{
+  padding:8px;
+  border-radius:8px;
+  border:1px solid #ddd;
+}
+
+/* ================= CARD ================= */
+.card{
+  background:#fff;
+  border-radius:16px;
+  padding:14px;
+  margin-bottom:12px;
+  box-shadow:0 8px 18px rgba(0,0,0,.08);
+  animation:fade .4s ease;
+}
+@keyframes fade{
+  from{opacity:0;transform:translateY(12px)}
+}
+
+/* ================= BADGE ================= */
+.badge{
+  display:inline-block;
+  padding:4px 12px;
+  border-radius:20px;
+  background:#3b82f6;
+  color:#fff;
+  font-size:12px;
+  margin-right:6px;
+}
+.jp{
+  background:#22c55e;
+}
+small{color:#555}
+
+/* ================= RESPONSIF ================= */
+@media(max-width:600px){
+  .jadwal-header{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  .btn-daftar{
+    width:100%;
+    justify-content:center;
+  }
 }
 </style>
-</head>
-
-<body>
-
-<div class="container">
-<h2>📋 Form Pendaftaran Pengembangan Kompetensi ASN</h2>
-
-<!-- INFO -->
-<div class="info-kegiatan">
-  <h3>📌 Informasi Kegiatan</h3>
-  <div class="info-item"><div class="label">Tema</div><div>Optimalisasi Pemanfaatan SKP Platform</div></div>
-  <div class="info-item"><div class="label">Jadwal</div><div>22 Januari 2026 • 13.00–16.00</div></div>
-  <div class="info-item"><div class="label">JP</div><div>2 JP</div></div>
-</div>
-
-<!-- COUNTER -->
-<div class="counter-box">
-  <div class="counter-item">👥 Total<span id="total">0</span></div>
-  <div class="counter-item">🎥 Zoom<span id="zoom">0</span></div>
-  <div class="counter-item">📺 YouTube<span id="youtube">0</span></div>
-  <div id="badge" class="badge hidden">🔥 Hampir Penuh</div>
-</div>
-
-<!-- PROGRESS -->
-<div style="margin-bottom:16px">
-  <div style="font-weight:800;margin-bottom:6px">📊 Progress Kuota</div>
-  <div class="progress-bar-bg">
-    <div id="progressBar" class="progress-bar">0%</div>
-  </div>
-</div>
-
-<form id="daftarForm">
-  <input id="nama" placeholder="Nama Lengkap" required>
-  <input id="nip" placeholder="NIP" required>
-  <input id="unit" placeholder="Unit Kerja" required>
-
-  <label>Status</label>
-  <div class="btn-group">
-    <button type="button" onclick="pilih(this,'status','PNS')">PNS</button>
-    <button type="button" onclick="pilih(this,'status','PPPK')">PPPK</button>
-  </div>
-
-  <label>Platform</label>
-  <div class="btn-group">
-    <button type="button" onclick="pilih(this,'platform','Zoom')">Zoom</button>
-    <button type="button" onclick="pilih(this,'platform','Youtube')">YouTube</button>
-  </div>
-
-  <button class="submit-btn">🚀 KIRIM PENDAFTARAN</button>
-</form>
-
-<div id="notif"></div>
-</div>
 
 <script>
-/* ================= KONFIG ================= */
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyT3neA_9261WtgHunupLUM_SikAc91wwnFfjDVUGxFo6GIbIgTtwUj7qbBlL8ncnvv0Q/exec";
-const REKAP_URL  = WEBAPP_URL + "?mode=rekap";
-const KUOTA_MAKS = 300;
-let pilihan = {}, isSubmitting=false;
+const API = "https://script.google.com/macros/s/AKfycbzo5p7P7xO-nHvM1bb08BUyWbAbwNMn4VaE-eWz0oj4UDowA04MvECa-5CG0IbVV6LNuQ/exec";
+let DATA = [];
 
-/* ================= PILIH ================= */
-function pilih(el,f,v){
-  el.parentElement.querySelectorAll("button").forEach(b=>b.classList.remove("active"));
-  el.classList.add("active");
-  pilihan[f]=v;
-}
-
-/* ================= SUBMIT ================= */
-daftarForm.addEventListener("submit",e=>{
-  e.preventDefault();
-  if(!pilihan.status||!pilihan.platform){
-    notif.innerHTML="⚠️ Lengkapi pilihan";
-    return;
-  }
-  if(isSubmitting) return;
-  isSubmitting=true;
-  notif.innerHTML="⏳ Mengirim...";
-
-  const fd=new FormData();
-  fd.append("nama",nama.value);
-  fd.append("nip",nip.value);
-  fd.append("unit",unit.value);
-  fd.append("status",pilihan.status);
-  fd.append("platform",pilihan.platform);
-
-  fetch(WEBAPP_URL,{method:"POST",body:fd})
-    .then(r=>r.text())
-    .then(()=>{
-      notif.innerHTML="✅ Berhasil";
-      daftarForm.reset();
-      document.querySelectorAll(".btn-group button").forEach(b=>b.classList.remove("active"));
-      loadRekap();
-      isSubmitting=false;
-    })
-    .catch(()=>{notif.innerHTML="❌ Gagal";isSubmitting=false});
+fetch(API).then(r=>r.json()).then(res=>{
+  DATA = res;
+  isiBulan();
+  render(DATA);
 });
 
-/* ================= REKAP ================= */
-function loadRekap(){
-  fetch(REKAP_URL)
-    .then(r=>r.json())
-    .then(d=>{
-      total.textContent=d.total;
-      zoom.textContent=d.zoom;
-      youtube.textContent=d.youtube;
-
-      const persen=Math.min(100,Math.round((d.total/KUOTA_MAKS)*100));
-      progressBar.style.width=persen+"%";
-      progressBar.textContent=persen+"%";
-
-      if(persen>=80) badge.classList.remove("hidden");
-      else badge.classList.add("hidden");
-    });
+function isiBulan(){
+  const bulan = [...new Set(DATA.map(d=>d.bulan))];
+  const sel = document.getElementById("filterBulan");
+  bulan.forEach(b=>{
+    sel.innerHTML += `<option value="${b}">${b}</option>`;
+  });
 }
-loadRekap();
-setInterval(loadRekap,30000);
-</script>
 
-</body>
-</html>
+document.querySelectorAll("input,select")
+.forEach(el=>el.oninput=filter);
+
+function filter(){
+  const tgl = searchTanggal.value;
+  const bln = filterBulan.value.toLowerCase();
+  const tema = filterTema.value.toLowerCase();
+  const jp = filterJP.value;
+
+  const f = DATA.filter(d=>{
+    return (!tgl || d.tanggal==tgl) &&
+           (!bln || d.bulan.toLowerCase()==bln) &&
+           (!tema || d.tema.toLowerCase().includes(tema)) &&
+           cekJP(d.total,jp);
+  });
+  render(f);
+}
+
+function cekJP(val,rule){
+  if(!rule) return true;
+  if(rule=="<=2") return val<=2;
+  if(rule=="3-6") return val>=3 && val<=6;
+  if(rule==">6") return val>6;
+}
+
+function render(arr){
+  list.innerHTML = arr.map(d=>`
+    <div class="card">
+      <span class="badge">${d.bulan}</span>
+      <span class="badge jp">${d.total} JP</span>
+      <h3>${d.tema}</h3>
+      <small>📅 ${d.tanggal} | 💻 ${d.platform}</small>
+      <ul>
+        ${d.n1?`<li><b>${d.n1}</b> – ${d.j1} (${d.jp1} JP)</li>`:''}
+        ${d.n2?`<li><b>${d.n2}</b> – ${d.j2} (${d.jp2} JP)</li>`:''}
+        ${d.n3?`<li><b>${d.n3}</b> – ${d.j3} (${d.jp3} JP)</li>`:''}
+      </ul>
+    </div>
+  `).join('');
+}
+</script>
