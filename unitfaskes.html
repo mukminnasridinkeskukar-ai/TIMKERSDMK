@@ -1,0 +1,244 @@
+<!-- SPACER supaya form tidak menutupi menu fixed -->
+<div style="height:10px;"></div>
+
+<div class="container-form" style="max-width:900px; margin:20px auto; padding:25px; background:#fff; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+  
+   <!-- ===== TOMBOL CTA MELEDAK (INLINE) ===== -->
+<div class="cta-wrap-inline">
+  <a href="https://simandakes.blogspot.com/p/profil-fasyankes-root-primary2563eb.html"
+     class="btn-meledak-inline"
+     target="_blank"
+     rel="noopener">
+    🚀 CEK APAKAH UNIT FASYANKES ANDA TERDAFTAR DI SI-SDMK?
+  </a>
+</div>
+
+<style>
+/* scope khusus tombol */
+.cta-wrap-inline{
+  text-align:center;
+  margin:10px 0 30px;
+}
+
+.btn-meledak-inline{
+  position:relative;
+  display:inline-block;
+  padding:16px 38px;
+  font-size:16px;
+  font-weight:800;
+  letter-spacing:.6px;
+  color:#fff;
+  text-decoration:none;
+  border-radius:50px;
+  background:linear-gradient(135deg,#ff004c,#ffb000,#00e0ff);
+  background-size:300% 300%;
+  animation:grad-inline 5s ease infinite, pulse-inline 2.2s infinite;
+  box-shadow:0 14px 35px rgba(255,0,76,.45);
+  overflow:hidden;
+  transition:transform .15s ease;
+}
+
+.btn-meledak-inline:hover{ transform:scale(1.08); }
+.btn-meledak-inline:active{ transform:scale(.92); }
+
+@keyframes grad-inline{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+@keyframes pulse-inline{
+  0%{box-shadow:0 0 0 0 rgba(255,0,76,.7)}
+  70%{box-shadow:0 0 0 22px rgba(255,0,76,0)}
+  100%{box-shadow:0 0 0 0 rgba(255,0,76,0)}
+}
+
+.spark-inline{
+  position:absolute;
+  width:6px;
+  height:6px;
+  background:#fff;
+  border-radius:50%;
+  pointer-events:none;
+  animation:spark-inline .7s ease-out forwards;
+}
+
+@keyframes spark-inline{
+  to{
+    transform:translate(var(--x),var(--y)) scale(0);
+    opacity:0;
+  }
+}
+</style>
+
+<script>
+(function(){
+  const sound=new Audio("https://assets.mixkit.co/sfx/preview/mixkit-bubble-pop-up-alert-notification-2357.mp3");
+  sound.volume=.4;
+
+  document.addEventListener("click",e=>{
+    const btn=e.target.closest(".btn-meledak-inline");
+    if(!btn) return;
+
+    sound.currentTime=0;
+    sound.play();
+
+    const r=btn.getBoundingClientRect();
+    const x=e.clientX-r.left;
+    const y=e.clientY-r.top;
+
+    for(let i=0;i<22;i++){
+      const s=document.createElement("span");
+      s.className="spark-inline";
+      s.style.left=x+"px";
+      s.style.top=y+"px";
+      s.style.setProperty("--x",(Math.random()*180-90)+"px");
+      s.style.setProperty("--y",(Math.random()*180-90)+"px");
+      btn.appendChild(s);
+      setTimeout(()=>s.remove(),700);
+    }
+  });
+
+  document.addEventListener("mousemove",e=>{
+    document.querySelectorAll(".btn-meledak-inline").forEach(btn=>{
+      const r=btn.getBoundingClientRect();
+      const dx=e.clientX-(r.left+r.width/2);
+      const dy=e.clientY-(r.top+r.height/2);
+      const d=Math.sqrt(dx*dx+dy*dy);
+      btn.style.transform = d<120
+        ? `translate(${dx*.12}px,${dy*.12}px) scale(1.08)`
+        : "";
+    });
+  });
+})();
+</script>
+<!-- ===== AKHIR TOMBOL CTA ===== -->
+  
+  
+  <h2 style="text-align:center; color:#333; margin-bottom:30px; font-size:22px;">
+    Formulir Pengajuan Unit Fasyankes Baru dan Usulan Baru/Reset/Delete Akun Operator SI-SDMK atau Unit Fasyankes
+  </h2>  
+  <form id="izinForm" style="display:grid; grid-template-columns:1fr 1fr; gap:25px; align-items:start;">
+    
+    <div class="form-group" style="display:flex; flex-direction:column; margin-bottom:10px;">
+      <label>Nama Pemohon</label>
+      <input type="text" name="namaPemohon" required style="width:100%; padding:7px; border:1px solid #ccc; border-radius:5px;">
+    </div>
+
+    <div class="form-group" style="display:flex; flex-direction:column; margin-bottom:10px;">
+      <label>Nomor Whatsapp</label>
+      <input type="text" name="nomorWhatsapp" required style="width:100%; padding:7px; border:1px solid #ccc; border-radius:5px;">
+    </div>
+
+    <div class="form-group" style="display:flex; flex-direction:column; margin-bottom:10px;">
+      <label>Alamat Email</label>
+      <input type="email" name="alamatEmail" required style="width:100%; padding:7px; border:1px solid #ccc; border-radius:5px;">
+    </div>
+
+    <div class="form-group" style="display:flex; flex-direction:column; margin-bottom:10px;">
+      <label>Nama Unit Kerja</label>
+      <input type="text" name="namaUnitKerja" required style="width:100%; padding:7px; border:1px solid #ccc; border-radius:5px;">
+    </div>
+
+    <div class="form-group full-width" style="grid-column:span 2; display:flex; flex-direction:column; margin-bottom:10px;">
+      <label>Alamat Lengkap</label>
+      <textarea name="alamatLengkap" required style="width:100%; padding:7px; border:1px solid #ccc; border-radius:5px; min-height:50px;"></textarea>
+    </div>
+
+    <div class="form-group" style="display:flex; flex-direction:column; margin-bottom:10px;">
+      <label>Kecamatan</label>
+      <input type="text" name="kecamatan" required style="width:100%; padding:7px; border:1px solid #ccc; border-radius:5px;">
+    </div>
+
+    <div class="form-group" style="display:flex; flex-direction:column; margin-bottom:10px;">
+      <label>Kelurahan/Desa</label>
+      <input type="text" name="kelurahanDesa" required style="width:100%; padding:7px; border:1px solid #ccc; border-radius:5px;">
+    </div>
+
+    <div class="form-group" style="display:flex; flex-direction:column; margin-bottom:10px;">
+      <label>Kode Pos</label>
+      <input type="text" name="kodePos" required style="width:100%; padding:7px; border:1px solid #ccc; border-radius:5px;">
+    </div>
+
+    <div class="form-group" style="display:flex; flex-direction:column; margin-bottom:10px;">
+      <label>Telpon</label>
+      <input type="text" name="telpon" style="width:100%; padding:7px; border:1px solid #ccc; border-radius:5px;">
+    </div>
+
+    <div class="form-group" style="display:flex; flex-direction:column; margin-bottom:10px;">
+      <label>Email Unit Kerja</label>
+      <input type="email" name="emailUnitKerja" style="width:100%; padding:7px; border:1px solid #ccc; border-radius:5px;">
+    </div>
+
+    <div class="form-group full-width" style="grid-column:span 2; display:flex; flex-direction:column; margin-bottom:10px;">
+      <label>File Izin Operasional (Maks 1 MB)</label>
+      <input type="file" name="fileIzinOperasional" style="width:100%; padding:7px; border:1px solid #ccc; border-radius:5px;">
+    </div>
+
+    <div class="form-group full-width" style="grid-column:span 2; display:flex; flex-direction:column; margin-bottom:10px;">
+      <label>Keterangan</label>
+      <textarea name="keterangan" style="width:100%; padding:7px; border:1px solid #ccc; border-radius:5px; min-height:50px;"></textarea>
+    </div>
+
+    <div class="form-group full-width" style="grid-column:span 2;">
+      <button type="submit" class="btn-submit" style="width:100%; background:#1e90ff; color:#fff; font-size:15px; padding:10px; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">Submit</button>
+    </div>
+  </form>
+</div>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwwT_jneR4REwpnEOW0GQk5mLRIOMGbr6mAY-UyKMKK8IFD-R34xx_Gqdl-V0hGxd3I/exec";
+
+const form = document.getElementById('izinForm');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = new FormData(form);
+  const file = data.get('fileIzinOperasional');
+
+  if(file && file.size > 1*1024*1024){
+    alert("File terlalu besar! Maksimal 1 MB");
+    return;
+  }
+
+  let fileData = null;
+  if(file && file.size > 0){
+    const arrayBuffer = await file.arrayBuffer();
+    fileData = {
+      name: file.name,
+      mimeType: file.type,
+      bytes: Array.from(new Uint8Array(arrayBuffer))
+    };
+  }
+
+  const obj = {
+    namaPemohon: data.get('namaPemohon'),
+    nomorWhatsapp: data.get('nomorWhatsapp'),
+    alamatEmail: data.get('alamatEmail'),
+    namaUnitKerja: data.get('namaUnitKerja'),
+    alamatLengkap: data.get('alamatLengkap'),
+    kecamatan: data.get('kecamatan'),
+    kelurahanDesa: data.get('kelurahanDesa'),
+    kodePos: data.get('kodePos'),
+    telpon: data.get('telpon'),
+    emailUnitKerja: data.get('emailUnitKerja'),
+    fileIzinOperasional: fileData,
+    keterangan: data.get('keterangan')
+  };
+
+  try {
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      body: JSON.stringify(obj)
+    });
+    const result = await res.json();
+    if(result.status === "success") {
+      alert("Data berhasil dikirim!");
+      form.reset();
+    } else {
+      alert("Terjadi error: " + result.message);
+    }
+  } catch(err) {
+    alert("Gagal mengirim data: " + err.message);
+  }
+});
+</script>
