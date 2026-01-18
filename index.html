@@ -683,65 +683,7 @@ https://templatemo.com/tm-569-edu-meeting
     </div>
  </section>
 
-<section class="contact-us" id="contact">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-9 align-self-center">
-        <div class="row">
-          <div class="col-lg-12">
-
-            <form id="contactForm" action="javascript:void(0)">
-              <div class="row">
-
-                <div class="col-lg-12">
-                  <h2>Let's get in touch</h2>
-                </div>
-
-                <div class="col-lg-4">
-                  <fieldset>
-                    <input name="name" type="text" id="name" placeholder="YOURNAME...*" required>
-                  </fieldset>
-                </div>
-
-                <div class="col-lg-4">
-                  <fieldset>
-                    <input name="email" type="email" id="email" placeholder="YOUR EMAIL..." required>
-                  </fieldset>
-                </div>
-
-                <div class="col-lg-4">
-                  <fieldset>
-                    <input name="subject" type="text" id="subject" placeholder="SUBJECT...*" required>
-                  </fieldset>
-                </div>
-
-                <div class="col-lg-12">
-                  <fieldset>
-                    <textarea name="message" id="message" placeholder="YOUR MESSAGE..." required></textarea>
-                  </fieldset>
-                </div>
-
-                <div class="col-lg-12">
-                  <fieldset>
-                    <button type="submit" id="form-submit" class="button">
-                      <span id="btn-text">SEND MESSAGE NOW</span>
-                      <span id="spinner" style="display:none;">⏳ Sending...</span>
-                    </button>
-                  </fieldset>
-                </div>
-
-                <div class="col-lg-12">
-                  <p id="form-status"></p>
-                </div>
-
-              </div>
-            </form>
-
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-3">
+    <div class="col-lg-3">
           <div class="right-info">
             <ul>
               <li>
@@ -833,61 +775,6 @@ https://templatemo.com/tm-569-edu-meeting
           checkSection();
         });
     </script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  
-const scriptURL = "https://script.google.com/macros/s/AKfycbzcQj6jFenHZ1J8IlvJOOHvu13vBM_mR-p_4N8Pcq87CGIs2QQ7CWeKjHMAVs5zHxmi/exec";
-const form = document.getElementById("contactForm");
-  const button = document.getElementById("form-submit");
-
-  form.addEventListener("submit", function (e) {
-    e.preventDefault(); // 🔥 KUNCI UTAMA
-
-    button.disabled = true;
-    button.innerText = "Sending...";
-
-    const data = {
-      name: document.getElementById("name").value,
-      email: document.getElementById("email").value,
-      subject: document.getElementById("subject").value,
-      message: document.getElementById("message").value
-    };
-
-    fetch(scriptURL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(res => {
-      alert("Pesan berhasil dikirim!");
-      form.reset();
-
-      // WhatsApp Admin
-      const waText =
-        `Pesan Baru:%0A` +
-        `Nama: ${data.name}%0A` +
-        `Email: ${data.email}%0A` +
-        `Subjek: ${data.subject}%0A` +
-        `Pesan: ${data.message}`;
-
-      window.open(
-        "https://wa.me/628XXXXXXXXXX?text=" + waText,
-        "_blank"
-      );
-    })
-    .catch(err => {
-      alert("Gagal mengirim pesan!");
-      console.error(err);
-    })
-    .finally(() => {
-      button.disabled = false;
-      button.innerText = "SEND MESSAGE NOW";
-    });
-  });
-
-});
-</script>
     
 </body>
 
