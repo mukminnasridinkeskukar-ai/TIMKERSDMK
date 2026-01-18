@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aplikasi Keselamatan Pasien Puskesmas</title>
+
+<style>
+body{
+  font-family:Segoe UI,Arial;
+  background:#f1f5f9;
+  padding:20px;
+}
+.container{
+  max-width:1400px;
+  margin:auto;
+  background:#ffffff;
+  padding:35px;
+  border-radius:22px;
+  box-shadow:0 15px 35px rgba(0,0,0,.15);
+}
+h1,h2,h3{
+  color:#0f172a;
+}
+h1{text-align:center}
+.section{
+  margin-bottom:30px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
+}
+table th,table td{
+  border:1px solid #e5e7eb;
+  padding:10px;
+  text-align:left;
+}
+table th{
+  background:#f1f5f9;
+}
+.btn-wrap{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+  justify-content:center;
+  margin-top:40px;
+}
+.btn{
+  padding:16px 28px;
+  border-radius:16px;
+  font-size:18px;
+  font-weight:800;
+  text-decoration:none;
+  color:#fff;
+  min-width:260px;
+  text-align:center;
+}
+.btn-input{
+  background:#0f766e;
+  box-shadow:0 0 20px rgba(15,118,110,.6);
+}
+.btn-dashboard{
+  background:#7c3aed;
+  box-shadow:0 0 20px rgba(124,58,237,.6);
+}
+.note{
+  background:#fef9c3;
+  padding:15px;
+  border-radius:14px;
+  font-weight:600;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🏥 Aplikasi Manajemen Keselamatan Pasien  
+<br>Versi Puskesmas</h1>
+
+<!-- TUJUAN -->
+<div class="section">
+<h2>🎯 Tujuan</h2>
+<ul>
+  <li>Menilai tingkat risiko keselamatan pasien di Puskesmas</li>
+  <li>Membantu Kepala Puskesmas dan Tim Mutu menentukan tindak lanjut</li>
+  <li>Mendukung akreditasi dan monitoring mutu pelayanan</li>
+</ul>
+</div>
+
+<!-- PETUNJUK -->
+<div class="section">
+<h2>📝 Petunjuk Pengisian</h2>
+<ol>
+  <li>Penilaian dilakukan oleh Tim Mutu / Penanggung Jawab UKP</li>
+  <li>Penilaian dilakukan secara objektif sesuai kondisi nyata</li>
+  <li>Setiap indikator dinilai dengan skor 1–5</li>
+  <li>Pilih skor yang paling menggambarkan kondisi pelayanan</li>
+  <li>Sistem akan menghitung skor, kategori risiko, dan rekomendasi otomatis</li>
+</ol>
+</div>
+
+<!-- INDIKATOR -->
+<div class="section">
+<h2>1️⃣ Indikator Keselamatan Pasien</h2>
+<ul>
+  <li>Identifikasi Pasien</li>
+  <li>Komunikasi Efektif Petugas</li>
+  <li>Keamanan Obat dan Resep</li>
+  <li>Pencegahan Infeksi (PPI)</li>
+  <li>Keselamatan Tindakan dan Prosedur</li>
+  <li>Pencegahan Risiko Jatuh</li>
+  <li>Pelaporan Insiden Keselamatan Pasien</li>
+</ul>
+</div>
+
+<!-- SKALA -->
+<div class="section">
+<h2>2️⃣ Skala Penilaian</h2>
+<table>
+<tr><th>Skor</th><th>Keterangan</th></tr>
+<tr><td>1</td><td>Tidak diterapkan</td></tr>
+<tr><td>2</td><td>Diterapkan sebagian</td></tr>
+<tr><td>3</td><td>Diterapkan cukup</td></tr>
+<tr><td>4</td><td>Diterapkan baik</td></tr>
+<tr><td>5</td><td>Diterapkan sangat baik</td></tr>
+</table>
+<p><b>Skor minimum:</b> 7 &nbsp;&nbsp; <b>Skor maksimum:</b> 35</p>
+</div>
+
+<!-- KATEGORI -->
+<div class="section">
+<h2>3️⃣ Kategori Risiko</h2>
+<table>
+<tr><th>Total Skor</th><th>Kategori</th><th>Status</th></tr>
+<tr><td>29 – 35</td><td>Risiko Rendah</td><td>🟢 Aman</td></tr>
+<tr><td>22 – 28</td><td>Risiko Sedang</td><td>🟡 Perlu Perbaikan</td></tr>
+<tr><td>15 – 21</td><td>Risiko Tinggi</td><td>🟠 Perlu Tindakan</td></tr>
+<tr><td>&lt; 15</td><td>Risiko Sangat Tinggi</td><td>🔴 Darurat Mutu</td></tr>
+</table>
+</div>
+
+<!-- REKOMENDASI -->
+<div class="section">
+<h2>4️⃣ Rekomendasi Hasil Penetapan Kategori</h2>
+<table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%">
+<tr>
+  <th style="width:20%">Kategori Risiko</th>
+  <th>Rekomendasi Tindak Lanjut</th>
+</tr>
+
+<tr>
+  <td>🟢 <b>Rendah</b></td>
+  <td>
+    <ul>
+      <li>Monitoring rutin melalui indikator mutu</li>
+      <li>Mempertahankan dan mensosialisasikan SOP yang berlaku</li>
+      <li>Evaluasi berkala pada rapat unit</li>
+      <li>Pencatatan dan pelaporan insiden ringan</li>
+      <li>Penguatan budaya keselamatan pasien</li>
+    </ul>
+  </td>
+</tr>
+
+<tr>
+  <td>🟡 <b>Sedang</b></td>
+  <td>
+    <ul>
+      <li>Review dan perbaikan SOP terkait</li>
+      <li>Supervisi langsung oleh penanggung jawab UKP</li>
+      <li>Analisis penyebab dasar (basic problem analysis)</li>
+      <li>Peningkatan pengawasan kepatuhan petugas</li>
+      <li>Sosialisasi ulang kebijakan dan prosedur</li>
+    </ul>
+  </td>
+</tr>
+
+<tr>
+  <td>🟠 <b>Tinggi</b></td>
+  <td>
+    <ul>
+      <li>Pelaksanaan rapat mutu dan keselamatan pasien</li>
+      <li>Pelatihan ulang petugas terkait</li>
+      <li>Audit internal terbatas pada unit terkait</li>
+      <li>Penyusunan rencana perbaikan (Corrective Action Plan)</li>
+      <li>Monitoring intensif oleh Tim Mutu</li>
+    </ul>
+  </td>
+</tr>
+
+<tr>
+  <td>🔴 <b>Sangat Tinggi</b></td>
+  <td>
+    <ul>
+      <li>Audit internal menyeluruh</li>
+      <li>Investigasi insiden mendalam (RCA)</li>
+      <li>Intervensi langsung pimpinan unit/fasilitas</li>
+      <li>Pembekuan sementara praktik berisiko</li>
+      <li>Pelaporan kepada manajemen dan Dinas Kesehatan (jika diperlukan)</li>
+      <li>Revisi kebijakan dan SOP secara struktural</li>
+    </ul>
+  </td>
+</tr>
+
+</table>
+
+</div>
+
+<div class="note">
+📌 Halaman berikutnya digunakan untuk pengisian data dan pemantauan grafik keselamatan pasien.
+</div>
+
+<!-- TOMBOL AKSI -->
+<div class="btn-wrap">
+  <a href="https://sakti-sdmk.blogspot.com/p/keselamatan-pasien-puskesmas-body-font.html" class="btn btn-input">
+    ➡️ Masuk Form Input Data
+  </a>
+  <a href="https://sakti-sdmk.blogspot.com/p/dashboard-keselamatan-pasien-body-font.html" class="btn btn-dashboard">
+    📊 Buka Dashboard Grafik
+  </a>
+</div>
+
+</div>
+
+</body>
+</html>
