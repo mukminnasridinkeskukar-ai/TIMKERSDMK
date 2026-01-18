@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sumber Daya Manusia Kesehatan</title>
+
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      margin: 0;
+      background: #f5f7fa;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 60px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 15px;
+      color: #0a4c8b;
+    }
+
+    .subtitle {
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto 50px;
+      color: #555;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+    }
+
+    .card span {
+      display: inline-block;
+      background: #e8f1fb;
+      color: #0a4c8b;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #0a4c8b;
+    }
+
+    .card p {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #555;
+    }
+
+    /* LIGHTBOX */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .lightbox-content {
+      background: #fff;
+      max-width: 850px;
+      width: 100%;
+      border-radius: 14px;
+      padding: 35px;
+      position: relative;
+      animation: zoomIn 0.3s ease;
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .lightbox-content h2 {
+      margin-top: 0;
+      color: #0a4c8b;
+    }
+
+    .lightbox-content p {
+      line-height: 1.8;
+      font-size: 16px;
+      color: #444;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 18px;
+      right: 22px;
+      font-size: 26px;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .close-btn:hover {
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Sumber Daya Manusia Kesehatan</h1>
+    <p class="subtitle">
+      Sumber Daya Manusia Kesehatan (SDMK) merupakan pilar utama dalam sistem kesehatan
+      yang menjamin terselenggaranya pelayanan kesehatan yang bermutu, aman, dan berkelanjutan.
+    </p>
+
+    <div class="card-grid">
+      <div class="card" onclick="openLightbox('who')">
+        <span>WHO</span>
+        <h3>Perspektif Global</h3>
+        <p>
+          SDM Kesehatan mencakup seluruh individu yang berkontribusi
+          dalam peningkatan derajat kesehatan masyarakat.
+        </p>
+      </div>
+
+      <div class="card" onclick="openLightbox('kemenkes')">
+        <span>KEMENKES RI</span>
+        <h3>Perspektif Nasional</h3>
+        <p>
+          SDM Kesehatan adalah penggerak utama sistem kesehatan nasional
+          dalam penyelenggaraan pelayanan kesehatan.
+        </p>
+      </div>
+
+      <div class="card" onclick="openLightbox('uu')">
+        <span>UU No. 17 Tahun 2023</span>
+        <h3>Landasan Hukum</h3>
+        <p>
+          Mengatur definisi, kewenangan, dan peran tenaga medis
+          serta tenaga kesehatan.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-content">
+      <span class="close-btn" onclick="closeLightbox()">×</span>
+      <div id="lightbox-body"></div>
+    </div>
+  </div>
+
+  <script>
+    function openLightbox(type) {
+      const body = document.getElementById("lightbox-body");
+
+      if (type === "who") {
+        body.innerHTML = `
+          <h2>Menurut World Health Organization (WHO)</h2>
+          <p>
+            SDM Kesehatan (Health Workforce atau Human Resources for Health)
+            adalah semua orang yang terlibat dalam kegiatan yang tujuan utamanya
+            meningkatkan hasil kesehatan masyarakat.
+          </p>
+          <p>
+            Tidak hanya tenaga medis seperti dokter, perawat, bidan, dan apoteker,
+            tetapi juga tenaga kesehatan lain seperti teknisi laboratorium,
+            petugas kesehatan masyarakat, pekerja kesehatan komunitas,
+            serta staf pendukung dan manajemen.
+          </p>
+        `;
+      }
+
+      if (type === "kemenkes") {
+        body.innerHTML = `
+          <h2>Menurut Kementerian Kesehatan Republik Indonesia</h2>
+          <p>
+            SDM Kesehatan merupakan faktor penggerak utama dalam sistem kesehatan
+            yang meliputi tenaga kesehatan profesional dan tenaga pendukung lainnya.
+          </p>
+          <p>
+            SDM Kesehatan berperan penting untuk memastikan pelayanan kesehatan
+            yang bermutu, terencana, dan terdistribusi secara adil
+            sesuai kebutuhan masyarakat.
+          </p>
+        `;
+      }
+
+      if (type === "uu") {
+        body.innerHTML = `
+          <h2>Menurut UU No. 17 Tahun 2023 tentang Kesehatan</h2>
+          <p>
+            Sumber Daya Manusia Kesehatan adalah setiap orang yang bekerja secara aktif
+            di bidang kesehatan, baik yang memiliki pendidikan formal kesehatan
+            maupun tidak, yang untuk jenis tertentu memerlukan kewenangan
+            dalam melakukan upaya kesehatan.
+          </p>
+          <p>
+            <strong>Tenaga Medis</strong> adalah tenaga yang memiliki pendidikan profesi
+            kedokteran atau kedokteran gigi serta kewenangan melakukan upaya kesehatan.
+          </p>
+          <p>
+            <strong>Tenaga Kesehatan</strong> adalah tenaga yang memiliki pendidikan tinggi
+            di bidang kesehatan dan kewenangan tertentu dalam pelayanan kesehatan.
+          </p>
+        `;
+      }
+
+      document.getElementById("lightbox").style.display = "flex";
+    }
+
+    function closeLightbox() {
+      document.getElementById("lightbox").style.display = "none";
+    }
+  </script>
+
+</body>
+</html>
