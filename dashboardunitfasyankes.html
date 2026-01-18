@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Profil Fasyankes</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<style>
+body{margin:0;font-family:Segoe UI,Arial;background:#f8fafc}
+.container{max-width:1200px;margin:auto;padding:20px}
+h2{margin-bottom:12px}
+
+/* FILTER */
+.filter{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:10px;margin-bottom:16px
+}
+.filter input,.filter select{
+  padding:10px;border-radius:10px;border:1px solid #cbd5f5
+}
+
+/* GRID CARD */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:16px
+}
+.card{
+  color:#fff;padding:18px;border-radius:16px;cursor:pointer;
+  font-weight:600;box-shadow:0 10px 28px rgba(0,0,0,.25);
+  transition:.25s
+}
+.card:hover{transform:translateY(-6px) scale(1.02)}
+
+/* PAGINATION */
+.pagination{
+  margin:20px 0;display:flex;justify-content:center;gap:8px
+}
+.pagination button{
+  padding:8px 12px;border:none;border-radius:8px;
+  background:#e5e7eb;cursor:pointer
+}
+.pagination button.active{background:#2563eb;color:#fff}
+
+/* LIGHTBOX */
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.78);
+  backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;z-index:9999
+}
+.modal.show{display:flex}
+.modal-content{
+  background:#fff;width:94%;max-width:1000px;max-height:90vh;
+  overflow:auto;border-radius:22px;padding:22px;position:relative;
+  animation:popup .35s ease
+}
+@keyframes popup{
+  from{opacity:0;transform:scale(.92) translateY(20px)}
+  to{opacity:1;transform:scale(1) translateY(0)}
+}
+.close{
+  position:absolute;top:14px;right:18px;font-size:22px;cursor:pointer
+}
+
+/* 5 BOX */
+.detail-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:14px;margin-top:14px
+}
+.box{
+  padding:16px;border-radius:18px;
+  box-shadow:0 10px 25px rgba(0,0,0,.18);
+  animation:fadeUp .4s ease both
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.box h4{margin:0 0 10px;font-size:15px;font-weight:800}
+.box p{margin:4px 0;font-size:14px}
+
+/* WARNA */
+.bg1{background:linear-gradient(135deg,#dbeafe,#93c5fd)}
+.bg2{background:linear-gradient(135deg,#dcfce7,#4ade80)}
+.bg3{background:linear-gradient(135deg,#fef3c7,#fbbf24)}
+.bg4{background:linear-gradient(135deg,#fae8ff,#f472b6)}
+.bg5{background:linear-gradient(135deg,#e0f2fe,#38bdf8)}
+
+#map{
+  margin-top:18px;
+  background:#f1f5f9;
+  border-radius:18px;
+  padding:18px;
+  text-align:center
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h2>📍 Infografis Layanan Publik Bidang Kesehatan di Kutai Kartanegara</h2>
+
+  <div class="filter">
+    <input id="search" placeholder="Cari nama / kecamatan">
+    <select id="tipe"><option value="">Semua Tipe</option></select>
+    <select id="jenis"><option value="">Semua Jenis</option></select>
+  </div>
+
+  <div id="list" class="grid"></div>
+  <div id="pagination" class="pagination"></div>
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">✖</span>
+    <h3 id="nama"></h3>
+    <div id="detail"></div>
+    <div id="map"></div>
+  </div>
+</div>
+
+<script>
+const URL="https://script.google.com/macros/s/AKfycbzGcLC6BsC2Gjfv8JzYBhwbk7r5IvrFdF_NLizxsOS0XdpQwNz0Wx2E0czvFQW1lu0T/exec";
+const PER_PAGE=20;
+let DATA=[],page=1;
+
+fetch(URL).then(r=>r.json()).then(j=>{
+  DATA=j.map(d=>({
+    nama:d["Nama Fasyankes/ TPM"]||"",
+    kec:d["Kecamatan"]||"",
+    tipe:d["Tipe"]||"",
+    jenis:d["Jenis"]||"",
+    mapLink:d["Link Google Maps"]||"",
+    raw:d
+  }));
+  initFilter();render();
+});
+
+function initFilter(){
+  [...new Set(DATA.map(d=>d.tipe).filter(Boolean))]
+    .forEach(v=>tipe.innerHTML+=`<option>${v}</option>`);
+  [...new Set(DATA.map(d=>d.jenis).filter(Boolean))]
+    .forEach(v=>jenis.innerHTML+=`<option>${v}</option>`);
+}
+
+function render(){
+  list.innerHTML="";pagination.innerHTML="";
+  const q=search.value.toLowerCase();
+  const filtered=DATA.filter(d=>
+    (!q||(d.nama+d.kec).toLowerCase().includes(q)) &&
+    (!tipe.value||d.tipe===tipe.value) &&
+    (!jenis.value||d.jenis===jenis.value)
+  );
+  const pages=Math.ceil(filtered.length/PER_PAGE);
+  const start=(page-1)*PER_PAGE;
+  filtered.slice(start,start+PER_PAGE).forEach((d,i)=>{
+    const div=document.createElement("div");
+    div.className="card";
+    div.style.background=[
+      "linear-gradient(135deg,#2563eb,#60a5fa)",
+      "linear-gradient(135deg,#22c55e,#4ade80)",
+      "linear-gradient(135deg,#f59e0b,#fbbf24)",
+      "linear-gradient(135deg,#ec4899,#fb7185)"
+    ][i%4];
+    div.innerHTML=`${d.nama}<br><small>${d.kec}</small>`;
+    div.onclick=()=>openModal(d.raw,d.mapLink);
+    list.appendChild(div);
+  });
+  if(pages>1){
+    for(let i=1;i<=pages;i++){
+      const b=document.createElement("button");
+      b.textContent=i;if(i===page)b.classList.add("active");
+      b.onclick=()=>{page=i;render()};
+      pagination.appendChild(b);
+    }
+  }else pagination.innerHTML=`<small>Total ${filtered.length} data</small>`;
+}
+
+search.oninput=()=>{page=1;render()};
+tipe.onchange=jenis.onchange=()=>{page=1;render()};
+
+function openModal(d,mapLink){
+  modal.classList.add("show");
+  nama.innerText=d["Nama Fasyankes/ TPM"];
+
+  detail.innerHTML=`
+  <div class="detail-grid">
+    <div class="box bg1"><h4>🏥 Identitas</h4>
+      <p>${d["Nama Fasyankes/ TPM"]||"-"}</p>
+      <p>SISDMK: ${d["Kode SISDMK"]||"-"}</p>
+    </div>
+    <div class="box bg2"><h4>📍 Lokasi</h4>
+      <p>${d["Alamat"]||"-"}</p>
+      <p>${d["Kecamatan"]||"-"}</p>
+    </div>
+    <div class="box bg3"><h4>🏷️ Klasifikasi</h4>
+      <p>${d["Tipe"]||"-"} / ${d["Jenis"]||"-"}</p>
+    </div>
+    <div class="box bg4"><h4>📄 Perizinan</h4>
+      <p>${d["Nomor Izin"]||"-"}</p>
+    </div>
+    <div class="box bg5"><h4>☎️ Kontak</h4>
+      <p>${d["Nomor Telpon"]||"-"}</p>
+    </div>
+  </div>`;
+
+  const map=document.getElementById("map");
+  if(mapLink){
+    map.innerHTML=`
+      <a href="${mapLink}" target="_blank"
+         style="display:inline-block;background:#2563eb;color:#fff;
+                padding:10px 16px;border-radius:12px;
+                text-decoration:none;font-weight:700">
+        📍 Buka Lokasi di Google Maps
+      </a>`;
+  }else{
+    map.innerHTML="<i>Link Google Maps belum tersedia</i>";
+  }
+}
+
+function closeModal(){
+  modal.classList.remove("show");
+}
+</script>
+</body>
+</html>
