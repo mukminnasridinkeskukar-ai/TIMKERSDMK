@@ -1,221 +1,107 @@
-coba di full kan skrip nya <div class="wrap">
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Form Pendaftaran SDMK</title>
+<style>
+body{font-family:Arial;background:#f4f6f9}
+form{max-width:800px;margin:20px auto;background:#fff;padding:20px;border-radius:8px}
+label{font-weight:bold}
+input,select{width:100%;padding:8px;margin:6px 0 12px}
+.radio-group{display:flex;gap:20px}
+.progress{background:#ddd;border-radius:20px;overflow:hidden;margin:15px 0}
+.progress-bar{height:20px;background:#28a745;width:0%}
+button{background:#007bff;color:#fff;padding:10px;border:none;width:100%;font-size:16px}
+</style>
+</head>
+<body>
 
-  <!-- HEADER JADWAL + TOMBOL DAFTAR -->
-  <div class="jadwal-header">
-    <h2>📅 Jadwal Kegiatan Terintegrasi</h2>
+<form id="daftarForm">
+<h2>Pendaftaran Kegiatan SDMK</h2>
 
-    <a href="formdaftarsipandaiasn.html" class="btn-daftar">
-      <span class="btn-icon">📝</span>
-      <span class="btn-text">Daftar Sekarang</span>
-      <span class="btn-glow"></span>
-    </a>
-  </div>
+<label>Nama Lengkap</label>
+<input required name="nama">
 
-  <!-- FILTER -->
-  <div class="filter">
-    <input type="date" id="searchTanggal">
-    <select id="filterBulan">
-      <option value="">Semua Bulan</option>
-    </select>
-    <input id="filterTema" placeholder="Filter Tema">
-    <select id="filterJP">
-      <option value="">Semua JP</option>
-      <option value="<=2">≤ 2 JP</option>
-      <option value="3-6">3 - 6 JP</option>
-      <option value=">6">> 6 JP</option>
-    </select>
-  </div>
+<label>NIP</label>
+<input required name="nip">
 
-  <!-- LIST -->
-  <div id="list"></div>
+<label>Unit Kerja</label>
+<input required name="unit">
+
+<label>Status Pegawai</label>
+<div class="radio-group">
+<label><input type="radio" name="status" value="PNS" required> PNS</label>
+<label><input type="radio" name="status" value="PPPK"> PPPK</label>
 </div>
 
-<style>
-/* ================= WRAPPER ================= */
-.wrap{
-  max-width:1200px;
-  margin:auto;
-  font-family:Segoe UI,Arial;
-  padding:10px;
-}
+<label>Jenis SDMK</label>
+<input required name="jenis">
 
-/* ================= HEADER ================= */
-.jadwal-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  flex-wrap:wrap;
-  margin-bottom:10px;
-}
-.jadwal-header h2{
-  margin:0;
-}
+<label>Jumlah JP Terakhir</label>
+<input type="number" required name="jp_terakhir">
 
-/* ================= TOMBOL DAFTAR ================= */
-.btn-daftar{
-  position:relative;
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:12px 20px;
-  border-radius:999px;
-  background:linear-gradient(135deg,#2563eb,#1e40af);
-  color:#fff;
-  text-decoration:none;
-  font-weight:700;
-  overflow:hidden;
-  box-shadow:0 10px 30px rgba(37,99,235,.35);
-  transition:transform .25s ease, box-shadow .25s ease;
-}
+<label>Tema Pembelajaran</label>
+<input required name="tema">
 
-/* glow animasi */
-.btn-daftar::before{
-  content:"";
-  position:absolute;
-  inset:-2px;
-  border-radius:inherit;
-  background:linear-gradient(120deg,#60a5fa,#2563eb,#22c55e);
-  filter:blur(10px);
-  opacity:.6;
-  z-index:-1;
-  animation:glow 3s linear infinite;
-}
+<label>Tanggal Kegiatan</label>
+<input type="date" required name="tanggal">
 
-@keyframes glow{
-  0%{filter:blur(10px) hue-rotate(0deg)}
-  100%{filter:blur(10px) hue-rotate(360deg)}
-}
+<label>Jumlah JP</label>
+<input type="number" required name="jp">
 
-.btn-daftar:hover{
-  transform:translateY(-3px) scale(1.03);
-  box-shadow:0 18px 45px rgba(37,99,235,.5);
-}
+<label>Platform Digital</label>
+<div class="radio-group">
+<label><input type="radio" name="platform" value="Zoom" required> Zoom</label>
+<label><input type="radio" name="platform" value="Youtube"> Youtube</label>
+</div>
 
-.btn-daftar:active{
-  transform:scale(.96);
-}
+<label>Whatsapp / Telpon</label>
+<input required name="wa">
 
-.btn-icon{
-  font-size:18px;
-  animation:pulse 2s infinite;
-}
+<label>Email Aktif</label>
+<input type="email" required name="email">
 
-@keyframes pulse{
-  0%,100%{transform:scale(1)}
-  50%{transform:scale(1.15)}
-}
+<div class="progress">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
 
-/* ================= FILTER ================= */
-.filter{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-  gap:8px;
-  margin-bottom:15px;
-}
-.filter input,.filter select{
-  padding:8px;
-  border-radius:8px;
-  border:1px solid #ddd;
-}
-
-/* ================= CARD ================= */
-.card{
-  background:#fff;
-  border-radius:16px;
-  padding:14px;
-  margin-bottom:12px;
-  box-shadow:0 8px 18px rgba(0,0,0,.08);
-  animation:fade .4s ease;
-}
-@keyframes fade{
-  from{opacity:0;transform:translateY(12px)}
-}
-
-/* ================= BADGE ================= */
-.badge{
-  display:inline-block;
-  padding:4px 12px;
-  border-radius:20px;
-  background:#3b82f6;
-  color:#fff;
-  font-size:12px;
-  margin-right:6px;
-}
-.jp{
-  background:#22c55e;
-}
-small{color:#555}
-
-/* ================= RESPONSIF ================= */
-@media(max-width:600px){
-  .jadwal-header{
-    flex-direction:column;
-    align-items:flex-start;
-  }
-  .btn-daftar{
-    width:100%;
-    justify-content:center;
-  }
-}
-</style>
+<button type="submit">DAFTAR</button>
+<p id="notif"></p>
+</form>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbzo5p7P7xO-nHvM1bb08BUyWbAbwNMn4VaE-eWz0oj4UDowA04MvECa-5CG0IbVV6LNuQ/exec";
-let DATA = [];
+const form = document.getElementById("daftarForm");
+const notif = document.getElementById("notif");
+const bar = document.getElementById("progressBar");
 
-fetch(API).then(r=>r.json()).then(res=>{
-  DATA = res;
-  isiBulan();
-  render(DATA);
+form.addEventListener("submit", e => {
+  e.preventDefault();
+  bar.style.width = "50%";
+  notif.innerHTML = "Mengirim data...";
+
+  const data = Object.fromEntries(new FormData(form));
+
+  fetch("https://script.google.com/macros/s/AKfycbzhVt_Hekgrp1pO0Z5UPAxRtIz-IxV7FWV1XLfkYnhOMbCkJbnT7rIhrc_1-rWEyaRFGA/exec", {
+    method: "POST",
+    body: JSON.stringify(data)
+  })
+  .then(r => r.json())
+  .then(res => {
+    if(res.status==="success"){
+      bar.style.width = "100%";
+      notif.innerHTML = "✅ Pendaftaran berhasil";
+      form.reset();
+    }else{
+      bar.style.width = "0%";
+      notif.innerHTML = "❌ " + res.message;
+    }
+  })
+  .catch(()=>{
+    bar.style.width = "0%";
+    notif.innerHTML = "❌ Gagal koneksi";
+  });
 });
-
-function isiBulan(){
-  const bulan = [...new Set(DATA.map(d=>d.bulan))];
-  const sel = document.getElementById("filterBulan");
-  bulan.forEach(b=>{
-    sel.innerHTML += `<option value="${b}">${b}</option>`;
-  });
-}
-
-document.querySelectorAll("input,select")
-.forEach(el=>el.oninput=filter);
-
-function filter(){
-  const tgl = searchTanggal.value;
-  const bln = filterBulan.value.toLowerCase();
-  const tema = filterTema.value.toLowerCase();
-  const jp = filterJP.value;
-
-  const f = DATA.filter(d=>{
-    return (!tgl || d.tanggal==tgl) &&
-           (!bln || d.bulan.toLowerCase()==bln) &&
-           (!tema || d.tema.toLowerCase().includes(tema)) &&
-           cekJP(d.total,jp);
-  });
-  render(f);
-}
-
-function cekJP(val,rule){
-  if(!rule) return true;
-  if(rule=="<=2") return val<=2;
-  if(rule=="3-6") return val>=3 && val<=6;
-  if(rule==">6") return val>6;
-}
-
-function render(arr){
-  list.innerHTML = arr.map(d=>`
-    <div class="card">
-      <span class="badge">${d.bulan}</span>
-      <span class="badge jp">${d.total} JP</span>
-      <h3>${d.tema}</h3>
-      <small>📅 ${d.tanggal} | 💻 ${d.platform}</small>
-      <ul>
-        ${d.n1?`<li><b>${d.n1}</b> – ${d.j1} (${d.jp1} JP)</li>`:''}
-        ${d.n2?`<li><b>${d.n2}</b> – ${d.j2} (${d.jp2} JP)</li>`:''}
-        ${d.n3?`<li><b>${d.n3}</b> – ${d.j3} (${d.jp3} JP)</li>`:''}
-      </ul>
-    </div>
-  `).join('');
-}
 </script>
+
+</body>
+</html>
