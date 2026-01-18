@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Beasiswa Tematik SDM Kesehatan</title>
+
+<style>
+body{
+    font-family:Segoe UI,Arial,sans-serif;
+    background:#f4f7fb;
+    margin:0;
+    color:#333
+}
+.container{
+    max-width:1200px;
+    margin:auto;
+    padding:20px
+}
+.header{
+    background:linear-gradient(135deg,#0d6efd,#198754);
+    color:#fff;
+    padding:20px;
+    border-radius:10px;
+    text-align:center
+}
+
+/* FILTER */
+.filters{
+    background:#fff;
+    margin-top:20px;
+    padding:15px;
+    border-radius:10px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:10px
+}
+input,select,button{
+    padding:10px;
+    width:100%
+}
+button{
+    border:none;
+    border-radius:6px;
+    font-weight:bold;
+    cursor:pointer
+}
+.reset-btn{
+    background:#6c757d;
+    color:#fff
+}
+
+/* ACTION BAR */
+.action-bar{
+    margin:25px 0;
+    display:flex;
+    justify-content:center
+}
+.daftar-btn{
+    background:#000;
+    color:#fff;
+    padding:14px 28px;
+    border-radius:10px;
+    font-weight:bold;
+    text-decoration:none;
+    font-size:16px
+}
+.daftar-btn:hover{background:#222}
+
+/* TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+    background:#fff;
+    border-radius:10px;
+    overflow:hidden
+}
+th,td{
+    padding:10px;
+    border-bottom:1px solid #ddd;
+    font-size:14px;
+    text-align:left
+}
+th{
+    background:#0d6efd;
+    color:#fff
+}
+tr:hover{background:#f1f5ff}
+
+/* STATUS BADGE */
+.alert{
+    display:inline-block;
+    min-width:80px;
+    text-align:center;
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:bold;
+    color:#fff
+}
+.alert-green{background:#198754}
+.alert-red{
+    background:#dc3545;
+    cursor:pointer
+}
+
+/* MODAL */
+.modal{
+    display:none;
+    position:fixed;
+    z-index:999;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.5)
+}
+.modal-content{
+    background:#fff;
+    margin:8% auto;
+    padding:20px;
+    max-width:500px;
+    border-radius:10px
+}
+.close{
+    float:right;
+    font-size:20px;
+    cursor:pointer;
+    color:#999
+}
+
+.footer{
+    text-align:center;
+    font-size:13px;
+    margin-top:20px;
+    color:#666
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+<h2>Dashboard Data Beasiswa Tematik SDM Kesehatan<br>Kabupaten Kutai Kartanegara</h2>
+</div>
+
+<!-- PETUNJUK PENGGUNAAN -->
+<div class="instructions">
+<b>Cara Pakai Dashboard:</b>
+<ol>
+<li>Cek status beasiswa di tabel. Badge <span style="color:#198754;">KOSONG</span> menandakan slot tersedia, <span style="color:#dc3545;">TERISI</span> menandakan sudah diisi.</li>
+<li>Gunakan filter untuk mencari Jurusan, Kampus, Tahun Mulai Studi, Tujuan Penempatan, dan Status.</li>
+<li>Pilih slot <b>KOSONG</b> yang sesuai dengan Jurusan yang anda inginkan dan Unit Pengusul/Pendayaguna paska pendidikan.</li>
+<li>Klik tombol <b>📝 PENDAFTARAN BEASISWA</b> untuk mengisi form pendaftaran.</li>
+<li>Isi semua data di form sesuai petunjuk dan submit untuk mendaftar.</li>
+</ol>
+</div>
+  
+<!-- FILTER -->
+<div class="filters">
+<input type="text" id="searchJurusan" placeholder="Cari Jurusan">
+
+<select id="filterKampus">
+<option value="">Semua Kampus Pelaksana</option>
+</select>
+
+<select id="filterTahun">
+<option value="">Semua Tahun Mulai</option>
+</select>
+
+<select id="filterPenempatan">
+<option value="">Semua Tujuan Penempatan</option>
+<option>RSUD AM Parikesit</option>
+<option>RSUD Aji Batara Agung Dewa Sakti</option>
+<option>RSUD Dayaku Raja</option>
+<option>RSUD Aji Muhammad Idris</option>
+<option>Puskesmas Kahala</option>
+<option>Puskesmas Kembang Janggut</option>
+<option>Puskesmas Tabang</option>
+<option>Puskesmas Ritan Baru</option>
+<option>Dinas Kesehatan dan Puskesmas</option>
+</select>
+
+<select id="filterStatus">
+<option value="">Semua Status</option>
+<option value="KOSONG">KOSONG</option>
+<option value="TERISI">TERISI</option>
+</select>
+
+<button class="reset-btn" onclick="resetFilter()">🔄 Reset</button>
+</div>
+
+<!-- BUTTON -->
+<div class="action-bar">
+<a href="https://simandakes.blogspot.com/p/pendaftaran-beasiswa-tematik-sdm.html"
+   target="_blank"
+   class="daftar-btn">
+📝 PENDAFTARAN BEASISWA
+</a>
+</div>
+
+<!-- TABLE -->
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Jurusan</th>
+<th>Jenis Pendidikan</th>
+<th>Kampus Pelaksana</th>
+<th>Status Calon</th>
+<th>Tahun Mulai</th>
+<th>Tujuan Penempatan</th>
+<th>Keterangan</th>
+</tr>
+</thead>
+<tbody id="dataBody">
+<tr><td colspan="8">⏳ Memuat data...</td></tr>
+</tbody>
+</table>
+
+<div class="footer">
+© 2025 Dashboard SDM Kesehatan
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div id="detailModal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closeModal()">×</span>
+<h3>Detail Data Beasiswa</h3>
+<div id="modalBody"></div>
+</div>
+</div>
+
+<script>
+const scriptURL="https://script.google.com/macros/s/AKfycbxu-FMVtYOUKplVnGoMwI5qXdNwSbR2iRQAnpQtwrbPS4EeNhbekrcYZY7ZCcRJHNqd/exec";
+let allData=[];
+
+fetch(scriptURL)
+.then(res=>res.json())
+.then(data=>{
+    allData=data;
+    populateFilters(data);
+    renderTable(data);
+});
+
+function populateFilters(data){
+    const kampus=new Set(), tahun=new Set();
+    data.forEach(d=>{
+        kampus.add(d.kampus);
+        tahun.add(d.tahun);
+    });
+    kampus.forEach(k=>filterKampus.innerHTML+=`<option>${k}</option>`);
+    [...tahun].sort().forEach(t=>filterTahun.innerHTML+=`<option>${t}</option>`);
+}
+
+document.querySelectorAll(
+"#searchJurusan,#filterKampus,#filterTahun,#filterPenempatan,#filterStatus"
+).forEach(el=>el.addEventListener("input",applyFilter));
+
+function applyFilter(){
+    const jurusan=searchJurusan.value.toLowerCase();
+    const kampus=filterKampus.value;
+    const tahun=filterTahun.value;
+    const penempatan=filterPenempatan.value;
+    const status=filterStatus.value;
+
+    const filtered=allData.filter(d=>{
+        const ket=(d.keterangan||"").toLowerCase();
+        const isKosong=ket.includes("kosong");
+
+        return(
+            d.jurusan.toLowerCase().includes(jurusan) &&
+            (kampus===""||d.kampus===kampus) &&
+            (tahun===""||String(d.tahun)===String(tahun)) &&
+            (penempatan===""||d.penempatan===penempatan) &&
+            (status==="" ||
+             (status==="KOSONG" && isKosong) ||
+             (status==="TERISI" && !isKosong))
+        );
+    });
+    renderTable(filtered);
+}
+
+function renderTable(data){
+    dataBody.innerHTML="";
+    if(!data.length){
+        dataBody.innerHTML=`<tr><td colspan="8">Data tidak ditemukan</td></tr>`;
+        return;
+    }
+
+    data.forEach(d=>{
+        const ket=(d.keterangan||"").toLowerCase();
+        const isKosong=ket.includes("kosong");
+
+        const badge=isKosong
+        ? `<span class="alert alert-green">KOSONG</span>`
+        : `<span class="alert alert-red"
+              onclick='openModal(${JSON.stringify(d)})'>
+              TERISI
+           </span>`;
+
+        dataBody.innerHTML+=`
+        <tr>
+            <td>${badge}</td>
+            <td>${d.jurusan||'-'}</td>
+            <td>${d.pendidikan||'-'}</td>
+            <td>${d.kampus||'-'}</td>
+            <td>${d.status||'-'}</td>
+            <td>${d.tahun||'-'}</td>
+            <td>${d.penempatan||'-'}</td>
+            <td>${d.keterangan||'-'}</td>
+        </tr>`;
+    });
+}
+
+function openModal(d){
+    modalBody.innerHTML=`
+    <b>Jurusan:</b> ${d.jurusan}<br>
+    <b>Jenis Pendidikan:</b> ${d.pendidikan}<br>
+    <b>Kampus:</b> ${d.kampus}<br>
+    <b>Status Calon:</b> ${d.status}<br>
+    <b>Tahun Mulai:</b> ${d.tahun}<br>
+    <b>Tujuan Penempatan:</b> ${d.penempatan}<br>
+    <b>Keterangan:</b> ${d.keterangan}
+    `;
+    detailModal.style.display="block";
+}
+function closeModal(){detailModal.style.display="none";}
+function resetFilter(){
+    searchJurusan.value="";
+    filterKampus.value="";
+    filterTahun.value="";
+    filterPenempatan.value="";
+    filterStatus.value="";
+    renderTable(allData);
+}
+</script>
+
+</body>
+</html>
