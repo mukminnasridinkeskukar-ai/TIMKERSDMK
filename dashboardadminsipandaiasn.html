@@ -18,11 +18,27 @@ body{
   border-radius:14px;
   box-shadow:0 10px 25px rgba(0,0,0,.08);
 }
-h2{text-align:center;margin-bottom:20px}
+h2{text-align:center;margin-bottom:10px}
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+.logout{
+  padding:8px 14px;
+  border:none;
+  border-radius:10px;
+  background:#dc3545;
+  color:#fff;
+  cursor:pointer;
+  font-weight:600;
+}
 .cards{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
   gap:15px;
+  margin-bottom:20px;
 }
 .card{
   background:#f8f9fa;
@@ -35,8 +51,8 @@ h2{text-align:center;margin-bottom:20px}
 
 input{
   padding:10px;
-  width:300px;
-  margin:20px 0;
+  width:320px;
+  margin-bottom:15px;
   border-radius:8px;
   border:1px solid #ccc;
 }
@@ -44,7 +60,6 @@ input{
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:15px;
 }
 th,td{
   padding:10px;
@@ -56,9 +71,22 @@ th{background:#f1f1f1}
 </head>
 
 <body>
+
+<script>
+/* =========================
+   PROTEKSI LOGIN
+   ========================= */
+if (localStorage.getItem("admin_login") !== "true") {
+  window.location.href = "login-dashboard.html";
+}
+</script>
+
 <div class="container">
 
-<h2>Dashboard Admin Pendaftaran</h2>
+<div class="topbar">
+  <h2>Dashboard Admin Pendaftaran</h2>
+  <button class="logout" onclick="logout()">Logout</button>
+</div>
 
 <div class="cards">
   <div class="card">
@@ -75,7 +103,7 @@ th{background:#f1f1f1}
   </div>
 </div>
 
-<input type="text" id="search" placeholder="Cari nama / NIP / unit...">
+<input type="text" id="search" placeholder="Cari nama / NIP / unit / tema...">
 
 <table>
 <thead>
@@ -95,100 +123,64 @@ th{background:#f1f1f1}
 </div>
 
 <script>
-/* =========================
-   LOGIN GLOBAL (SIMPLE)
-   ========================= */
-if (localStorage.getItem("admin_login") !== "true") {
-  window.location.href = "dashboardadminsipandaiasn.html";
-}
-
-/* =========================
-   KONFIGURASI
-   ========================= */
 const SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbxaZbKSnm3Q36qCC-TVO7N6U3dUac5-LK2HCb-CWEG_nL5P6QB519KAy5YF-0nuhuS8Qw/exec?action=admin";
+"https://script.google.com/macros/s/AKfycbxaZbKSnm3Q36qCC-TVO7N6U3dUac5-LK2HCb-CWEG_nL5P6QB519KAy5YF-0nuhuS8Qw/exec?action=admin";
 
-/* =========================
-   LOAD DASHBOARD
-   ========================= */
 let dataGlobal = [];
 
-async function loadDashboard() {
+async function loadDashboard(){
   const res = await fetch(SCRIPT_URL);
   const data = await res.json();
-
-  if (!Array.isArray(data)) {
-    console.error("Data bukan array:", data);
-    return;
-  }
+  if(!Array.isArray(data)) return;
 
   dataGlobal = data;
 
-  // TOTAL
-  document.getElementById("total").innerText = data.length;
-
-  // HITUNG PLATFORM (ANTI KOSONG / VARIASI)
-  const zoom = data.filter(d =>
-    (d["Platform Digital"] || "").toLowerCase().includes("zoom")
+  total.innerText = data.length;
+  zoom.innerText = data.filter(d =>
+    (d["Platform Digital"]||"").toLowerCase().includes("zoom")
   ).length;
-
-  const youtube = data.filter(d =>
-    (d["Platform Digital"] || "").toLowerCase().includes("youtube")
+  youtube.innerText = data.filter(d =>
+    (d["Platform Digital"]||"").toLowerCase().includes("youtube")
   ).length;
-
-  document.getElementById("zoom").innerText = zoom;
-  document.getElementById("youtube").innerText = youtube;
 
   renderTable(data);
 }
 
-/* =========================
-   RENDER TABEL
-   ========================= */
-function renderTable(data) {
-  const tbody = document.getElementById("tbody");
-  tbody.innerHTML = "";
-
-  data.forEach(d => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${d["Nama Lengkap"] || "-"}</td>
-      <td>${d["NIP"] || "-"}</td>
-      <td>${d["Unit Kerja"] || "-"}</td>
-      <td>${d["Status Pegawai"] || "-"}</td>
-      <td>${d["Jenis SDMK"] || "-"}</td>
-      <td>${d["Tema Pembelajaran"] || "-"}</td>
-      <td>${d["Platform Digital"] || "-"}</td>
+function renderTable(data){
+  tbody.innerHTML="";
+  data.forEach(d=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${d["Nama Lengkap"]||"-"}</td>
+      <td>${d["NIP"]||"-"}</td>
+      <td>${d["Unit Kerja"]||"-"}</td>
+      <td>${d["Status Pegawai"]||"-"}</td>
+      <td>${d["Jenis SDMK"]||"-"}</td>
+      <td>${d["Tema Pembelajaran"]||"-"}</td>
+      <td>${d["Platform Digital"]||"-"}</td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-/* =========================
-   SEARCH REALTIME
-   ========================= */
-document.getElementById("search").addEventListener("input", e => {
-  const q = e.target.value.toLowerCase();
-
-  const hasil = dataGlobal.filter(d =>
-    (d["Nama Lengkap"] || "").toLowerCase().includes(q) ||
-    (d["NIP"] || "").toLowerCase().includes(q) ||
-    (d["Unit Kerja"] || "").toLowerCase().includes(q) ||
-    (d["Tema Pembelajaran"] || "").toLowerCase().includes(q)
-  );
-
-  renderTable(hasil);
+search.addEventListener("input",()=>{
+  const q=search.value.toLowerCase();
+  renderTable(dataGlobal.filter(d=>
+    (d["Nama Lengkap"]||"").toLowerCase().includes(q)||
+    (d["NIP"]||"").toLowerCase().includes(q)||
+    (d["Unit Kerja"]||"").toLowerCase().includes(q)||
+    (d["Tema Pembelajaran"]||"").toLowerCase().includes(q)
+  ));
 });
 
-/* =========================
-   INIT
-   ========================= */
+function logout(){
+  if(confirm("Yakin ingin logout?")){
+    localStorage.removeItem("admin_login");
+    location.href="login-dashboard.html";
+  }
+}
+
 loadDashboard();
-
-
-localStorage.removeItem("admin_login");
-location.href="login-dashboard.html";
- 
 </script>
 
 </body>
