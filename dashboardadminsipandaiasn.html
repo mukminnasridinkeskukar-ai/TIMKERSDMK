@@ -2,9 +2,8 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Admin SIPANDAI-ASN</title>
+<title>SIPANDAI-ASN Admin</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-
 <style>
 body{font-family:Arial;background:#f4f6fb;padding:30px}
 .box{max-width:420px;margin:auto;background:#fff;padding:25px;border-radius:12px}
@@ -20,7 +19,6 @@ th{background:#eef2ff}
 
 <body>
 
-<!-- LOGIN -->
 <div id="loginBox" class="box hidden">
   <h3>🔐 Login Admin SIPANDAI-ASN</h3>
   <input id="username" placeholder="Email">
@@ -29,7 +27,6 @@ th{background:#eef2ff}
   <div id="msg" style="color:red"></div>
 </div>
 
-<!-- DASHBOARD -->
 <div id="dashboard" class="hidden">
   <div class="top">
     <h2>📊 Dashboard Admin</h2>
@@ -53,50 +50,42 @@ th{background:#eef2ff}
 </div>
 
 <script>
-/******** CONFIG ********/
-const SCRIPT_URL = "const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0xk98tQgWh45akK5a_sodtjGTLrr_7Ndm0w0LJSm3Eg5RkvLjRQ959fJCwY1TDfRK/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0xk98tQgWh45akK5a_sodtjGTLrr_7Ndm0w0LJSm3Eg5RkvLjRQ959fJCwY1TDfRK/exec";
 const TOKEN = "SIPANDAI_ADMIN_2026";
 
 const loginBox = document.getElementById("loginBox");
 const dashboard = document.getElementById("dashboard");
 
-/******** INIT ********/
 if(localStorage.getItem("ADMIN_TOKEN") === TOKEN){
   showDashboard();
 }else{
   loginBox.classList.remove("hidden");
 }
 
-/******** LOGIN ********/
 function login(){
-  msg.innerText = "Memverifikasi...";
+  msg.innerText="Memverifikasi...";
+
+  const form = new URLSearchParams();
+  form.append("action","login");
+  form.append("username",username.value);
+  form.append("password",password.value);
 
   fetch(SCRIPT_URL,{
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      action: "login",
-      username: username.value.trim(),
-      password: password.value.trim()
-    })
+    method:"POST",
+    body: form
   })
-  .then(r => r.json())
-  .then(d => {
-    if (!d.success) {
-      msg.innerText = "Login gagal";
+  .then(r=>r.json())
+  .then(d=>{
+    if(!d.success){
+      msg.innerText="Login gagal";
       return;
     }
-    localStorage.setItem("ADMIN_TOKEN", d.token);
+    localStorage.setItem("ADMIN_TOKEN",d.token);
     showDashboard();
   })
-  .catch(err => {
-    console.error(err);
-    msg.innerText = "Gagal koneksi Web App";
-  });
+  .catch(()=>msg.innerText="Gagal koneksi Web App");
 }
 
-
-/******** DASHBOARD ********/
 let allData=[];
 
 function showDashboard(){
@@ -130,7 +119,6 @@ search.oninput=()=>{
   render(allData.filter(d=>JSON.stringify(d).toLowerCase().includes(q)));
 }
 
-/******** LOGOUT ********/
 function logout(){
   localStorage.removeItem("ADMIN_TOKEN");
   location.reload();
