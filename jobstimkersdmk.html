@@ -8,14 +8,18 @@
 <style>
 :root{
   --primary:#6366f1;
+  --primary-dark:#4f46e5;
   --bg:#f4f6fb;
   --card:#ffffff;
+  --text:#1f2937;
 }
 *{box-sizing:border-box}
+
 body{
   margin:0;
   font-family:'Segoe UI',sans-serif;
   background:var(--bg);
+  color:var(--text);
 }
 
 /* ===== LOGIN ===== */
@@ -26,9 +30,12 @@ body{
   padding:36px;
   border-radius:22px;
   box-shadow:0 20px 50px rgba(0,0,0,.25);
-  animation:fade .6s ease;
+  animation:fade .5s ease;
 }
-#loginBox h2{text-align:center;margin-bottom:20px}
+#loginBox h2{
+  text-align:center;
+  margin:0 0 20px;
+}
 #loginBox input{
   width:100%;
   padding:14px;
@@ -48,13 +55,24 @@ body{
   font-weight:700;
   cursor:pointer;
 }
-#loginBox button:hover{opacity:.9}
+#loginBox button:disabled{
+  opacity:.7;
+  cursor:not-allowed;
+}
+#loginBox button:hover:not(:disabled){
+  background:linear-gradient(135deg,var(--primary-dark),var(--primary));
+}
+#msg{
+  margin-top:14px;
+  text-align:center;
+  font-size:14px;
+}
 
 /* ===== DASHBOARD ===== */
 #dashboard{
   display:none;
   padding:24px;
-  animation:slide .6s ease;
+  animation:slide .5s ease;
 }
 header{
   background:linear-gradient(135deg,var(--primary),#818cf8);
@@ -63,7 +81,15 @@ header{
   border-radius:22px;
   box-shadow:0 15px 40px rgba(0,0,0,.25);
 }
+header h1{
+  margin:0;
+}
+header p{
+  margin:6px 0 0;
+  opacity:.9;
+}
 
+/* ===== CONTROLS ===== */
 .controls{
   display:flex;
   gap:14px;
@@ -76,6 +102,7 @@ header{
   border-radius:14px;
   border:1px solid #ddd;
   min-width:240px;
+  font-size:14px;
 }
 
 /* ===== TABLE ===== */
@@ -94,12 +121,16 @@ thead th{
   position:sticky;
   top:0;
   background:#eef2ff;
+  z-index:1;
 }
 th,td{
   padding:14px 16px;
   white-space:nowrap;
+  font-size:14px;
 }
-tbody tr:hover{background:#f9fafb}
+tbody tr:hover{
+  background:#f9fafb;
+}
 .link-btn{
   background:var(--primary);
   color:white;
@@ -107,10 +138,21 @@ tbody tr:hover{background:#f9fafb}
   border-radius:10px;
   text-decoration:none;
   font-weight:600;
+  font-size:13px;
+}
+.link-btn:hover{
+  background:var(--primary-dark);
 }
 
-@keyframes fade{from{opacity:0}to{opacity:1}}
-@keyframes slide{from{opacity:0;transform:translateY(25px)}to{opacity:1}}
+/* ===== ANIMATION ===== */
+@keyframes fade{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes slide{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1}
+}
 </style>
 </head>
 
@@ -120,9 +162,9 @@ tbody tr:hover{background:#f9fafb}
 <div id="loginBox">
   <h2>🔐 Akses Dashboard</h2>
   <input id="password" type="password" placeholder="Masukkan Password">
-  <!-- PENTING: type="button" supaya tidak reload -->
-  <button type="button" onclick="login()">Masuk</button>
-  <p id="msg" style="color:red;text-align:center"></p>
+  <!-- PENTING: type="button" (BUKAN submit) -->
+  <button id="loginBtn" type="button" onclick="login()">Masuk</button>
+  <p id="msg"></p>
 </div>
 
 <!-- DASHBOARD -->
@@ -157,12 +199,25 @@ tbody tr:hover{background:#f9fafb}
 </div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbxbb3eJkblvyzevljYBtWCYjsv6B5JAONm2uhMX4aZ-gXh03yOa6w6dTllvonzF9-c/exec";
+const API = "https://script.google.com/macros/s/AKfycbzoaI--DAq4ogc6jZccU-vg0qobfq5BiaedlsRdF0kew9JhDM4SDUKtjvcfEr9Nu1yN/exec";
+
 let allData = [];
 
 /* ===== LOGIN ===== */
 function login(){
-  const pwd = document.getElementById("password").value;
+  const pwd = document.getElementById("password").value.trim();
+  const btn = document.getElementById("loginBtn");
+  const msg = document.getElementById("msg");
+
+  if(!pwd){
+    msg.style.color="red";
+    msg.innerText="Password belum diisi";
+    return;
+  }
+
+  btn.disabled = true;
+  msg.style.color="#555";
+  msg.innerText="Memverifikasi...";
 
   fetch(API,{
     method:"POST",
@@ -178,11 +233,15 @@ function login(){
       document.getElementById("dashboard").style.display="block";
       loadData();
     }else{
-      document.getElementById("msg").innerText="Password salah";
+      msg.style.color="red";
+      msg.innerText="Password salah";
+      btn.disabled = false;
     }
   })
   .catch(()=>{
-    document.getElementById("msg").innerText="Gagal koneksi server";
+    msg.style.color="red";
+    msg.innerText="Gagal koneksi server";
+    btn.disabled = false;
   });
 }
 
@@ -201,30 +260,38 @@ function loadData(){
 }
 
 function renderTable(data){
-  tableData.innerHTML="";
+  const tbody = document.getElementById("tableData");
+  tbody.innerHTML = "";
+
   data.forEach((d,i)=>{
-    tableData.innerHTML+=`
+    tbody.innerHTML += `
       <tr>
         <td>${d.NO || i+1}</td>
-        <td>${d["TUGAS POKOK DAN FUNGSI"]}</td>
-        <td>${d["SUB KEGIATAN"]}</td>
-        <td>${d["PENANGGUNG JAWAB"]}</td>
-        <td>${d.PENDAMPING}</td>
-        <td><a class="link-btn" href="${d["LINK AKSES"]}" target="_blank">Buka</a></td>
+        <td>${d["TUGAS POKOK DAN FUNGSI"] || ""}</td>
+        <td>${d["SUB KEGIATAN"] || ""}</td>
+        <td>${d["PENANGGUNG JAWAB"] || ""}</td>
+        <td>${d.PENDAMPING || ""}</td>
+        <td>
+          ${d["LINK AKSES"]
+            ? `<a class="link-btn" href="${d["LINK AKSES"]}" target="_blank">Buka</a>`
+            : "-"
+          }
+        </td>
       </tr>`;
   });
 }
 
 function fillFilter(data){
-  filterTupoksi.innerHTML =
-    `<option value="">📌 Semua Tugas Pokok & Fungsi</option>`;
+  const select = document.getElementById("filterTupoksi");
+  select.innerHTML = `<option value="">📌 Semua Tugas Pokok & Fungsi</option>`;
+
   [...new Set(data.map(d=>d["TUGAS POKOK DAN FUNGSI"]))].forEach(t=>{
-    filterTupoksi.innerHTML+=`<option>${t}</option>`;
+    if(t) select.innerHTML += `<option value="${t}">${t}</option>`;
   });
 }
 
-search.oninput = filterData;
-filterTupoksi.onchange = filterData;
+document.getElementById("search").addEventListener("input", filterData);
+document.getElementById("filterTupoksi").addEventListener("change", filterData);
 
 function filterData(){
   const q = search.value.toLowerCase();
@@ -233,8 +300,8 @@ function filterData(){
   renderTable(
     allData.filter(d=>{
       const s =
-        d["SUB KEGIATAN"].toLowerCase().includes(q) ||
-        d["PENANGGUNG JAWAB"].toLowerCase().includes(q);
+        (d["SUB KEGIATAN"] || "").toLowerCase().includes(q) ||
+        (d["PENANGGUNG JAWAB"] || "").toLowerCase().includes(q);
       return (!f || d["TUGAS POKOK DAN FUNGSI"] === f) && s;
     })
   );
