@@ -58,6 +58,27 @@ button {
   font-weight: bold;
   text-align: center;
 }
+  .option-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.option-box {
+  padding: 10px 15px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+}
+
+.option-box.active {
+  background: #28a745;
+  color: #fff;
+  border-color: #28a745;
+}
 </style>
 </head>
 <body>
@@ -86,21 +107,31 @@ button {
 <input required id="unit">
 
 <label>Status Pegawai</label>
-<div class="radio-group">
-  <label><input type="radio" name="status" value="PNS" required> PNS</label>
-  <label><input type="radio" name="status" value="PPPK"> PPPK</label>
+<div class="option-group" data-target="status">
+  <div class="option-box" data-value="PNS">PNS</div>
+  <div class="option-box" data-value="PPPK">PPPK</div>
 </div>
+<input type="hidden" id="status" required>
 
 <label>Jenis SDMK</label>
-<div class="radio-group">
-  <label><input type="radio" name="jenis" value="Tenaga Medis" required> Tenaga Medis</label>
-  <label><input type="radio" name="jenis" value="Tenaga Kesehatan"> Tenaga Kesehatan</label>
-  <label><input type="radio" name="jenis" value="Tenaga Penunjang"> Tenaga Penunjang</label>
+<div class="option-group" data-target="jenis">
+  <div class="option-box" data-value="Tenaga Medis">Tenaga Medis</div>
+  <div class="option-box" data-value="Tenaga Kesehatan">Tenaga Kesehatan</div>
+  <div class="option-box" data-value="Tenaga Penunjang">Tenaga Penunjang</div>
 </div>
+<input type="hidden" id="jenis" required>
 
 <label>Jumlah JP Terakhir</label>
 <input type="number" required id="jpTerakhir">
 
+<div class="option-group" id="temaGroup">
+  <div class="option-box" data-value="Platform ">Keselamatan Pasien</div>
+  <div class="option-box" data-value="Pencegahan & Pengendalian Infeksi">Pencegahan & Pengendalian Infeksi</div>
+  <div class="option-box" data-value="Etik & Hukum Kesehatan">Etik & Hukum Kesehatan</div>
+  <div class="option-box" data-value="Manajemen Mutu Pelayanan">Manajemen Mutu Pelayanan</div>
+</div>
+<input type="hidden" id="tema">
+  
 <label>Tanggal Kegiatan</label>
 <input type="date" required id="tanggal">
 
@@ -108,10 +139,11 @@ button {
 <input type="number" required id="jpKegiatan">
 
 <label>Platform Digital</label>
-<div class="radio-group">
-  <label><input type="radio" name="platform" value="Zoom Meeting" required> Zoom</label>
-  <label><input type="radio" name="platform" value="YouTube"> YouTube</label>
+<div class="option-group" data-target="platform">
+  <div class="option-box" data-value="Zoom Meeting">Zoom Meeting</div>
+  <div class="option-box" data-value="YouTube">YouTube</div>
 </div>
+<input type="hidden" id="platform" required>
 
 <label>Whatsapp / Telpon</label>
 <input required id="wa">
@@ -185,6 +217,21 @@ setInterval(() => {
     `Sisa waktu pendaftaran: ${d} hari ${h} jam ${m} menit`;
 }, 1000);
 </script>
+<script>
+document.querySelectorAll(".option-group").forEach(group => {
+  const target = group.dataset.target;
+  const hiddenInput = document.getElementById(target);
 
+  group.querySelectorAll(".option-box").forEach(box => {
+    box.addEventListener("click", () => {
+      group.querySelectorAll(".option-box")
+        .forEach(b => b.classList.remove("active"));
+
+      box.classList.add("active");
+      hiddenInput.value = box.dataset.value;
+    });
+  });
+});
+</script>
 </body>
 </html>
