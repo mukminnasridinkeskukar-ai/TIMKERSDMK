@@ -1,182 +1,201 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
 <meta charset="utf-8">
 <title>Perizinan Praktik Tenaga Medis & Tenaga Kesehatan</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Google Fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Teko:wght@400;600&display=swap" rel="stylesheet">
-
-<!-- Icons -->
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
-
-<!-- Libraries -->
-<link rel="stylesheet" href="lib/animate/animate.min.css"/>
-<link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <!-- Bootstrap -->
-<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<!-- Template Style -->
-<link href="css/style.css" rel="stylesheet">
+<!-- Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+body{
+  font-family:'Inter',sans-serif;
+  background:#f8fafc;
+  color:#0f172a;
+}
+
+/* Navbar */
+.navbar-brand{
+  font-weight:700;
+}
+
+/* Hero */
+.hero{
+  background:linear-gradient(135deg,#1d4ed8,#2563eb);
+  color:white;
+  padding:90px 20px;
+  text-align:center;
+}
+.hero h1{
+  font-weight:700;
+}
+.hero p{
+  max-width:850px;
+  margin:auto;
+  opacity:.95;
+}
+
+/* Section */
+.section-title{
+  margin-bottom:50px;
+  text-align:center;
+}
+.section-title h2{
+  font-weight:700;
+}
+
+/* Card */
+.card-box{
+  background:white;
+  border-radius:16px;
+  padding:30px;
+  height:100%;
+  box-shadow:0 12px 30px rgba(0,0,0,.08);
+  transition:.3s;
+}
+.card-box:hover{
+  transform:translateY(-6px);
+  box-shadow:0 20px 40px rgba(0,0,0,.15);
+}
+
+/* Flow */
+.flow-step{
+  background:white;
+  border-radius:14px;
+  padding:24px;
+  text-align:center;
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+.flow-step span{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:#2563eb;
+  color:white;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  margin-bottom:12px;
+}
+
+/* Footer */
+.footer{
+  background:#020617;
+  color:#9ca3af;
+  padding:25px 0;
+  font-size:14px;
+}
+</style>
 </head>
 
 <body>
 
-<!-- Spinner -->
-<div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
-  <div class="spinner-border text-primary" role="status"></div>
-</div>
-
-<!-- NAVBAR & HERO -->
-<div class="container-fluid header-top">
-  <div class="nav-shaps-2"></div>
-  <div class="container d-flex align-items-center">
-
-    <a href="#" class="navbar-brand">
-      <h1 class="text-primary mb-0">
-        <i class="fas fa-id-card-alt me-2"></i>Perizinan Praktik SDMK
-      </h1>
-    </a>
-
-    <div class="w-100">
-      <div class="nav-bar">
-        <nav class="navbar navbar-expand-lg navbar-light">
-          <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-            <span class="fa fa-bars"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarCollapse">
-            <div class="navbar-nav mx-auto">
-              <a href="#" class="nav-item nav-link active">Beranda</a>
-              <a href="#layanan" class="nav-item nav-link">Layanan</a>
-              <a href="#alur" class="nav-item nav-link">Alur</a>
-              <a href="#satusehat" class="nav-item nav-link">SATUSEHAT</a>
-              <a href="#kontak" class="nav-item nav-link">Kontak</a>
-            </div>
-          </div>
-        </nav>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- HEADER -->
-<div class="container-fluid bg-breadcrumb">
-  <div class="container text-center py-5">
-    <h4 class="text-white display-4">Perizinan Praktik SDMK</h4>
-    <p class="text-white mt-3">
-      Layanan Perizinan Praktik Tenaga Medis dan Tenaga Kesehatan
-      pada Fasilitas Pelayanan Kesehatan dan Praktik Mandiri
-    </p>
-  </div>
-</div>
-
-<!-- DESKRIPSI LAYANAN -->
-<div id="layanan" class="container-fluid goal pt-5" style="margin:90px 0;">
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
   <div class="container">
-    <div class="row g-5">
-      <div class="col-lg-6">
-        <h4 class="text-primary">Layanan Perizinan</h4>
-        <h1 class="display-4 mb-4">
-          Perizinan Praktik Tenaga Medis dan Tenaga Kesehatan
-        </h1>
-        <p class="text-white">
-          Pelayanan perizinan praktik diberikan kepada tenaga medis dan
-          tenaga kesehatan yang melaksanakan praktik di fasilitas pelayanan
-          kesehatan maupun praktik mandiri, sebagai upaya menjamin mutu,
-          keselamatan pasien, dan kepastian hukum.
-        </p>
+    <a class="navbar-brand text-primary" href="#">
+      <i class="bi bi-person-badge me-2"></i>Perizinan Praktik SDMK
+    </a>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link active" href="#">Beranda</a></li>
+        <li class="nav-item"><a class="nav-link" href="#layanan">Layanan</a></li>
+        <li class="nav-item"><a class="nav-link" href="#alur">Alur</a></li>
+        <li class="nav-item"><a class="nav-link" href="#satusehat">SATUSEHAT</a></li>
+        <li class="nav-item"><a class="nav-link" href="#kontak">Kontak</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <h1>Perizinan Praktik Tenaga Medis & Tenaga Kesehatan</h1>
+  <p>
+    Layanan perizinan praktik bagi Tenaga Medis dan Tenaga Kesehatan
+    pada Fasilitas Pelayanan Kesehatan dan Praktik Mandiri,
+    untuk menjamin mutu pelayanan, keselamatan pasien,
+    dan kepastian hukum.
+  </p>
+</section>
+
+<!-- LAYANAN -->
+<section id="layanan" class="container py-5">
+  <div class="section-title">
+    <h2>Layanan Perizinan</h2>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card-box">
+        <h5>Penerbitan SIP Baru</h5>
+        <p>Penerbitan Surat Izin Praktik bagi Tenaga Medis dan Tenaga Kesehatan.</p>
       </div>
-      <div class="col-lg-6">
-        <img src="img/fitness-goal-banner.png" class="img-fluid" alt="">
+    </div>
+    <div class="col-md-4">
+      <div class="card-box">
+        <h5>Perpanjangan SIP</h5>
+        <p>Perpanjangan izin praktik yang telah berakhir masa berlakunya.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card-box">
+        <h5>Perubahan Data Praktik</h5>
+        <p>Perubahan lokasi praktik, fasilitas pelayanan kesehatan, atau jadwal.</p>
       </div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- JENIS PERIZINAN -->
-<div class="container-fluid courses overflow-hidden py-5">
-  <div class="container py-5">
-    <div class="text-center pb-5">
-      <h4 class="text-primary">Jenis Layanan</h4>
-      <h1 class="display-4 text-white">Perizinan Praktik SDMK</h1>
+<!-- ALUR -->
+<section id="alur" class="container-fluid bg-light py-5">
+  <div class="container">
+    <div class="section-title">
+      <h2>Alur Layanan Perizinan</h2>
     </div>
 
-    <div class="row gy-4 gx-4">
-      <div class="col-lg-4">
-        <div class="courses-item-inner p-4">
-          <h4>Penerbitan SIP Baru</h4>
-          <p>Penerbitan Surat Izin Praktik bagi tenaga medis dan tenaga kesehatan.</p>
-        </div>
-      </div>
-      <div class="col-lg-4">
-        <div class="courses-item-inner p-4">
-          <h4>Perpanjangan SIP</h4>
-          <p>Perpanjangan izin praktik yang telah berakhir masa berlakunya.</p>
-        </div>
-      </div>
-      <div class="col-lg-4">
-        <div class="courses-item-inner p-4">
-          <h4>Perubahan Data Praktik</h4>
-          <p>Perubahan lokasi, fasilitas, dan jadwal praktik.</p>
-        </div>
-      </div>
+    <div class="row g-4">
+      <div class="col-md-3"><div class="flow-step"><span>1</span><p>Registrasi & Pengajuan</p></div></div>
+      <div class="col-md-3"><div class="flow-step"><span>2</span><p>Verifikasi Dokumen</p></div></div>
+      <div class="col-md-3"><div class="flow-step"><span>3</span><p>Validasi Teknis</p></div></div>
+      <div class="col-md-3"><div class="flow-step"><span>4</span><p>Penerbitan SIP</p></div></div>
     </div>
   </div>
-</div>
-
-<!-- ALUR LAYANAN -->
-<div id="alur" class="container-fluid testimonial bg-dark py-5">
-  <div class="container py-5 text-center">
-    <h4 class="text-primary">Alur Layanan</h4>
-    <h1 class="display-4 text-white mb-4">Alur Perizinan Praktik SDMK</h1>
-
-    <p class="text-white fs-4">
-      Registrasi → Pengajuan Permohonan → Verifikasi Dokumen →
-      Validasi Teknis → Penerbitan Izin Praktik
-    </p>
-  </div>
-</div>
+</section>
 
 <!-- SATUSEHAT -->
-<div id="satusehat" class="container-fluid py-5">
-  <div class="container">
-    <div class="text-center mb-4">
-      <h4 class="text-primary">Integrasi Sistem</h4>
-      <h1 class="display-4">Integrasi SATUSEHAT</h1>
-    </div>
-    <p class="text-center">
-      Sistem perizinan praktik terintegrasi dengan
-      <strong>Platform SATUSEHAT Kementerian Kesehatan</strong>
-      untuk validasi data tenaga medis, tenaga kesehatan,
-      dan fasilitas pelayanan kesehatan dalam mendukung
-      kebijakan Satu Data Kesehatan Nasional.
-    </p>
+<section id="satusehat" class="container py-5">
+  <div class="section-title">
+    <h2>Integrasi SATUSEHAT</h2>
   </div>
-</div>
+
+  <p class="text-center">
+    Sistem perizinan praktik terintegrasi dengan
+    <strong>Platform SATUSEHAT Kementerian Kesehatan</strong>
+    untuk sinkronisasi data tenaga medis, tenaga kesehatan,
+    dan fasilitas pelayanan kesehatan dalam mendukung
+    kebijakan Satu Data Kesehatan Nasional.
+  </p>
+</section>
 
 <!-- FOOTER -->
-<div id="kontak" class="container-fluid footer py-5">
-  <div class="container text-center">
-    <h4 class="text-white">Layanan Perizinan SDMK</h4>
-    <p class="mb-0">
-      Dinas Kesehatan • Pemerintah Daerah  
-      <br>Email: perizinan@dinkes.go.id
-    </p>
+<footer id="kontak" class="footer text-center">
+  <div class="container">
+    © 2026 Layanan Perizinan Praktik SDMK • Dinas Kesehatan
   </div>
-</div>
+</footer>
 
-<!-- JS -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="lib/owlcarousel/owl.carousel.min.js"></script>
-<script src="js/main.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
