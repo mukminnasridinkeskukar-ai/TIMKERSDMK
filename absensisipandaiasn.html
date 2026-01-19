@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Absensi SIPANDAI-ASN</title>
+  <!-- CSS di sini -->
+</head>
+
+<body>
+
+  <!-- ===================== -->
+  <!-- FORM ABSENSI (HTML)   -->
+  <!-- ===================== -->
+  <form id="form">
+
+    <label>Nama Lengkap</label>
+    <input id="nama" required>
+
+    <label>NIP</label>
+    <input id="nip" required>
+
+    <label>Email Aktif</label>
+    <input type="email" id="email" required>
+
+    <label>Platform Digital</label>
+    <select id="platform" required>
+      <option value="">-- Pilih --</option>
+      <option value="Zoom Meeting">Zoom Meeting</option>
+      <option value="YouTube">YouTube</option>
+    </select>
+
+    <!-- evaluasi & komentar -->
+    <button type="submit">KIRIM ABSENSI</button>
+  </form>
+
+  <!-- ===================== -->
+  <!-- JAVASCRIPT (JS)       -->
+  <!-- ===================== -->
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwLYsTBaR-4c0pzpgpovUIIWSoi82Y9EgcyOSx4XMRIHf_rknJl11Ooa09mtuHsVC8Iwg/exec";
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+
+      // PAYLOAD (INI YANG KAMU TANYAKAN)
+      const payload = {
+        nama: nama.value,
+        nip: nip.value,
+        email: email.value,
+        platform: platform.value,
+        evalPenyelenggara: evalPenyelenggara.value,
+        evalNarasumber: evalNarasumber.value,
+        evalSarana: evalSarana.value,
+        komentar: komentar.value
+      };
+
+      // KIRIM KE APPS SCRIPT
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+
+      const hasil = await res.json();
+      alert(hasil.success ? "Absensi berhasil" : hasil.message);
+    };
+  </script>
+
+</body>
+</html>
