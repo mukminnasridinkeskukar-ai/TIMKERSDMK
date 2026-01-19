@@ -95,35 +95,57 @@ th{background:#f1f1f1}
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxaZbKSnm3Q36qCC-TVO7N6U3dUac5-LK2HCb-CWEG_nL5P6QB519KAy5YF-0nuhuS8Qw/exec?action=admin";
+/* =========================
+   LOGIN GLOBAL (SIMPLE)
+   ========================= */
+if (localStorage.getItem("admin_login") !== "true") {
+  window.location.href = "login-dashboard.html";
+}
+
+/* =========================
+   KONFIGURASI
+   ========================= */
+const SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbxaZbKSnm3Q36qCC-TVO7N6U3dUac5-LK2HCb-CWEG_nL5P6QB519KAy5YF-0nuhuS8Qw/exec?action=admin";
+
+/* =========================
+   LOAD DASHBOARD
+   ========================= */
+let dataGlobal = [];
 
 async function loadDashboard() {
   const res = await fetch(SCRIPT_URL);
   const data = await res.json();
 
-  // PASTIKAN DATA ARRAY
   if (!Array.isArray(data)) {
     console.error("Data bukan array:", data);
     return;
   }
 
+  dataGlobal = data;
+
   // TOTAL
-  const total = data.length;
-  document.getElementById("total").innerText = total;
+  document.getElementById("total").innerText = data.length;
 
-  // HITUNG PLATFORM
- const zoom = data.filter(d =>
-  (d["Platform Digital"] || "").toLowerCase().includes("zoom")
-).length;
+  // HITUNG PLATFORM (ANTI KOSONG / VARIASI)
+  const zoom = data.filter(d =>
+    (d["Platform Digital"] || "").toLowerCase().includes("zoom")
+  ).length;
 
-const youtube = data.filter(d =>
-  (d["Platform Digital"] || "").toLowerCase().includes("youtube")
-).length;
+  const youtube = data.filter(d =>
+    (d["Platform Digital"] || "").toLowerCase().includes("youtube")
+  ).length;
 
   document.getElementById("zoom").innerText = zoom;
   document.getElementById("youtube").innerText = youtube;
 
-  // TABEL
+  renderTable(data);
+}
+
+/* =========================
+   RENDER TABEL
+   ========================= */
+function renderTable(data) {
   const tbody = document.getElementById("tbody");
   tbody.innerHTML = "";
 
@@ -142,9 +164,32 @@ const youtube = data.filter(d =>
   });
 }
 
-loadDashboard();
-</script>
+/* =========================
+   SEARCH REALTIME
+   ========================= */
+document.getElementById("search").addEventListener("input", e => {
+  const q = e.target.value.toLowerCase();
 
+  const hasil = dataGlobal.filter(d =>
+    (d["Nama Lengkap"] || "").toLowerCase().includes(q) ||
+    (d["NIP"] || "").toLowerCase().includes(q) ||
+    (d["Unit Kerja"] || "").toLowerCase().includes(q) ||
+    (d["Tema Pembelajaran"] || "").toLowerCase().includes(q)
+  );
+
+  renderTable(hasil);
+});
+
+/* =========================
+   INIT
+   ========================= */
+loadDashboard();
+
+
+localStorage.removeItem("admin_login");
+location.href="login-dashboard.html";
+ 
+</script>
 
 </body>
 </html>
