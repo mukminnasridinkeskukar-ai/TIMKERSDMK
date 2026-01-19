@@ -24,72 +24,42 @@ body{
 }
 
 /* ===== ANIMATION ===== */
-.fade-in{animation:fade .6s ease}
-.slide-up{animation:slide .6s ease}
+.fade{animation:fade .6s ease}
+.slide{animation:slide .6s ease}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @keyframes slide{from{opacity:0;transform:translateY(30px)}to{opacity:1}}
 
-/* ===== LOGIN ===== */
-#loginBox{
-  max-width:380px;
-  margin:110px auto;
-  background:var(--card);
-  padding:36px;
-  border-radius:26px;
-  box-shadow:0 30px 70px rgba(0,0,0,.25);
-}
-#loginBox h2{text-align:center;margin-bottom:22px}
-#loginBox input{
-  width:100%;
-  padding:14px;
-  border-radius:14px;
-  border:1px solid #ddd;
-  font-size:15px;
-}
-#loginBox button{
-  width:100%;
-  margin-top:20px;
-  padding:14px;
-  border:none;
-  border-radius:16px;
-  background:linear-gradient(135deg,var(--primary),#818cf8);
-  color:white;
-  font-size:16px;
-  font-weight:700;
-  cursor:pointer;
-}
-#msg{text-align:center;margin-top:14px;font-size:14px;color:red}
-
-/* ===== DASHBOARD ===== */
-#dashboard{display:none;padding:20px}
+/* ===== HEADER ===== */
 header{
+  margin:20px;
   background:linear-gradient(135deg,var(--primary),#818cf8);
   color:white;
-  padding:26px;
-  border-radius:26px;
+  padding:28px;
+  border-radius:28px;
   box-shadow:0 25px 60px rgba(0,0,0,.25);
 }
 header h1{margin:0}
-header p{margin:6px 0 0;opacity:.9}
+header p{margin-top:6px;opacity:.9}
 
 /* ===== CONTROLS ===== */
 .controls{
+  margin:20px;
   display:flex;
   gap:14px;
   flex-wrap:wrap;
-  margin:22px 0;
 }
 .controls input,
 .controls select{
-  padding:12px 14px;
+  padding:14px;
   border-radius:14px;
   border:1px solid #ddd;
-  min-width:220px;
   font-size:14px;
+  min-width:220px;
 }
 
-/* ===== TABLE DESKTOP ===== */
+/* ===== TABLE ===== */
 .table-wrap{
+  margin:20px;
   background:white;
   border-radius:26px;
   box-shadow:0 20px 45px rgba(0,0,0,.15);
@@ -127,16 +97,20 @@ tbody tr:hover{
 }
 
 /* ===== MOBILE CARD ===== */
-.cards{display:none}
+.cards{
+  display:none;
+  margin:20px;
+}
 .card{
   background:white;
-  border-radius:20px;
+  border-radius:22px;
   padding:18px;
   margin-bottom:16px;
   box-shadow:0 15px 40px rgba(0,0,0,.15);
 }
-.card h4{margin:0 0 8px}
+.card h4{margin:0 0 6px}
 .card small{color:#6b7280}
+.card p{margin:6px 0}
 .card a{
   display:inline-block;
   margin-top:10px;
@@ -157,92 +131,54 @@ tbody tr:hover{
 
 <body>
 
-<!-- LOGIN -->
-<div id="loginBox" class="fade-in">
-  <h2>🔐 Login Dashboard</h2>
-  <input id="password" type="password" placeholder="Masukkan Password">
-  <button onclick="login()">Masuk</button>
-  <div id="msg"></div>
+<header class="slide">
+  <h1>📊 Dashboard Tugas Pokok & Fungsi</h1>
+  <p>Monitoring kegiatan & penanggung jawab</p>
+</header>
+
+<div class="controls fade">
+  <input id="search" placeholder="🔍 Cari tugas / sub kegiatan">
+  <select id="filterPJ">
+    <option value="">📌 Semua Penanggung Jawab</option>
+  </select>
 </div>
 
-<!-- DASHBOARD -->
-<div id="dashboard" class="slide-up">
-  <header>
-    <h1>📊 Dashboard Tugas Tim</h1>
-    <p>Monitoring Tugas Pokok & Fungsi</p>
-  </header>
-
-  <div class="controls">
-    <input id="search" placeholder="🔍 Cari tugas / sub kegiatan">
-    <select id="filterPJ">
-      <option value="">📌 Semua Penanggung Jawab</option>
-    </select>
-  </div>
-
-  <!-- DESKTOP TABLE -->
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>Tugas Pokok & Fungsi</th>
-          <th>Sub Kegiatan</th>
-          <th>Penanggung Jawab</th>
-          <th>Pendamping</th>
-          <th>Link</th>
-        </tr>
-      </thead>
-      <tbody id="tableData"></tbody>
-    </table>
-  </div>
-
-  <!-- MOBILE CARD -->
-  <div class="cards" id="cardData"></div>
+<!-- DESKTOP TABLE -->
+<div class="table-wrap fade">
+  <table>
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Tugas Pokok & Fungsi</th>
+        <th>Sub Kegiatan</th>
+        <th>Penanggung Jawab</th>
+        <th>Pendamping</th>
+        <th>Link</th>
+      </tr>
+    </thead>
+    <tbody id="tableData"></tbody>
+  </table>
 </div>
+
+<!-- MOBILE CARD -->
+<div class="cards" id="cardData"></div>
 
 <script>
 /* ================= CONFIG ================= */
-const API_URL = "https://script.google.com/macros/s/AKfycbxtj8R2yt1ltYBy98Q3EJi76AVTBuQnCdcnREdkfJ6SV-AevxbAnJA5jSmSuJnkfHTO/exec";
-let SESSION_PWD = "";
+const API_URL = "https://script.google.com/macros/s/AKfycbyCsclHGMi9ljI0sESvhwzyZia9Alv0yEkNwIz5gcjiCLmeMw5MSml4e-78qefgBFF3/exec";
 let allData = [];
 
-/* ================= LOGIN ================= */
-function login(){
-  const pwd = password.value.trim();
-  if(!pwd){ msg.innerText="Password wajib diisi"; return; }
-
-  msg.innerText="Memverifikasi...";
-
-  fetch(API_URL,{
-    method:"POST",
-    body:new URLSearchParams({action:"login", password:pwd})
-  })
-  .then(r=>r.json())
-  .then(res=>{
-    if(res.status==="success"){
-      SESSION_PWD = pwd;
-      loginBox.style.display="none";
-      dashboard.style.display="block";
-      loadData();
-    }else{
-      msg.innerText="Password salah";
-    }
-  });
-}
-
 /* ================= LOAD DATA ================= */
-function loadData(){
-  fetch(API_URL,{
-    method:"POST",
-    body:new URLSearchParams({action:"data", password:SESSION_PWD})
-  })
-  .then(r=>r.json())
-  .then(d=>{
-    allData = d;
-    render(d);
-    fillFilter(d);
-  });
-}
+fetch(API_URL,{
+  method:"POST",
+  body:new URLSearchParams({action:"data"})
+})
+.then(r=>r.json())
+.then(d=>{
+  allData = d;
+  render(d);
+  fillFilter(d);
+});
 
 /* ================= RENDER ================= */
 function render(data){
@@ -252,21 +188,25 @@ function render(data){
   data.forEach((d,i)=>{
     tableData.innerHTML+=`
       <tr>
-        <td>${d.NO||i+1}</td>
+        <td>${d.NO || i+1}</td>
         <td>${d["TUGAS POKOK DAN FUNGSI"]||""}</td>
         <td>${d["SUB KEGIATAN"]||""}</td>
         <td>${d["PENANGGUNG JAWAB"]||""}</td>
         <td>${d.PENDAMPING||""}</td>
-        <td>${d["LINK AKSES"]?`<a class="link-btn" target="_blank" href="${d["LINK AKSES"]}">Buka</a>`:"-"}</td>
+        <td>${d["LINK AKSES"]
+          ? `<a class="link-btn" target="_blank" href="${d["LINK AKSES"]}">Buka</a>`
+          : "-"}</td>
       </tr>`;
 
     cardData.innerHTML+=`
-      <div class="card fade-in">
+      <div class="card fade">
         <h4>${d["TUGAS POKOK DAN FUNGSI"]||""}</h4>
         <small>${d["SUB KEGIATAN"]||""}</small>
         <p><b>PJ:</b> ${d["PENANGGUNG JAWAB"]||"-"}</p>
         <p><b>Pendamping:</b> ${d.PENDAMPING||"-"}</p>
-        ${d["LINK AKSES"]?`<a target="_blank" href="${d["LINK AKSES"]}">Buka Dokumen</a>`:""}
+        ${d["LINK AKSES"]
+          ? `<a target="_blank" href="${d["LINK AKSES"]}">Buka Dokumen</a>`
+          : ""}
       </div>`;
   });
 }
