@@ -95,51 +95,51 @@ th{background:#f1f1f1}
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwuyn081bnov_swyoCAg1M0QKCpEub6TRtWMEjL16GOmd4baUSImmw2Vo7vEpLBjCbvBg/exec";
-let rawData=[];
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxaZbKSnm3Q36qCC-TVO7N6U3dUac5-LK2HCb-CWEG_nL5P6QB519KAy5YF-0nuhuS8Qw/exec?action=admin";
 
-async function loadData(){
-  const res = await fetch(SCRIPT_URL+"?action=admin");
-  rawData = await res.json();
-  render(rawData);
-}
-loadData();
+async function loadDashboard() {
+  const res = await fetch(SCRIPT_URL);
+  const data = await res.json();
 
-function render(data){
-  tbody.innerHTML="";
-  total.innerText = data.length;
+  // PASTIKAN DATA ARRAY
+  if (!Array.isArray(data)) {
+    console.error("Data bukan array:", data);
+    return;
+  }
 
-  let zoom=0, yt=0;
+  // TOTAL
+  const total = data.length;
+  document.getElementById("total").innerText = total;
 
-  data.forEach(d=>{
-    if(d["Platform Digital"]==="Zoom Meeting") zoom++;
-    if(d["Platform Digital"]==="YouTube") yt++;
+  // HITUNG PLATFORM
+  const zoom = data.filter(d => d.Platform === "Zoom Meeting").length;
+  const youtube = data.filter(d => d.Platform === "YouTube").length;
 
-    tbody.innerHTML += `
-      <tr>
-        <td>${d["Nama Lengkap"]}</td>
-        <td>${d["NIP"]}</td>
-        <td>${d["Unit Kerja"]}</td>
-        <td>${d["Status Pegawai"]}</td>
-        <td>${d["Jenis SDMK"]}</td>
-        <td>${d["Tema Pembelajaran"]}</td>
-        <td>${d["Platform Digital"]}</td>
-      </tr>
+  document.getElementById("zoom").innerText = zoom;
+  document.getElementById("youtube").innerText = youtube;
+
+  // TABEL
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
+
+  data.forEach(d => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${d["Nama Lengkap"] || "-"}</td>
+      <td>${d["NIP"] || "-"}</td>
+      <td>${d["Unit Kerja"] || "-"}</td>
+      <td>${d["Status Pegawai"] || "-"}</td>
+      <td>${d["Jenis SDMK"] || "-"}</td>
+      <td>${d["Tema Pembelajaran"] || "-"}</td>
+      <td>${d["Platform Digital"] || "-"}</td>
     `;
+    tbody.appendChild(tr);
   });
-
-  zoom.innerText = zoom;
-  youtube.innerText = yt;
 }
 
-search.oninput = ()=>{
-  const q = search.value.toLowerCase();
-  const f = rawData.filter(d =>
-    Object.values(d).join(" ").toLowerCase().includes(q)
-  );
-  render(f);
-};
+loadDashboard();
 </script>
+
 
 </body>
 </html>
