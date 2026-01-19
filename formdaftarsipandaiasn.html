@@ -235,95 +235,137 @@ input{
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxaZbKSnm3Q36qCC-TVO7N6U3dUac5-LK2HCb-CWEG_nL5P6QB519KAy5YF-0nuhuS8Qw/exec";
-const KUOTA_TOTAL = 1100;
-const BATAS = "2026-01-21T23:59:59";
+document.addEventListener("DOMContentLoaded", () => {
 
-// OPTION BOX
-document.querySelectorAll(".option-group").forEach(g=>{
-  const t=document.getElementById(g.dataset.target);
-  g.querySelectorAll(".option-box").forEach(b=>{
-    b.onclick=()=>{
-      g.querySelectorAll(".option-box").forEach(x=>x.classList.remove("active"));
-      b.classList.add("active");
-      t.value=b.dataset.value;
-    }
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxaZbKSnm3Q36qCC-TVO7N6U3dUac5-LK2HCb-CWEG_nL5P6QB519KAy5YF-0nuhuS8Qw/exec";
+  const KUOTA_TOTAL = 1100;
+  const BATAS = "2026-01-21T23:59:59";
+
+  // WAJIB DIISI
+  const LINK_ZOOM = "https://zoom.us/j/ISI_LINK_ZOOM";
+  const LINK_YOUTUBE = "https://youtube.com/ISI_LINK_YOUTUBE";
+
+  /* =========================
+     OPTION BOX (HIJAU NORMAL)
+     ========================= */
+  document.querySelectorAll(".option-group").forEach(group => {
+    const target = document.getElementById(group.dataset.target);
+
+    group.querySelectorAll(".option-box").forEach(box => {
+      box.addEventListener("click", () => {
+        group.querySelectorAll(".option-box")
+          .forEach(b => b.classList.remove("active"));
+
+        box.classList.add("active");
+        target.value = box.dataset.value;
+      });
+    });
   });
-});
 
-// LOAD TOTAL
-async function loadTotal(){
-  const r=await fetch(SCRIPT_URL);
-  const d=await r.json();
-  total.innerText=d.total;
-  progressBar.style.width=(d.total/KUOTA_TOTAL*100)+"%";
-}
-loadTotal();
+  /* =========================
+     LOAD TOTAL
+     ========================= */
+  async function loadTotal() {
+    const r = await fetch(SCRIPT_URL);
+    const d = await r.json();
+    total.innerText = d.total;
+    progressBar.style.width = (d.total / KUOTA_TOTAL * 100) + "%";
+  }
+  loadTotal();
 
-// MODAL
-openModal.onclick=()=>{
-  if(!form.checkValidity()){form.reportValidity();return;}
-  modal.style.display="flex";
-};
-function closeModal(){modal.style.display="none";}
+  /* =========================
+     TIMER (HARI JAM MENIT DETIK)
+     ========================= */
+  setInterval(() => {
+    const now = Date.now();
+    const end = new Date(BATAS).getTime();
+    const diff = end - now;
 
-confirmBtn.onclick=async()=>{
-  closeModal();
-  const payload={
-    nama:nama.value,
-    nip:nip.value,
-    unit:unit.value,
-    status:status.value,
-    jenis:jenis.value,
-    jpTerakhir:jpTerakhir.value,
-    tema:tema.value,
-    tanggal:tanggal.value,
-    jpKegiatan:jpKegiatan.value,
-    platform:platform.value,
-    wa:wa.value,
-    email:email.value
+    if (diff <= 0) {
+      timer.innerText = "Pendaftaran ditutup";
+      return;
+    }
+
+    const hari  = Math.floor(diff / 86400000);
+    const jam   = Math.floor((diff % 86400000) / 3600000);
+    const menit = Math.floor((diff % 3600000) / 60000);
+    const detik = Math.floor((diff % 60000) / 1000);
+
+    timer.innerText =
+      `Sisa waktu pendaftaran: ${hari} hari ${jam} jam ${menit} menit ${detik} detik`;
+  }, 1000);
+
+  /* =========================
+     MODAL
+     ========================= */
+  openModal.addEventListener("click", () => {
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    modal.style.display = "flex";
+  });
+
+  window.closeModal = () => {
+    modal.style.display = "none";
   };
 
-  const res=await fetch(SCRIPT_URL,{method:"POST",body:JSON.stringify(payload)});
-  const out=await res.json();
+  /* =========================
+     SUBMIT (ANTI NGELEK)
+     ========================= */
+  confirmBtn.addEventListener("click", async () => {
+    closeModal();
 
-  if(!out.success){alert(out.message);return;}
+    const payload = {
+      nama: nama.value,
+      nip: nip.value,
+      unit: unit.value,
+      status: status.value,
+      jenis: jenis.value,
+      jpTerakhir: jpTerakhir.value,
+      tema: tema.value,
+      tanggal: tanggal.value,
+      jpKegiatan: jpKegiatan.value,
+      platform: platform.value,
+      wa: wa.value,
+      email: email.value
+    };
 
-  alert("Pendaftaran berhasil. Anda akan diarahkan ke platform kegiatan.");
+    confirmBtn.disabled = true;
+    confirmBtn.innerText = "Mengirim data...";
 
-const platformPilihan = platform.value;
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
 
-// Delay sedikit biar user sadar (UX lebih enak)
-setTimeout(() => {
-  if (platformPilihan === "Zoom Meeting") {
-    window.location.href = LINK_ZOOM;
-  } else if (platformPilihan === "YouTube") {
-    window.location.href = LINK_YOUTUBE;
-  }
-}, 1200);
+      const out = await res.json();
+      if (!out.success) {
+        alert(out.message);
+        confirmBtn.disabled = false;
+        confirmBtn.innerText = "YA, DAFTAR";
+        return;
+      }
 
-// TIMER LENGKAP (Hari, Jam, Menit, Detik)
-setInterval(() => {
-  const now = new Date().getTime();
-  const end = new Date(BATAS).getTime();
-  const diff = end - now;
+      alert("Pendaftaran berhasil. Anda akan diarahkan ke platform kegiatan.");
 
-  if (diff <= 0) {
-    timer.innerText = "Pendaftaran ditutup";
-    return;
-  }
+      setTimeout(() => {
+        if (platform.value === "Zoom Meeting") {
+          window.location.href = LINK_ZOOM;
+        } else if (platform.value === "YouTube") {
+          window.location.href = LINK_YOUTUBE;
+        }
+      }, 1200);
 
-  const hari  = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const jam   = Math.floor((diff / (1000 * 60 * 60)) % 24);
-  const menit = Math.floor((diff / (1000 * 60)) % 60);
-  const detik = Math.floor((diff / 1000) % 60);
+    } catch (err) {
+      alert("Gagal mengirim data. Periksa koneksi.");
+      confirmBtn.disabled = false;
+      confirmBtn.innerText = "YA, DAFTAR";
+    }
+  });
 
-  timer.innerText =
-    `Sisa waktu pendaftaran: ${hari} hari ${jam} jam ${menit} menit ${detik} detik`;
-}, 1000);
+});
 </script>
-
-</body>
-</html>
 
 
