@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Profil TPM NAMED & NAKES</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{margin:0;background:#f4f7fb;font-family:Segoe UI,Arial}
+
+/* ===== LOGIN ===== */
+#loginOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.88);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999999;
+}
+.login-box{
+  background:#fff;
+  padding:30px;
+  border-radius:16px;
+  width:100%;
+  max-width:360px;
+  text-align:center;
+  box-shadow:0 15px 40px rgba(0,0,0,.35);
+}
+.login-box h2{margin-bottom:20px}
+.login-box input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  font-size:15px;
+  margin-bottom:15px;
+}
+.login-box button{
+  width:100%;
+  padding:12px;
+  background:#2563eb;
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+}
+#loginError{color:#ef4444;margin-top:10px;display:none}
+
+/* ===== PROFIL (DISEMBUNYIKAN DULU) ===== */
+.wrap{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+  display:none; /* ⛔ SEMBUNYI TOTAL */
+}
+
+h2{margin-bottom:15px}
+
+#search{
+  width:100%;
+  padding:12px;
+  margin-bottom:12px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  font-size:14px
+}
+.filter-box{
+  display:flex;
+  gap:10px;
+  margin-bottom:20px;
+  flex-wrap:wrap
+}
+.filter-box select{
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  font-size:14px;
+  background:#fff
+}
+
+.card{
+  background:#fff;
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
+  padding:20px;
+  margin-bottom:25px
+}
+.grid{
+  display:grid;
+  grid-template-columns:240px 1fr;
+  gap:22px
+}
+.grid img{
+  width:100%;
+  height:320px;
+  object-fit:cover;
+  border-radius:14px;
+  background:#f1f1f1;
+  cursor:pointer
+}
+table{width:100%;border-collapse:collapse}
+td{padding:7px 10px;vertical-align:top;border-bottom:1px solid #f1f1f1}
+td.l{font-weight:600;width:32%;color:#444}
+
+.badge{padding:6px 14px;border-radius:14px;font-size:13px;font-weight:600}
+.ok{background:#16a34a;color:#fff}
+.no{background:#ef4444;color:#fff}
+
+.btn-black{
+  color:#000;
+  font-size:16px;
+  font-weight:700;
+  text-decoration:none
+}
+.btn-black:hover{text-decoration:underline}
+
+/* LIGHTBOX */
+#lightbox{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  justify-content:center;
+  align-items:center;
+  z-index:99999
+}
+#lightbox img{max-width:90%;max-height:90%;border-radius:14px}
+
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="loginOverlay">
+  <div class="login-box">
+    <h2>🔐 Akses Data Profil TPM</h2>
+    <input type="password" id="loginPass" placeholder="Masukkan password">
+    <button onclick="loginTPM()">Masuk</button>
+    <div id="loginError">Password salah</div>
+  </div>
+</div>
+
+<!-- ================= PROFIL (TERSEMBUNYI) ================= -->
+<div class="wrap" id="profilTPM">
+  <h2>Profil TPM NAMED & NAKES</h2>
+
+  <input id="search" placeholder="Cari nama (contoh: dwi, nike, ahmad)...">
+
+  <div class="filter-box">
+    <select id="filterStatus">
+      <option value="">Semua Status</option>
+    </select>
+    <select id="filterProfesi">
+      <option value="">Semua Profesi</option>
+    </select>
+  </div>
+
+  <div id="list"></div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="this.style.display='none'">
+  <img id="lightboxImg">
+</div>
+
+<script>
+/* ================= LOGIN LOGIC ================= */
+const TPM_PASSWORD = "tpm2026##";
+let dataLoaded = false;
+
+function loginTPM(){
+  const pass = document.getElementById("loginPass").value;
+  if(pass === TPM_PASSWORD){
+    sessionStorage.setItem("loginTPM","ok");
+    unlock();
+  }else{
+    document.getElementById("loginError").style.display="block";
+  }
+}
+
+function unlock(){
+  document.getElementById("loginOverlay").style.display="none";
+  document.getElementById("profilTPM").style.display="block";
+
+  if(!dataLoaded){
+    loadData();          // 🔥 DATA BARU DIMUAT DI SINI
+    dataLoaded = true;
+  }
+}
+
+if(sessionStorage.getItem("loginTPM")==="ok"){
+  document.addEventListener("DOMContentLoaded", unlock);
+}
+
+/* ================= DATA LOGIC ================= */
+let dataGlobal=[];
+
+function driveImg(id){
+  return id
+    ? "https://lh3.googleusercontent.com/d/"+id
+    : "https://via.placeholder.com/300x400?text=No+Photo";
+}
+
+function render(data){
+  list.innerHTML="";
+  data.forEach(d=>{
+    const foto=driveImg(d["Foto"]);
+    const map="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(d["Tempat Praktik"]||"");
+    list.innerHTML+=`
+    <div class="card">
+      <div class="grid">
+        <img src="${foto}" onclick="lightboxImg.src='${foto}';lightbox.style.display='flex'">
+        <table>
+          <tr><td class="l">Nama Lengkap & Gelar</td><td>${d["Nama Lengkap dan Gelar"]||""}</td></tr>
+          <tr><td class="l">Profesi</td><td>${d["Profesi Kesehatan"]||""}</td></tr>
+          <tr><td class="l">Tempat Praktik</td><td>${d["Tempat Praktik"]||""}</td></tr>
+          <tr><td class="l">Nomor Telpon</td><td>${d["Nomor Telpon"]||""}</td></tr>
+          <tr>
+            <td class="l">Status</td>
+            <td><span class="badge ${d["Status Pengawasan"]=="Aktif"?"ok":"no"}">${d["Status Pengawasan"]||""}</span></td>
+          </tr>
+          <tr>
+            <td class="l">Aksi</td>
+            <td>
+              <a class="btn-black" href="${d["Link SIP Mandiri"]}" target="_blank">Lihat SIP</a> |
+              <a class="btn-black" href="${map}" target="_blank">Peta</a>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>`;
+  });
+}
+
+function applyFilter(){
+  const q=search.value.toLowerCase();
+  const s=filterStatus.value;
+  const p=filterProfesi.value;
+  render(dataGlobal.filter(d=>
+    (d["Nama Lengkap dan Gelar"]||"").toLowerCase().includes(q) &&
+    (!s||d["Status Pengawasan"]===s) &&
+    (!p||d["Profesi Kesehatan"]===p)
+  ));
+}
+
+search.oninput=applyFilter;
+filterStatus.onchange=applyFilter;
+filterProfesi.onchange=applyFilter;
+
+function callbackData(data){
+  dataGlobal=data;
+  [...new Set(data.map(d=>d["Status Pengawasan"]).filter(Boolean))]
+    .forEach(v=>filterStatus.innerHTML+=`<option value="${v}">${v}</option>`);
+  [...new Set(data.map(d=>d["Profesi Kesehatan"]).filter(Boolean))]
+    .forEach(v=>filterProfesi.innerHTML+=`<option value="${v}">${v}</option>`);
+  render(data);
+}
+
+/* 🔥 LOAD JSONP SETELAH LOGIN */
+function loadData(){
+  const s=document.createElement("script");
+  s.src="https://script.google.com/macros/s/AKfycbzbiWsajf5rm7qOvXHDwcbf-rG3y1-frGg0PCeZHuEKKdX9DxIhzXFM5K-2oTTyAIaW/exec?callback=callbackData";
+  document.body.appendChild(s);
+}
+</script>
+
+</body>
+</html>
