@@ -1,291 +1,38 @@
 <!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Admin SIPANDAI-ASN</title>
+<html>
+<body style="font-family:Arial;text-align:center;padding:50px">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<h2>🔐 Login Admin SIPANDAI-ASN</h2>
 
-<style>
-:root{
-  --primary:#2563eb;
-  --bg:#f4f6fb;
-  --card:#ffffff;
-  --text:#0f172a;
-  --muted:#64748b;
-}
-[data-theme="dark"]{
-  --bg:#020617;
-  --card:#020617;
-  --text:#e5e7eb;
-  --muted:#94a3b8;
-}
+<input id="u" placeholder="Email"><br><br>
+<input id="p" type="password" placeholder="Password"><br><br>
+<button onclick="login()">LOGIN</button>
 
-*{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:Inter,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  transition:.3s;
-}
-
-/* HEADER */
-.header{
-  padding:22px 26px;
-  background:linear-gradient(135deg,#2563eb,#4f46e5);
-  color:white;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.header h1{margin:0;font-size:20px}
-.toggle{cursor:pointer;font-size:14px}
-
-/* CONTAINER */
-.container{
-  max-width:1400px;
-  margin:auto;
-  padding:22px;
-}
-
-/* CARDS */
-.cards{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:16px;
-  margin-bottom:18px;
-}
-.card{
-  background:var(--card);
-  padding:20px;
-  border-radius:16px;
-  box-shadow:0 10px 25px rgba(0,0,0,.08);
-}
-.card h2{margin:0;font-size:26px;color:var(--primary)}
-.card p{margin:6px 0 0;font-size:13px;color:var(--muted)}
-
-/* TOOLS */
-.tools{
-  display:grid;
-  grid-template-columns:1fr auto auto;
-  gap:12px;
-  margin-bottom:12px;
-}
-input,select,button{
-  padding:10px 12px;
-  border-radius:10px;
-  border:1px solid #cbd5f5;
-  font-family:inherit;
-  font-size:13px;
-}
-button{
-  background:var(--primary);
-  color:white;
-  border:none;
-  cursor:pointer;
-}
-
-/* FILTER GRID */
-.filters{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-  gap:10px;
-  margin-bottom:12px;
-}
-
-/* TABLE */
-.table-wrap{
-  background:var(--card);
-  border-radius:16px;
-  box-shadow:0 10px 25px rgba(0,0,0,.08);
-  overflow:auto;
-  max-height:70vh;
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-  min-width:1000px;
-}
-th,td{
-  padding:12px;
-  border-bottom:1px solid #e5e7eb;
-  font-size:13px;
-}
-th{
-  background:#eef2ff;
-  position:sticky;
-  top:0;
-  z-index:5;
-}
-tbody tr:hover{background:#f9fafb}
-
-@media(max-width:768px){
-  table{display:none}
-}
-</style>
-</head>
-
-<body>
-
-<!-- 🔐 TOKEN CHECK -->
-<script>
-const ADMIN_TOKEN = "SIPANDAI_ADMIN_2026";
-if (localStorage.getItem("ADMIN_TOKEN") !== ADMIN_TOKEN) {
-  window.location.href =
-    "https://sipandaiasn.blogspot.com/p/login-admin.html";
-}
-</script>
-
-<div class="header">
-  <h1>📊 Dashboard Admin SIPANDAI-ASN</h1>
-  <div class="toggle" onclick="toggleTheme()">🌙 Dark Mode</div>
-</div>
-
-<div class="container">
-
-  <!-- SUMMARY -->
-  <div class="cards">
-    <div class="card"><h2 id="total">0</h2><p>Total Pendaftar</p></div>
-    <div class="card"><h2 id="zoom">0</h2><p>Zoom</p></div>
-    <div class="card"><h2 id="youtube">0</h2><p>YouTube</p></div>
-  </div>
-
-  <!-- TOOLS -->
-  <div class="tools">
-    <input id="search" placeholder="🔍 Cari bebas…">
-    <button onclick="exportExcel()">⬇️ Export Excel</button>
-    <button onclick="resetFilter()">🔄 Reset</button>
-  </div>
-
-  <!-- FILTER -->
-  <div class="filters">
-    <input id="fNama" placeholder="Nama">
-    <input id="fNIP" placeholder="NIP">
-    <input id="fUnit" placeholder="Unit">
-    <input id="fTema" placeholder="Tema">
-    <select id="fPlatform">
-      <option value="">Semua Platform</option>
-      <option>Zoom</option>
-      <option>YouTube</option>
-    </select>
-  </div>
-
-  <!-- TABLE -->
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Nama</th>
-          <th>NIP</th>
-          <th>Unit</th>
-          <th>Status</th>
-          <th>Jenis SDMK</th>
-          <th>Tema</th>
-          <th>Platform</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-  </div>
-
-</div>
+<p id="msg" style="color:red"></p>
 
 <script>
-/* ================= CONFIG ================= */
-const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbwW8W8-dagTknCxaSlDSLxgGsgWe7ABcDG_s0zmLo4OHiM5FkAcxErgwprMrS5ZTL1M/exec?action=admin";
+const API = "https://script.google.com/macros/s/AKfycbxa0jYXSpWsVtogE4ZMYThHqECa5FPX2CKlIg4cNE4LvdAtTnhlb1H76YyzwLseg7mV/exec";
 
-/* ================= STATE ================= */
-let allData = [];
-
-/* ================= LOAD DATA ================= */
-fetch(SCRIPT_URL)
-  .then(r => r.json())
-  .then(d => {
-    if (!Array.isArray(d)) return;
-    allData = d;
-    updateSummary(d);
-    render(d);
-  });
-
-/* ================= SUMMARY ================= */
-function updateSummary(data){
-  total.innerText = data.length;
-  zoom.innerText = data.filter(d =>
-    (d["Platform Digital"]||"").toLowerCase().includes("zoom")
-  ).length;
-  youtube.innerText = data.filter(d =>
-    (d["Platform Digital"]||"").toLowerCase().includes("youtube")
-  ).length;
-}
-
-/* ================= RENDER ================= */
-function render(data){
-  tbody.innerHTML="";
-  data.forEach(d=>{
-    tbody.innerHTML+=`
-      <tr>
-        <td>${d["Nama Lengkap"]||"-"}</td>
-        <td>${d["NIP"]||"-"}</td>
-        <td>${d["Unit Kerja"]||"-"}</td>
-        <td>${d["Status Pegawai"]||"-"}</td>
-        <td>${d["Jenis SDMK"]||"-"}</td>
-        <td>${d["Tema Pembelajaran"]||"-"}</td>
-        <td>${d["Platform Digital"]||"-"}</td>
-      </tr>`;
+function login(){
+  fetch(API,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      action:"login",
+      username:u.value,
+      password:p.value
+    })
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    if(!d.success){
+      msg.innerText="Login gagal";
+      return;
+    }
+    localStorage.setItem("ADMIN_TOKEN",d.token);
+    location.href="dashboard-admin.html";
   });
 }
-
-/* ================= FILTER ================= */
-document.querySelectorAll("#search,#fNama,#fNIP,#fUnit,#fTema,#fPlatform")
-.forEach(el => el.addEventListener("input", applyFilter));
-
-function applyFilter(){
-  const q = search.value.toLowerCase();
-  const nama = fNama.value.toLowerCase();
-  const nip = fNIP.value.toLowerCase();
-  const unit = fUnit.value.toLowerCase();
-  const tema = fTema.value.toLowerCase();
-  const plat = fPlatform.value;
-
-  render(allData.filter(d=>{
-    return Object.values(d).join(" ").toLowerCase().includes(q)
-      && (d["Nama Lengkap"]||"").toLowerCase().includes(nama)
-      && (d["NIP"]||"").toLowerCase().includes(nip)
-      && (d["Unit Kerja"]||"").toLowerCase().includes(unit)
-      && (d["Tema Pembelajaran"]||"").toLowerCase().includes(tema)
-      && (!plat || (d["Platform Digital"]||"").includes(plat));
-  }));
-}
-
-function resetFilter(){
-  document.querySelectorAll("input,select").forEach(i=>i.value="");
-  render(allData);
-}
-
-/* ================= EXPORT ================= */
-function exportExcel(){
-  const ws = XLSX.utils.json_to_sheet(allData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Data");
-  XLSX.writeFile(wb, "Dashboard_SIPANDAI_ASN.xlsx");
-}
-
-/* ================= DARK MODE ================= */
-function toggleTheme(){
-  const t =
-    document.documentElement.getAttribute("data-theme")==="dark" ? "" : "dark";
-  document.documentElement.setAttribute("data-theme", t);
-  localStorage.setItem("theme", t);
-}
-document.documentElement.setAttribute(
-  "data-theme",
-  localStorage.getItem("theme") || ""
-);
 </script>
 
 </body>
