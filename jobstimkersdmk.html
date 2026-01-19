@@ -1,7 +1,244 @@
-<iframe 
-  src="https://script.google.com/macros/s/AKfycby3ukju8uhnPPjAwdkx7tOOX7m5gPooBhtXO1x__AAYFqpLxg-LajbvE8bQ15URofBr/exec" 
-  width="100%" 
-  height="700px" 
-  style="border: 1px solid #ddd; border-radius: 8px;"
-  frameborder="0">
-</iframe>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Pekerjaan Tim</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+:root{
+  --primary:#6366f1;
+  --primary-dark:#4f46e5;
+  --bg:#f4f6fb;
+  --card:#ffffff;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:#1f2937;
+}
+
+/* ===== LOGIN ===== */
+#loginBox{
+  max-width:380px;
+  margin:110px auto;
+  background:var(--card);
+  padding:36px;
+  border-radius:24px;
+  box-shadow:0 25px 60px rgba(0,0,0,.25);
+  animation:fade .5s ease;
+}
+#loginBox h2{text-align:center;margin-bottom:22px}
+#loginBox input{
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid #ddd;
+  font-size:15px;
+}
+#loginBox button{
+  width:100%;
+  margin-top:20px;
+  padding:14px;
+  border:none;
+  border-radius:16px;
+  background:linear-gradient(135deg,var(--primary),#818cf8);
+  color:white;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+}
+#msg{text-align:center;margin-top:14px;font-size:14px}
+
+/* ===== DASHBOARD ===== */
+#dashboard{display:none;padding:26px;animation:slide .6s ease}
+header{
+  background:linear-gradient(135deg,var(--primary),#818cf8);
+  color:white;
+  padding:28px;
+  border-radius:24px;
+  box-shadow:0 20px 50px rgba(0,0,0,.25);
+}
+header h1{margin:0}
+header p{margin:6px 0 0;opacity:.9}
+
+.controls{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin:24px 0;
+}
+.controls input,
+.controls select{
+  padding:12px 14px;
+  border-radius:14px;
+  border:1px solid #ddd;
+  min-width:240px;
+  font-size:14px;
+}
+
+/* ===== TABLE ===== */
+.table-wrap{
+  background:white;
+  border-radius:24px;
+  box-shadow:0 18px 45px rgba(0,0,0,.15);
+  overflow-x:auto;
+}
+table{
+  width:100%;
+  min-width:950px;
+  border-collapse:collapse;
+}
+thead th{
+  position:sticky;
+  top:0;
+  background:#eef2ff;
+}
+th,td{
+  padding:14px 16px;
+  white-space:nowrap;
+  font-size:14px;
+}
+tbody tr:hover{background:#f9fafb}
+.link-btn{
+  background:var(--primary);
+  color:white;
+  padding:8px 14px;
+  border-radius:10px;
+  text-decoration:none;
+  font-weight:600;
+  font-size:13px;
+}
+.link-btn:hover{background:var(--primary-dark)}
+
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes slide{from{opacity:0;transform:translateY(25px)}to{opacity:1}}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="loginBox">
+  <h2>🔐 Akses Dashboard Tim</h2>
+  <input id="password" type="password" placeholder="Masukkan Password">
+  <button type="button" onclick="login()">Masuk</button>
+  <div id="msg"></div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <header>
+    <h1>📊 Dashboard Pekerjaan Tim</h1>
+    <p>Monitoring Tugas Pokok & Fungsi</p>
+  </header>
+
+  <div class="controls">
+    <input id="search" placeholder="🔍 Cari tugas / sub kegiatan">
+    <select id="filterPJ">
+      <option value="">📌 Semua Penanggung Jawab</option>
+    </select>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Tugas Pokok & Fungsi</th>
+          <th>Sub Kegiatan</th>
+          <th>Penanggung Jawab</th>
+          <th>Pendamping</th>
+          <th>Link Akses</th>
+        </tr>
+      </thead>
+      <tbody id="tableData"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbxqluBFW5xnkQThgG0oPdwj-j36WehpAjXhyH6LQrawrwFls-ucgJpm_NmzC0XX9SHg/exec";
+let allData=[];
+
+function login(){
+  const pwd = password.value.trim();
+  msg.innerText="Memverifikasi...";
+
+  fetch(API,{
+    method:"POST",
+    body:new URLSearchParams({action:"login",password:pwd})
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.status==="success"){
+      loginBox.style.display="none";
+      dashboard.style.display="block";
+      loadData();
+    }else{
+      msg.innerText="Password salah";
+    }
+  })
+  .catch(()=>msg.innerText="Gagal koneksi server");
+}
+
+function loadData(){
+  fetch(API,{
+    method:"POST",
+    body:new URLSearchParams({action:"data"})
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    allData=d;
+    renderTable(d);
+    fillFilter(d);
+  });
+}
+
+function renderTable(data){
+  tableData.innerHTML="";
+  data.forEach((d,i)=>{
+    tableData.innerHTML+=`
+      <tr>
+        <td>${d.NO||i+1}</td>
+        <td>${d["TUGAS POKOK DAN FUNGSI"]||""}</td>
+        <td>${d["SUB KEGIATAN"]||""}</td>
+        <td>${d["PENANGGUNG JAWAB"]||""}</td>
+        <td>${d.PENDAMPING||""}</td>
+        <td>${d["LINK AKSES"]?`<a class="link-btn" href="${d["LINK AKSES"]}" target="_blank">Buka</a>`:"-"}</td>
+      </tr>`;
+  });
+}
+
+function fillFilter(data){
+  filterPJ.innerHTML=`<option value="">📌 Semua Penanggung Jawab</option>`;
+  [...new Set(data.map(d=>d["PENANGGUNG JAWAB"]))].forEach(p=>{
+    if(p) filterPJ.innerHTML+=`<option>${p}</option>`;
+  });
+}
+
+search.oninput = filterData;
+filterPJ.onchange = filterData;
+
+function filterData(){
+  const q = search.value.toLowerCase();
+  const pj = filterPJ.value;
+
+  renderTable(
+    allData.filter(d=>{
+      const s =
+        (d["TUGAS POKOK DAN FUNGSI"]||"").toLowerCase().includes(q) ||
+        (d["SUB KEGIATAN"]||"").toLowerCase().includes(q);
+      return (!pj || d["PENANGGUNG JAWAB"]===pj) && s;
+    })
+  );
+}
+</script>
+
+</body>
+</html>
