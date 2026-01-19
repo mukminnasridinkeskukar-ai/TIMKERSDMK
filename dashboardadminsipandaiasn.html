@@ -35,7 +35,7 @@ body{
 
 /* HEADER */
 .header{
-  padding:24px 28px;
+  padding:22px 26px;
   background:linear-gradient(135deg,#2563eb,#4f46e5);
   color:white;
   display:flex;
@@ -43,11 +43,7 @@ body{
   align-items:center;
 }
 .header h1{margin:0;font-size:20px}
-.toggle{
-  cursor:pointer;
-  font-size:14px;
-  opacity:.9;
-}
+.toggle{cursor:pointer;font-size:14px}
 
 /* CONTAINER */
 .container{
@@ -127,15 +123,22 @@ th{
 }
 tbody tr:hover{background:#f9fafb}
 
-/* MOBILE CARD */
 @media(max-width:768px){
   table{display:none}
-  .table-wrap{padding:12px}
 }
 </style>
 </head>
 
 <body>
+
+<!-- 🔐 TOKEN CHECK -->
+<script>
+const ADMIN_TOKEN = "SIPANDAI_ADMIN_2026";
+if (localStorage.getItem("ADMIN_TOKEN") !== ADMIN_TOKEN) {
+  window.location.href =
+    "https://sipandaiasn.blogspot.com/p/login-admin.html";
+}
+</script>
 
 <div class="header">
   <h1>📊 Dashboard Admin SIPANDAI-ASN</h1>
@@ -193,61 +196,31 @@ tbody tr:hover{background:#f9fafb}
 
 <script>
 /* ================= CONFIG ================= */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqORS7RCYUnYjIrWm8lVIBb-dNvYGZXkCFfo00XiWzTsU8aT82x3Wprho_S4jv86E5/exec?action=admin";
-<script>
-const ADMIN_TOKEN = "SIPANDAI_ADMIN_2026";
+const SCRIPT_URL =
+"https://script.google.com/macros/s/AKfycbzqORS7RCYUnYjIrWm8lVIBb-dNvYGZXkCFfo00XiWzTsU8aT82x3Wprho_S4jv86E5/exec?action=admin";
 
-if(localStorage.getItem("ADMIN_TOKEN") !== ADMIN_TOKEN){
-  window.location.href =
-    "https://sipandaiasn.blogspot.com/p/login-admin.html";
-}
-</script>
-  
-  loginBtn.onclick = async () => {
-  loginMsg.innerText = "Memverifikasi...";
-
-  const res = await fetch(API,{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({
-      action:"login",
-      username:username.value,
-      password:password.value
-    })
-  });
-
-  const out = await res.json();
-
-  if(!out.success){
-    loginMsg.innerText = "Login gagal";
-    return;
-  }
-
-  // SIMPAN TOKEN
-  localStorage.setItem("ADMIN_TOKEN", out.token);
-
-  // REDIRECT
-  window.location.href =
-    "https://sipandaiasn.blogspot.com/p/dashboard-admin.html";
-};
-</script>
 /* ================= STATE ================= */
-let allData=[];
+let allData = [];
 
-/* ================= LOAD ================= */
+/* ================= LOAD DATA ================= */
 fetch(SCRIPT_URL)
-.then(r=>r.json())
-.then(d=>{
-  allData=d;
-  updateSummary(d);
-  render(d);
-});
+  .then(r => r.json())
+  .then(d => {
+    if (!Array.isArray(d)) return;
+    allData = d;
+    updateSummary(d);
+    render(d);
+  });
 
 /* ================= SUMMARY ================= */
 function updateSummary(data){
-  total.innerText=data.length;
-  zoom.innerText=data.filter(d=>(d["Platform Digital"]||"").toLowerCase().includes("zoom")).length;
-  youtube.innerText=data.filter(d=>(d["Platform Digital"]||"").toLowerCase().includes("youtube")).length;
+  total.innerText = data.length;
+  zoom.innerText = data.filter(d =>
+    (d["Platform Digital"]||"").toLowerCase().includes("zoom")
+  ).length;
+  youtube.innerText = data.filter(d =>
+    (d["Platform Digital"]||"").toLowerCase().includes("youtube")
+  ).length;
 }
 
 /* ================= RENDER ================= */
@@ -255,37 +228,37 @@ function render(data){
   tbody.innerHTML="";
   data.forEach(d=>{
     tbody.innerHTML+=`
-    <tr>
-      <td>${d["Nama Lengkap"]||"-"}</td>
-      <td>${d["NIP"]||"-"}</td>
-      <td>${d["Unit Kerja"]||"-"}</td>
-      <td>${d["Status Pegawai"]||"-"}</td>
-      <td>${d["Jenis SDMK"]||"-"}</td>
-      <td>${d["Tema Pembelajaran"]||"-"}</td>
-      <td>${d["Platform Digital"]||"-"}</td>
-    </tr>`;
+      <tr>
+        <td>${d["Nama Lengkap"]||"-"}</td>
+        <td>${d["NIP"]||"-"}</td>
+        <td>${d["Unit Kerja"]||"-"}</td>
+        <td>${d["Status Pegawai"]||"-"}</td>
+        <td>${d["Jenis SDMK"]||"-"}</td>
+        <td>${d["Tema Pembelajaran"]||"-"}</td>
+        <td>${d["Platform Digital"]||"-"}</td>
+      </tr>`;
   });
 }
 
 /* ================= FILTER ================= */
 document.querySelectorAll("#search,#fNama,#fNIP,#fUnit,#fTema,#fPlatform")
-.forEach(el=>el.addEventListener("input",applyFilter));
+.forEach(el => el.addEventListener("input", applyFilter));
 
 function applyFilter(){
-  const q=search.value.toLowerCase();
-  const nama=fNama.value.toLowerCase();
-  const nip=fNIP.value.toLowerCase();
-  const unit=fUnit.value.toLowerCase();
-  const tema=fTema.value.toLowerCase();
-  const plat=fPlatform.value;
+  const q = search.value.toLowerCase();
+  const nama = fNama.value.toLowerCase();
+  const nip = fNIP.value.toLowerCase();
+  const unit = fUnit.value.toLowerCase();
+  const tema = fTema.value.toLowerCase();
+  const plat = fPlatform.value;
 
   render(allData.filter(d=>{
     return Object.values(d).join(" ").toLowerCase().includes(q)
-    && (d["Nama Lengkap"]||"").toLowerCase().includes(nama)
-    && (d["NIP"]||"").toLowerCase().includes(nip)
-    && (d["Unit Kerja"]||"").toLowerCase().includes(unit)
-    && (d["Tema Pembelajaran"]||"").toLowerCase().includes(tema)
-    && (!plat || (d["Platform Digital"]||"").includes(plat));
+      && (d["Nama Lengkap"]||"").toLowerCase().includes(nama)
+      && (d["NIP"]||"").toLowerCase().includes(nip)
+      && (d["Unit Kerja"]||"").toLowerCase().includes(unit)
+      && (d["Tema Pembelajaran"]||"").toLowerCase().includes(tema)
+      && (!plat || (d["Platform Digital"]||"").includes(plat));
   }));
 }
 
@@ -304,11 +277,15 @@ function exportExcel(){
 
 /* ================= DARK MODE ================= */
 function toggleTheme(){
-  const t=document.documentElement.getAttribute("data-theme")==="dark"?"":"dark";
-  document.documentElement.setAttribute("data-theme",t);
-  localStorage.setItem("theme",t);
+  const t =
+    document.documentElement.getAttribute("data-theme")==="dark" ? "" : "dark";
+  document.documentElement.setAttribute("data-theme", t);
+  localStorage.setItem("theme", t);
 }
-document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"");
+document.documentElement.setAttribute(
+  "data-theme",
+  localStorage.getItem("theme") || ""
+);
 </script>
 
 </body>
