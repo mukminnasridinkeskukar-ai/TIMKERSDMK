@@ -3,56 +3,92 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Kegiatan</title>
+<title>Dashboard Tupoksi</title>
 
 <style>
 :root{
-  --primary:#4f46e5;
+  --primary:#6366f1;
   --bg:#f4f6fb;
   --card:#ffffff;
 }
+*{box-sizing:border-box}
 body{
   margin:0;
   font-family:'Segoe UI',sans-serif;
   background:var(--bg);
 }
-#dashboard{
+
+/* ===== LOGIN ===== */
+#loginBox{
+  max-width:360px;
+  margin:100px auto;
+  background:var(--card);
+  padding:34px;
+  border-radius:22px;
+  box-shadow:0 20px 50px rgba(0,0,0,.25);
+  animation:fade .8s ease;
+}
+#loginBox h2{text-align:center}
+#loginBox input{
   width:100%;
-  padding:20px;
-  box-sizing:border-box;
+  padding:14px;
+  margin-top:16px;
+  border-radius:14px;
+  border:1px solid #ddd;
+  font-size:15px;
+}
+#loginBox button{
+  width:100%;
+  margin-top:22px;
+  padding:14px;
+  border:none;
+  border-radius:16px;
+  background:linear-gradient(135deg,var(--primary),#818cf8);
+  color:white;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+}
+#loginBox button:hover{opacity:.9}
+
+/* ===== DASHBOARD ===== */
+#dashboard{
+  display:none;
+  padding:24px;
+  animation:slide .8s ease;
 }
 header{
-  background:linear-gradient(135deg,var(--primary),#6366f1);
+  background:linear-gradient(135deg,var(--primary),#818cf8);
   color:white;
-  padding:22px;
-  border-radius:18px;
-  box-shadow:0 12px 35px rgba(0,0,0,.2);
+  padding:26px;
+  border-radius:22px;
+  box-shadow:0 15px 40px rgba(0,0,0,.25);
 }
+
 .controls{
   display:flex;
   gap:14px;
   flex-wrap:wrap;
-  margin:20px 0;
+  margin:22px 0;
 }
 .controls input,
 .controls select{
   padding:12px 14px;
-  border-radius:12px;
+  border-radius:14px;
   border:1px solid #ddd;
-  min-width:230px;
-  box-shadow:0 4px 12px rgba(0,0,0,.06);
+  min-width:240px;
 }
+
+/* ===== TABLE ===== */
 .table-wrap{
-  position:relative;
-  width:100%;
   background:white;
-  border-radius:18px;
-  box-shadow:0 15px 40px rgba(0,0,0,.1);
+  border-radius:22px;
+  box-shadow:0 15px 40px rgba(0,0,0,.15);
   overflow-x:auto;
 }
 table{
   width:100%;
-  min-width:950px;
+  min-width:900px;
   border-collapse:collapse;
 }
 thead th{
@@ -62,7 +98,6 @@ thead th{
 }
 th,td{
   padding:14px 16px;
-  text-align:left;
   white-space:nowrap;
 }
 tbody tr:hover{background:#f9fafb}
@@ -74,26 +109,33 @@ tbody tr:hover{background:#f9fafb}
   text-decoration:none;
   font-weight:600;
 }
-footer{
-  text-align:center;
-  padding:16px;
-  color:#666;
-}
+
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes slide{from{opacity:0;transform:translateY(30px)}to{opacity:1}}
 </style>
 </head>
 
 <body>
 
+<!-- LOGIN -->
+<div id="loginBox">
+  <h2>🔐 Akses Dashboard</h2>
+  <input id="password" type="password" placeholder="Masukkan Password">
+  <button onclick="login()">Masuk</button>
+  <p id="msg" style="color:red;text-align:center"></p>
+</div>
+
+<!-- DASHBOARD -->
 <div id="dashboard">
   <header>
-    <h1>📊 Dashboard Kegiatan</h1>
+    <h1>📊 Dashboard Tugas Pokok & Fungsi</h1>
     <p>Sistem Informasi Internal</p>
   </header>
 
   <div class="controls">
-    <input type="text" id="search" placeholder="🔍 Cari kegiatan / pengampu / username">
-    <select id="filterPengampu">
-      <option value="">📌 Semua Pengampu</option>
+    <input id="search" placeholder="🔍 Cari sub kegiatan / penanggung jawab">
+    <select id="filterTupoksi">
+      <option value="">📌 Semua Tugas Pokok & Fungsi</option>
     </select>
   </div>
 
@@ -102,11 +144,11 @@ footer{
       <thead>
         <tr>
           <th>No</th>
-          <th>Kegiatan</th>
-          <th>Pengampu</th>
+          <th>Tugas Pokok & Fungsi</th>
+          <th>Sub Kegiatan</th>
+          <th>Penanggung Jawab</th>
+          <th>Pendamping</th>
           <th>Link Akses</th>
-          <th>Username</th>
-          <th>Password</th>
         </tr>
       </thead>
       <tbody id="tableData"></tbody>
@@ -114,24 +156,42 @@ footer{
   </div>
 </div>
 
-<footer>© Dashboard Internal</footer>
-
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxPO3MPsFCmgnIJ_v6FYQ5cZWJ6IB96-bbQtneelfAXiVC7DUtwVt4qxWK8yvY4ctdy/exec";
-let allData = [];
+const API = "https://script.google.com/macros/s/AKfycbxbb3eJkblvyzevljYBtWCYjsv6B5JAONm2uhMX4aZ-gXh03yOa6w6dTllvonzF9-c/exec";
+let allData=[];
 
-window.onload = loadData;
+/* LOGIN */
+function login(){
+  fetch(API,{
+    method:"POST",
+    body:new URLSearchParams({
+      action:"login",
+      password:password.value
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.status==="success"){
+      loginBox.style.display="none";
+      dashboard.style.display="block";
+      loadData();
+    }else{
+      msg.innerText="Password salah";
+    }
+  });
+}
 
+/* LOAD DATA */
 function loadData(){
-  fetch(WEB_APP_URL,{
+  fetch(API,{
     method:"POST",
     body:new URLSearchParams({action:"data"})
   })
   .then(r=>r.json())
-  .then(data=>{
-    allData = data;
-    renderTable(data);
-    fillFilter(data);
+  .then(d=>{
+    allData=d;
+    renderTable(d);
+    fillFilter(d);
   });
 }
 
@@ -140,36 +200,37 @@ function renderTable(data){
   data.forEach((d,i)=>{
     tableData.innerHTML+=`
       <tr>
-        <td>${i+1}</td>
-        <td>${d.Kegiatan}</td>
-        <td>${d.Pengampu}</td>
-        <td><a class="link-btn" href="${d["Link Akses"]}" target="_blank">Buka</a></td>
-        <td>${d.Username}</td>
-        <td>${d.Password}</td>
+        <td>${d.NO || i+1}</td>
+        <td>${d["TUGAS POKOK DAN FUNGSI"]}</td>
+        <td>${d["SUB KEGIATAN"]}</td>
+        <td>${d["PENANGGUNG JAWAB"]}</td>
+        <td>${d.PENDAMPING}</td>
+        <td><a class="link-btn" href="${d["LINK AKSES"]}" target="_blank">Buka</a></td>
       </tr>`;
   });
 }
 
 function fillFilter(data){
-  filterPengampu.innerHTML = `<option value="">📌 Semua Pengampu</option>`;
-  [...new Set(data.map(d=>d.Pengampu))].forEach(p=>{
-    filterPengampu.innerHTML+=`<option value="${p}">${p}</option>`;
+  filterTupoksi.innerHTML =
+    `<option value="">📌 Semua Tugas Pokok & Fungsi</option>`;
+  [...new Set(data.map(d=>d["TUGAS POKOK DAN FUNGSI"]))].forEach(t=>{
+    filterTupoksi.innerHTML+=`<option>${t}</option>`;
   });
 }
 
-search.addEventListener("input",filterData);
-filterPengampu.addEventListener("change",filterData);
+search.oninput = filterData;
+filterTupoksi.onchange = filterData;
 
 function filterData(){
   const q = search.value.toLowerCase();
-  const p = filterPengampu.value;
+  const f = filterTupoksi.value;
+
   renderTable(
     allData.filter(d=>{
       const s =
-        d.Kegiatan.toLowerCase().includes(q) ||
-        d.Pengampu.toLowerCase().includes(q) ||
-        d.Username.toLowerCase().includes(q);
-      return (!p || d.Pengampu===p) && s;
+        d["SUB KEGIATAN"].toLowerCase().includes(q) ||
+        d["PENANGGUNG JAWAB"].toLowerCase().includes(q);
+      return (!f || d["TUGAS POKOK DAN FUNGSI"]===f) && s;
     })
   );
 }
