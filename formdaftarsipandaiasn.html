@@ -163,13 +163,19 @@ input{
 <input type="number" id="jpTerakhir" required>
 
 <label>Tema Pembelajaran</label>
-<div class="option-group" data-target="tema">
-  <div class="option-box" data-value="Keselamatan Pasien">Keselamatan Pasien</div>
-  <div class="option-box" data-value="Pencegahan & Pengendalian Infeksi">Pencegahan & PPI</div>
-  <div class="option-box" data-value="Etik & Hukum Kesehatan">Etik & Hukum</div>
-  <div class="option-box" data-value="Manajemen Mutu Pelayanan">Manajemen Mutu</div>
-</div>
-<input type="hidden" id="tema" required>
+<select id="tema" required style="
+  width:100%;
+  padding:12px;
+  margin-top:6px;
+  border-radius:10px;
+  border:1px solid #ccc;
+">
+  <option value="">-- Pilih Tema Pembelajaran --</option>
+  <option value="Platform SKP">Pemanfaatan SKP Platform satusehat SDMK dalam pemenuhan syarat perpanjangan izin praktik bagi named dan nakes di Fasyankes dan Praktik Mandiri (22 Januari 2025, Pukul 13.00 s.d 16.00 WITA)</option>
+  <option value="Pemanfaatan Aplikasi Bangkom BKPSDM dan SIPANDAI-ASN">Pemanfaatan Aplikasi Bangkom BKPSDM dan SIPANDAI-ASN Dinas Kesehatan dalam Pemenuhan Optimal JP ASN Tahun 2026 (12 Februari 2026, Pukul 13.00 s.d 16.oo WITA)</option>
+  <option value="Keselamatan Pasien">Penerapan Keselamatan Pasien dalam Upaya Pencegahan Insiden di Fasilitas Pelayanan Kesehatan Tingkat Pertama (Mendatang)</option>
+  <option value="Komunikasi Efektif">Penerapan Komunikasi Efektif sebagai Upaya Pencegahan Kesalahan Pelayanan Kesehatan (Mendatang)</option>
+</select>
 
 <label>Tanggal Kegiatan</label>
 <input type="date" id="tanggal" required>
