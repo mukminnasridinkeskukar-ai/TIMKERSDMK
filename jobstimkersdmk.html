@@ -31,7 +31,6 @@ body{
   padding:36px;
   border-radius:24px;
   box-shadow:0 25px 60px rgba(0,0,0,.25);
-  animation:fade .5s ease;
 }
 #loginBox h2{text-align:center;margin-bottom:22px}
 #loginBox input{
@@ -53,10 +52,10 @@ body{
   font-weight:700;
   cursor:pointer;
 }
-#msg{text-align:center;margin-top:14px;font-size:14px}
+#msg{text-align:center;margin-top:14px;font-size:14px;color:red}
 
 /* ===== DASHBOARD ===== */
-#dashboard{display:none;padding:26px;animation:slide .6s ease}
+#dashboard{display:none;padding:26px}
 header{
   background:linear-gradient(135deg,var(--primary),#818cf8);
   color:white;
@@ -105,6 +104,7 @@ th,td{
   font-size:14px;
 }
 tbody tr:hover{background:#f9fafb}
+
 .link-btn{
   background:var(--primary);
   color:white;
@@ -115,9 +115,6 @@ tbody tr:hover{background:#f9fafb}
   font-size:13px;
 }
 .link-btn:hover{background:var(--primary-dark)}
-
-@keyframes fade{from{opacity:0}to{opacity:1}}
-@keyframes slide{from{opacity:0;transform:translateY(25px)}to{opacity:1}}
 </style>
 </head>
 
@@ -127,7 +124,7 @@ tbody tr:hover{background:#f9fafb}
 <div id="loginBox">
   <h2>🔐 Akses Dashboard Tim</h2>
   <input id="password" type="password" placeholder="Masukkan Password">
-  <button type="button" onclick="login()">Masuk</button>
+  <button onclick="login()">Masuk</button>
   <div id="msg"></div>
 </div>
 
@@ -163,20 +160,26 @@ tbody tr:hover{background:#f9fafb}
 </div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbxAdSR7fP5L9wMVuso-wm0BBp1gIqv5UViLsd1xyCGjdjvTpwEbv37btkIF07otdoto/exec";
-let allData=[];
+/* ================= CONFIG ================= */
+const API_URL = "https://script.google.com/macros/s/AKfycbxAdSR7fP5L9wMVuso-wm0BBp1gIqv5UViLsd1xyCGjdjvTpwEbv37btkIF07otdoto/exec";
+let SESSION_PWD = "";
+let allData = [];
 
+/* ================= LOGIN ================= */
 function login(){
   const pwd = password.value.trim();
+  if(!pwd){ msg.innerText="Password wajib diisi"; return; }
+
   msg.innerText="Memverifikasi...";
 
-  fetch(API,{
+  fetch(API_URL,{
     method:"POST",
-    body:new URLSearchParams({action:"login",password:pwd})
+    body:new URLSearchParams({action:"login", password:pwd})
   })
   .then(r=>r.json())
   .then(res=>{
     if(res.status==="success"){
+      SESSION_PWD = pwd;
       loginBox.style.display="none";
       dashboard.style.display="block";
       loadData();
@@ -184,41 +187,51 @@ function login(){
       msg.innerText="Password salah";
     }
   })
-  .catch(()=>msg.innerText="Gagal koneksi server");
+  .catch(()=>msg.innerText="Server tidak dapat diakses");
 }
 
+/* ================= LOAD DATA ================= */
 function loadData(){
-  fetch(API,{
+  fetch(API_URL,{
     method:"POST",
-    body:new URLSearchParams({action:"data"})
+    body:new URLSearchParams({action:"data", password:SESSION_PWD})
   })
   .then(r=>r.json())
   .then(d=>{
-    allData=d;
+    if(d.status==="error"){
+      alert("Akses ditolak");
+      location.reload();
+      return;
+    }
+    allData = d;
     renderTable(d);
     fillFilter(d);
   });
 }
 
+/* ================= RENDER TABLE ================= */
 function renderTable(data){
   tableData.innerHTML="";
   data.forEach((d,i)=>{
-    tableData.innerHTML+=`
+    tableData.innerHTML += `
       <tr>
-        <td>${d.NO||i+1}</td>
+        <td>${d.NO || i+1}</td>
         <td>${d["TUGAS POKOK DAN FUNGSI"]||""}</td>
         <td>${d["SUB KEGIATAN"]||""}</td>
         <td>${d["PENANGGUNG JAWAB"]||""}</td>
         <td>${d.PENDAMPING||""}</td>
-        <td>${d["LINK AKSES"]?`<a class="link-btn" href="${d["LINK AKSES"]}" target="_blank">Buka</a>`:"-"}</td>
+        <td>${d["LINK AKSES"] 
+          ? `<a class="link-btn" href="${d["LINK AKSES"]}" target="_blank">Buka</a>` 
+          : "-"}</td>
       </tr>`;
   });
 }
 
+/* ================= FILTER ================= */
 function fillFilter(data){
-  filterPJ.innerHTML=`<option value="">📌 Semua Penanggung Jawab</option>`;
+  filterPJ.innerHTML = `<option value="">📌 Semua Penanggung Jawab</option>`;
   [...new Set(data.map(d=>d["PENANGGUNG JAWAB"]))].forEach(p=>{
-    if(p) filterPJ.innerHTML+=`<option>${p}</option>`;
+    if(p) filterPJ.innerHTML += `<option>${p}</option>`;
   });
 }
 
@@ -231,10 +244,10 @@ function filterData(){
 
   renderTable(
     allData.filter(d=>{
-      const s =
+      const text =
         (d["TUGAS POKOK DAN FUNGSI"]||"").toLowerCase().includes(q) ||
         (d["SUB KEGIATAN"]||"").toLowerCase().includes(q);
-      return (!pj || d["PENANGGUNG JAWAB"]===pj) && s;
+      return (!pj || d["PENANGGUNG JAWAB"]===pj) && text;
     })
   );
 }
