@@ -2,38 +2,84 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>SIPANDAI-ASN Admin</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard Admin SIPANDAI-ASN</title>
+
 <style>
-body{font-family:Arial;background:#f4f6fb;padding:30px}
-.box{max-width:420px;margin:auto;background:#fff;padding:25px;border-radius:12px}
-.hidden{display:none}
-input,button{width:100%;padding:10px;margin-top:10px}
-button{background:#2563eb;color:#fff;border:none;cursor:pointer}
-table{width:100%;border-collapse:collapse;margin-top:20px}
-th,td{border:1px solid #ccc;padding:8px;font-size:13px}
-th{background:#eef2ff}
-.top{display:flex;justify-content:space-between}
+body{
+  font-family:Segoe UI, Arial;
+  background:#eef2f6;
+  padding:20px;
+}
+.container{
+  max-width:1200px;
+  margin:auto;
+}
+
+/* DASHBOARD */
+.dashboard{
+  background:#fff;
+  padding:25px;
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:15px;
+  margin-bottom:20px;
+}
+.card{
+  background:#f8f9fa;
+  padding:20px;
+  border-radius:12px;
+  text-align:center;
+}
+.card h3{margin:0;font-size:26px;color:#28a745}
+.card p{margin:5px 0 0}
+
+.search{
+  padding:10px;
+  width:320px;
+  margin-bottom:15px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th,td{
+  padding:10px;
+  border-bottom:1px solid #ddd;
+}
+th{background:#f1f1f1}
 </style>
 </head>
 
 <body>
 
-<div id="loginBox" class="box hidden">
-  <h3>🔐 Login Admin SIPANDAI-ASN</h3>
-  <input id="username" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
-  <button onclick="login()">LOGIN</button>
-  <div id="msg" style="color:red"></div>
-</div>
+<div class="container">
 
-<div id="dashboard" class="hidden">
-  <div class="top">
-    <h2>📊 Dashboard Admin</h2>
-    <button onclick="logout()" style="width:auto">Logout</button>
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+  <div class="topbar">
+    <h2>Dashboard Admin Pendaftaran SIPANDAI-ASN</h2>
   </div>
 
-  <input id="search" placeholder="Cari data...">
+  <div class="cards">
+    <div class="card"><h3 id="total">0</h3><p>Total Pendaftar</p></div>
+    <div class="card"><h3 id="zoom">0</h3><p>Zoom Meeting</p></div>
+    <div class="card"><h3 id="youtube">0</h3><p>YouTube</p></div>
+  </div>
+
+  <input class="search" id="search" placeholder="Cari nama / NIP / unit / tema">
 
   <table>
     <thead>
@@ -41,6 +87,8 @@ th{background:#eef2ff}
         <th>Nama</th>
         <th>NIP</th>
         <th>Unit</th>
+        <th>Status</th>
+        <th>Jenis SDMK</th>
         <th>Tema</th>
         <th>Platform</th>
       </tr>
@@ -49,80 +97,63 @@ th{background:#eef2ff}
   </table>
 </div>
 
+</div>
+
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0xk98tQgWh45akK5a_sodtjGTLrr_7Ndm0w0LJSm3Eg5RkvLjRQ959fJCwY1TDfRK/exec";
-const TOKEN = "SIPANDAI_ADMIN_2026";
+const SCRIPT_URL =
+"https://script.google.com/macros/s/AKfycbwRLFQ3xemNnNpoPgG20sPh28xORYL2fpiWbMiEbose6xrmgWLyssQz77hnsiOLnR0/exec";
 
-const loginBox = document.getElementById("loginBox");
-const dashboard = document.getElementById("dashboard");
+const el = id => document.getElementById(id);
+let allData = [];
 
-if(localStorage.getItem("ADMIN_TOKEN") === TOKEN){
-  showDashboard();
-}else{
-  loginBox.classList.remove("hidden");
+/* LOAD DATA LANGSUNG */
+async function loadDashboard(){
+  const res = await fetch(SCRIPT_URL + "?action=admin");
+  const data = await res.json();
+  if(!Array.isArray(data)) return;
+
+  allData = data;
+
+  el("total").innerText = data.length;
+  el("zoom").innerText = data.filter(d =>
+    (d["Platform Digital"]||"").toLowerCase().includes("zoom")
+  ).length;
+  el("youtube").innerText = data.filter(d =>
+    (d["Platform Digital"]||"").toLowerCase().includes("youtube")
+  ).length;
+
+  renderTable(data);
 }
 
-function login(){
-  msg.innerText="Memverifikasi...";
-
-  const form = new URLSearchParams();
-  form.append("action","login");
-  form.append("username",username.value);
-  form.append("password",password.value);
-
-  fetch(SCRIPT_URL,{
-    method:"POST",
-    body: form
-  })
-  .then(r=>r.json())
-  .then(d=>{
-    if(!d.success){
-      msg.innerText="Login gagal";
-      return;
-    }
-    localStorage.setItem("ADMIN_TOKEN",d.token);
-    showDashboard();
-  })
-  .catch(()=>msg.innerText="Gagal koneksi Web App");
-}
-
-let allData=[];
-
-function showDashboard(){
-  loginBox.classList.add("hidden");
-  dashboard.classList.remove("hidden");
-
-  fetch(SCRIPT_URL+"?action=admin")
-    .then(r=>r.json())
-    .then(d=>{
-      allData=d;
-      render(d);
-    });
-}
-
-function render(data){
-  tbody.innerHTML="";
-  data.forEach(x=>{
-    tbody.innerHTML+=`
+/* RENDER TABLE */
+function renderTable(data){
+  el("tbody").innerHTML="";
+  data.forEach(d=>{
+    el("tbody").innerHTML += `
       <tr>
-        <td>${x["Nama Lengkap"]||""}</td>
-        <td>${x["NIP"]||""}</td>
-        <td>${x["Unit Kerja"]||""}</td>
-        <td>${x["Tema Pembelajaran"]||""}</td>
-        <td>${x["Platform Digital"]||""}</td>
+        <td>${d["Nama Lengkap"]||"-"}</td>
+        <td>${d["NIP"]||"-"}</td>
+        <td>${d["Unit Kerja"]||"-"}</td>
+        <td>${d["Status Pegawai"]||"-"}</td>
+        <td>${d["Jenis SDMK"]||"-"}</td>
+        <td>${d["Tema Pembelajaran"]||"-"}</td>
+        <td>${d["Platform Digital"]||"-"}</td>
       </tr>`;
   });
 }
 
-search.oninput=()=>{
-  const q=search.value.toLowerCase();
-  render(allData.filter(d=>JSON.stringify(d).toLowerCase().includes(q)));
-}
+/* SEARCH */
+el("search").addEventListener("input",()=>{
+  const q = el("search").value.toLowerCase();
+  renderTable(
+    allData.filter(d =>
+      Object.values(d).join(" ").toLowerCase().includes(q)
+    )
+  );
+});
 
-function logout(){
-  localStorage.removeItem("ADMIN_TOKEN");
-  location.reload();
-}
+/* INIT */
+loadDashboard();
 </script>
 
 </body>
