@@ -194,7 +194,43 @@ tbody tr:hover{background:#f9fafb}
 <script>
 /* ================= CONFIG ================= */
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzus-pq28rEkwp1uBDiN-0uNsLqHVn0KQfUC85Fhy6qlOX4bDGJGTQmTXdzGUm1DfW0/exec?action=admin";
+<script>
+const ADMIN_TOKEN = "SIPANDAI_ADMIN_2026";
 
+if(localStorage.getItem("ADMIN_TOKEN") !== ADMIN_TOKEN){
+  window.location.href =
+    "https://sipandaiasn.blogspot.com/p/login-admin.html";
+}
+</script>
+  
+  loginBtn.onclick = async () => {
+  loginMsg.innerText = "Memverifikasi...";
+
+  const res = await fetch(API,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
+      action:"login",
+      username:username.value,
+      password:password.value
+    })
+  });
+
+  const out = await res.json();
+
+  if(!out.success){
+    loginMsg.innerText = "Login gagal";
+    return;
+  }
+
+  // SIMPAN TOKEN
+  localStorage.setItem("ADMIN_TOKEN", out.token);
+
+  // REDIRECT
+  window.location.href =
+    "https://sipandaiasn.blogspot.com/p/dashboard-admin.html";
+};
+</script>
 /* ================= STATE ================= */
 let allData=[];
 
