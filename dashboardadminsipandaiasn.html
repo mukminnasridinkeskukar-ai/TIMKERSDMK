@@ -112,8 +112,13 @@ async function loadDashboard() {
   document.getElementById("total").innerText = total;
 
   // HITUNG PLATFORM
-  const zoom = data.filter(d => d.Platform === "Zoom Meeting").length;
-  const youtube = data.filter(d => d.Platform === "YouTube").length;
+ const zoom = data.filter(d =>
+  (d["Platform Digital"] || "").toLowerCase().includes("zoom")
+).length;
+
+const youtube = data.filter(d =>
+  (d["Platform Digital"] || "").toLowerCase().includes("youtube")
+).length;
 
   document.getElementById("zoom").innerText = zoom;
   document.getElementById("youtube").innerText = youtube;
