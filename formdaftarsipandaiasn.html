@@ -289,11 +289,18 @@ confirmBtn.onclick=async()=>{
 
   if(!out.success){alert(out.message);return;}
 
-  alert("Pendaftaran berhasil");
-  form.reset();
-  document.querySelectorAll(".option-box").forEach(b=>b.classList.remove("active"));
-  loadTotal();
-};
+  alert("Pendaftaran berhasil. Anda akan diarahkan ke platform kegiatan.");
+
+const platformPilihan = platform.value;
+
+// Delay sedikit biar user sadar (UX lebih enak)
+setTimeout(() => {
+  if (platformPilihan === "Zoom Meeting") {
+    window.location.href = LINK_ZOOM;
+  } else if (platformPilihan === "YouTube") {
+    window.location.href = LINK_YOUTUBE;
+  }
+}, 1200);
 
 // TIMER LENGKAP (Hari, Jam, Menit, Detik)
 setInterval(() => {
