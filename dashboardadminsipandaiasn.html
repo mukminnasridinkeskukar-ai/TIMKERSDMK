@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Dashboard Admin</title>
+<title>Dashboard Admin SIPANDAI-ASN</title>
 
 <style>
 body{
@@ -13,12 +13,53 @@ body{
 .container{
   max-width:1200px;
   margin:auto;
+}
+
+/* ================= LOGIN ================= */
+.login-box{
+  max-width:380px;
+  margin:40px auto;
+  background:#fff;
+  padding:30px;
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
+  text-align:center;
+}
+.login-box h2{margin-bottom:5px}
+.login-box .sub{color:#666;font-size:14px;margin-bottom:20px}
+.login-box input{
+  width:100%;
+  padding:12px;
+  margin-top:12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+}
+.login-box button{
+  width:100%;
+  padding:12px;
+  margin-top:20px;
+  border:none;
+  border-radius:12px;
+  background:#0d6efd;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+.login-msg{
+  margin-top:15px;
+  color:#dc3545;
+  font-weight:600;
+  display:none;
+}
+
+/* ================= DASHBOARD ================= */
+.dashboard{
+  display:none;
   background:#fff;
   padding:25px;
-  border-radius:14px;
+  border-radius:16px;
   box-shadow:0 10px 25px rgba(0,0,0,.08);
 }
-h2{text-align:center;margin-bottom:10px}
 .topbar{
   display:flex;
   justify-content:space-between;
@@ -49,7 +90,7 @@ h2{text-align:center;margin-bottom:10px}
 .card h3{margin:0;font-size:26px;color:#28a745}
 .card p{margin:5px 0 0}
 
-input{
+input.search{
   padding:10px;
   width:320px;
   margin-bottom:15px;
@@ -64,7 +105,6 @@ table{
 th,td{
   padding:10px;
   border-bottom:1px solid #ddd;
-  text-align:left;
 }
 th{background:#f1f1f1}
 </style>
@@ -72,74 +112,117 @@ th{background:#f1f1f1}
 
 <body>
 
-<script>
-/* =========================
-   PROTEKSI LOGIN
-   ========================= */
-if (localStorage.getItem("admin_login") !== "true") {
-  window.location.href = "login-dashboard.html";
-}
-</script>
-
 <div class="container">
 
-<div class="topbar">
-  <h2>Dashboard Admin Pendaftaran</h2>
-  <button class="logout" onclick="logout()">Logout</button>
+<!-- ================= LOGIN ================= -->
+<div class="login-box" id="loginBox">
+  <h2>Login Admin</h2>
+  <div class="sub">Dashboard Pendaftaran SIPANDAI-ASN</div>
+
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+
+  <button onclick="login()">MASUK</button>
+  <div class="login-msg" id="loginMsg"></div>
 </div>
 
-<div class="cards">
-  <div class="card">
-    <h3 id="total">0</h3>
-    <p>Total Pendaftar</p>
+<!-- ================= DASHBOARD ================= -->
+<div class="dashboard" id="dashboard">
+
+  <div class="topbar">
+    <h2>Dashboard Admin Pendaftaran</h2>
+    <button class="logout" onclick="logout()">Logout</button>
   </div>
-  <div class="card">
-    <h3 id="zoom">0</h3>
-    <p>Zoom Meeting</p>
+
+  <div class="cards">
+    <div class="card">
+      <h3 id="total">0</h3>
+      <p>Total Pendaftar</p>
+    </div>
+    <div class="card">
+      <h3 id="zoom">0</h3>
+      <p>Zoom Meeting</p>
+    </div>
+    <div class="card">
+      <h3 id="youtube">0</h3>
+      <p>YouTube</p>
+    </div>
   </div>
-  <div class="card">
-    <h3 id="youtube">0</h3>
-    <p>YouTube</p>
-  </div>
+
+  <input class="search" id="search" placeholder="Cari nama / NIP / unit / tema">
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nama</th>
+        <th>NIP</th>
+        <th>Unit</th>
+        <th>Status</th>
+        <th>Jenis SDMK</th>
+        <th>Tema</th>
+        <th>Platform</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
 </div>
-
-<input type="text" id="search" placeholder="Cari nama / NIP / unit / tema...">
-
-<table>
-<thead>
-<tr>
-  <th>Nama</th>
-  <th>NIP</th>
-  <th>Unit</th>
-  <th>Status</th>
-  <th>Jenis SDMK</th>
-  <th>Tema</th>
-  <th>Platform</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
 
 </div>
 
 <script>
+/* ================= KONFIG ================= */
 const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbxaZbKSnm3Q36qCC-TVO7N6U3dUac5-LK2HCb-CWEG_nL5P6QB519KAy5YF-0nuhuS8Qw/exec?action=admin";
+"https://script.google.com/macros/s/AKfycbxaZbKSnm3Q36qCC-TVO7N6U3dUac5-LK2HCb-CWEG_nL5P6QB519KAy5YF-0nuhuS8Qw/exec";
 
-let dataGlobal = [];
+/* ================= LOGIN ================= */
+async function login(){
+  loginMsg.style.display="none";
+
+  const res = await fetch(SCRIPT_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"login",
+      username:username.value,
+      password:password.value
+    })
+  });
+
+  const out = await res.json();
+  if(!out.success){
+    loginMsg.innerText = out.message;
+    loginMsg.style.display="block";
+    return;
+  }
+
+  loginBox.style.display="none";
+  dashboard.style.display="block";
+  loadDashboard();
+}
+
+function logout(){
+  if(confirm("Yakin ingin logout?")){
+    dashboard.style.display="none";
+    loginBox.style.display="block";
+  }
+}
+
+/* ================= DASHBOARD ================= */
+let dataGlobal=[];
 
 async function loadDashboard(){
-  const res = await fetch(SCRIPT_URL);
+  const res = await fetch(SCRIPT_URL+"?action=admin");
   const data = await res.json();
   if(!Array.isArray(data)) return;
 
-  dataGlobal = data;
+  dataGlobal=data;
+  total.innerText=data.length;
 
-  total.innerText = data.length;
-  zoom.innerText = data.filter(d =>
+  zoom.innerText=data.filter(d=>
     (d["Platform Digital"]||"").toLowerCase().includes("zoom")
   ).length;
-  youtube.innerText = data.filter(d =>
+
+  youtube.innerText=data.filter(d=>
     (d["Platform Digital"]||"").toLowerCase().includes("youtube")
   ).length;
 
@@ -172,15 +255,6 @@ search.addEventListener("input",()=>{
     (d["Tema Pembelajaran"]||"").toLowerCase().includes(q)
   ));
 });
-
-function logout(){
-  if(confirm("Yakin ingin logout?")){
-    localStorage.removeItem("admin_login");
-    location.href="login-dashboard.html";
-  }
-}
-
-loadDashboard();
 </script>
 
 </body>
