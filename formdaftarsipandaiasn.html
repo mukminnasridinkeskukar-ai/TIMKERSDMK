@@ -348,15 +348,12 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      alert("Pendaftaran berhasil. Anda akan diarahkan ke platform kegiatan.");
+   alert(
+  "Pendaftaran berhasil.\n\n" +
+  "Informasi akses kegiatan (Zoom/YouTube) akan disampaikan oleh panitia.\n" +
+  "Silakan menunggu pemberitahuan selanjutnya."
+);
 
-      setTimeout(() => {
-        if (platform.value === "Zoom Meeting") {
-          window.location.href = LINK_ZOOM;
-        } else if (platform.value === "YouTube") {
-          window.location.href = LINK_YOUTUBE;
-        }
-      }, 1200);
 
     } catch (err) {
       alert("Gagal mengirim data. Periksa koneksi.");
