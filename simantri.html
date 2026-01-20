@@ -85,6 +85,20 @@ body{
 }
 </style>
 </head>
+<!-- MODAL GALERI -->
+<div class="modal fade" id="galleryModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="galleryTitle"></h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <div id="galleryContent"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <body>
 
@@ -155,6 +169,89 @@ body{
   </div>
 </section>
 
+<!-- GALERI SLIDER -->
+<section id="galeri" class="container py-5">
+  <div class="section-title">
+    <h2>Galeri Kegiatan</h2>
+    <p class="text-muted">
+      Dokumentasi kegiatan layanan perizinan praktik tenaga kesehatan
+    </p>
+  </div>
+
+  <div id="galeriCarousel" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+
+      <!-- SLIDE 1 -->
+      <div class="carousel-item active">
+        <div class="row g-4 justify-content-center">
+          <div class="col-md-4">
+            <div class="card-box gallery-item"
+              data-type="image"
+              data-src="img/kegiatan1.jpg"
+              data-title="Verifikasi Dokumen SIP">
+              <img src="img/kegiatan1.jpg" class="img-fluid rounded mb-2">
+              <h6 class="fw-bold">Verifikasi Dokumen SIP</h6>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card-box gallery-item"
+              data-type="image"
+              data-src="img/kegiatan2.jpg"
+              data-title="Koordinasi Tim Teknis">
+              <img src="img/kegiatan2.jpg" class="img-fluid rounded mb-2">
+              <h6 class="fw-bold">Koordinasi Tim Teknis</h6>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card-box gallery-item"
+              data-type="video"
+              data-src="https://www.youtube.com/embed/VIDEO_ID"
+              data-title="Sosialisasi SIMANTRI">
+              <img src="img/video-thumb.jpg" class="img-fluid rounded mb-2">
+              <h6 class="fw-bold">Sosialisasi SIMANTRI</h6>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 2 -->
+      <div class="carousel-item">
+        <div class="row g-4 justify-content-center">
+          <div class="col-md-4">
+            <div class="card-box gallery-item"
+              data-type="image"
+              data-src="img/kegiatan3.jpg"
+              data-title="Pelayanan SIP">
+              <img src="img/kegiatan3.jpg" class="img-fluid rounded mb-2">
+              <h6 class="fw-bold">Pelayanan SIP</h6>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card-box gallery-item"
+              data-type="image"
+              data-src="img/kegiatan4.jpg"
+              data-title="Monitoring Praktik">
+              <img src="img/kegiatan4.jpg" class="img-fluid rounded mb-2">
+              <h6 class="fw-bold">Monitoring Praktik</h6>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CONTROL -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#galeriCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#galeriCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+
+  </div>
+</section>
+
+  
 <!-- ALUR LAYANAN -->
 <section id="alur" class="container-fluid bg-light py-5">
   <div class="container">
@@ -243,6 +340,27 @@ document.querySelectorAll(".service-card").forEach(card=>{
     modalDesc.textContent = card.dataset.desc;
     modalLink.href = card.dataset.link;
     modal.show();
+  };
+});
+</script>
+<script>
+const gModal = new bootstrap.Modal(document.getElementById("galleryModal"));
+const gTitle = document.getElementById("galleryTitle");
+const gContent = document.getElementById("galleryContent");
+
+document.querySelectorAll(".gallery-item").forEach(item=>{
+  item.onclick = ()=>{
+    gTitle.textContent = item.dataset.title;
+
+    if(item.dataset.type==="image"){
+      gContent.innerHTML = `<img src="${item.dataset.src}" class="img-fluid rounded">`;
+    }else{
+      gContent.innerHTML = `
+        <div class="ratio ratio-16x9">
+          <iframe src="${item.dataset.src}" allowfullscreen></iframe>
+        </div>`;
+    }
+    gModal.show();
   };
 });
 </script>
