@@ -92,7 +92,10 @@ header{
   border-radius:20px;
   box-shadow:0 15px 40px rgba(0,0,0,.15);
 }
-.swiper img{width:100%;height:auto;}
+.swiper img{
+  width:100%;
+  height:auto;
+}
 
 /* CTA */
 .cta{
@@ -120,6 +123,17 @@ footer a:hover{color:#0dcaf0;}
     <a class="navbar-brand" href="#">
       <i class="bi bi-heart-pulse-fill me-2"></i>ABDIMAS
     </a>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#program">Program</a></li>
+        <li class="nav-item"><a class="nav-link" href="#kegiatan">Kegiatan</a></li>
+        <li class="nav-item"><a class="nav-link" href="#dokumentasi">Dokumentasi</a></li>
+        <li class="nav-item"><a class="nav-link" href="#kontak">Kontak</a></li>
+      </ul>
+    </div>
   </div>
 </nav>
 
@@ -145,31 +159,31 @@ footer a:hover{color:#0dcaf0;}
     <div class="row g-4">
       <div class="col-md-4">
         <div class="program-card"
-             data-title="Pelayanan Kesehatan"
-             data-desc="Pemeriksaan, skrining, dan konsultasi kesehatan masyarakat."
-             data-link="pelayanan-kesehatan.html">
+          data-title="Pelayanan Kesehatan"
+          data-desc="Pemeriksaan, skrining, dan konsultasi kesehatan masyarakat."
+          data-link="pelayanan-kesehatan.html">
           <i class="bi bi-hospital"></i>
           <h5>Pelayanan Kesehatan</h5>
-          <p>Pemeriksaan dan konsultasi masyarakat.</p>
+          <p>Pemeriksaan, skrining, dan konsultasi kesehatan masyarakat.</p>
         </div>
       </div>
 
       <div class="col-md-4">
         <div class="program-card"
-             data-title="Edukasi & Penyuluhan"
-             data-desc="Peningkatan literasi kesehatan dan pencegahan penyakit."
-             data-link="edukasi-penyuluhan.html">
+          data-title="Edukasi & Penyuluhan"
+          data-desc="Peningkatan literasi kesehatan dan pencegahan penyakit."
+          data-link="edukasi-penyuluhan.html">
           <i class="bi bi-journal-medical"></i>
           <h5>Edukasi & Penyuluhan</h5>
-          <p>Peningkatan kesadaran hidup sehat.</p>
+          <p>Peningkatan literasi kesehatan.</p>
         </div>
       </div>
 
       <div class="col-md-4">
         <div class="program-card"
-             data-title="Tanggap Sosial"
-             data-desc="Dukungan kesehatan pada kondisi darurat dan kelompok rentan."
-             data-link="tanggap-sosial.html">
+          data-title="Tanggap Sosial"
+          data-desc="Dukungan kesehatan pada kondisi darurat dan kelompok rentan."
+          data-link="tanggap-sosial.html">
           <i class="bi bi-people-fill"></i>
           <h5>Tanggap Sosial</h5>
           <p>Dukungan kesehatan darurat.</p>
@@ -178,6 +192,78 @@ footer a:hover{color:#0dcaf0;}
     </div>
   </div>
 </section>
+
+<!-- KEGIATAN -->
+<section class="section bg-light" id="kegiatan">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <div class="detail-box">
+          <h3>Kegiatan ABDIMAS</h3>
+          <p>
+            Kegiatan pengabdian masyarakat dilaksanakan secara terencana
+            dengan melibatkan tenaga kesehatan lintas profesi.
+          </p>
+          <ul>
+            <li>Deteksi dini penyakit</li>
+            <li>Edukasi kesehatan keluarga</li>
+            <li>Pendampingan masyarakat</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-lg-6" id="dokumentasi">
+        <div class="swiper">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">
+              <img src="images/abdimas4.jpg">
+            </div>
+            <div class="swiper-slide">
+              <img src="https://picsum.photos/900/500?random=2">
+            </div>
+            <div class="swiper-slide">
+              <img src="https://picsum.photos/900/500?random=3">
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <div class="container">
+    <h2 class="fw-bold mb-3">Bersama Mewujudkan Masyarakat Sehat</h2>
+    <p>Kolaborasi SDM Kesehatan demi pelayanan bermutu.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="pt-5" id="kontak">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <h5 class="text-white">ABDIMAS</h5>
+        <p>Pengabdian masyarakat oleh SDM Kesehatan.</p>
+      </div>
+      <div class="col-md-4">
+        <h5 class="text-white">Kontak</h5>
+        <p>Email: dinkes@example.go.id</p>
+        <p>Telp: (0541) 123456</p>
+      </div>
+      <div class="col-md-4">
+        <h5 class="text-white">Alamat</h5>
+        <p>Dinas Kesehatan Kabupaten/Kota</p>
+      </div>
+    </div>
+    <hr class="border-secondary">
+    <p class="text-center mb-0 pb-4">
+      © 2026 Pengabdian Masyarakat SDM Kesehatan
+    </p>
+  </div>
+</footer>
 
 <!-- MODAL PROGRAM -->
 <div class="modal fade" id="programModal" tabindex="-1">
@@ -197,16 +283,15 @@ footer a:hover{color:#0dcaf0;}
   </div>
 </div>
 
-<!-- FOOTER -->
-<footer class="pt-5">
-  <div class="container text-center">
-    <p>© 2026 Pengabdian Masyarakat SDM Kesehatan</p>
-  </div>
-</footer>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
 <script>
+new Swiper('.swiper',{
+  loop:true,
+  autoplay:{delay:4000}
+});
+
 document.querySelectorAll('.program-card').forEach(card=>{
   card.addEventListener('click',()=>{
     modalTitle.innerText = card.dataset.title;
@@ -219,4 +304,3 @@ document.querySelectorAll('.program-card').forEach(card=>{
 
 </body>
 </html>
-
