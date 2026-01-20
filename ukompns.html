@@ -121,16 +121,18 @@ th{background:#f3f4f6}
 <thead>
 <tr>
   <th>No</th>
-  <th>Instansi</th>
-  <th>Jabatan Fungsional</th>
-  <th>Jenjang</th>
+  <th>Instansi / Institusi</th>
+  <th>Jenis Jabatan Fungsional</th>
+  <th>Jenjang Jabatan</th>
   <th>Kebutuhan</th>
   <th>Pemangku</th>
-  <th>Lowongan</th>
+  <th>Lowongan Formasi</th>
+  <th>Nama Pemangku Saat Ini</th>
+  <th>Pemangku Disetujui Mengisi Lowongan</th>
 </tr>
 </thead>
 <tbody id="tb">
-<tr><td colspan="7">⏳ Memuat data...</td></tr>
+<tr><td colspan="9">⏳ Memuat data...</td></tr>
 </tbody>
 </table>
 
@@ -155,7 +157,7 @@ fetch(API_URL)
   render(data);
 })
 .catch(()=>{
-  tb.innerHTML="<tr><td colspan='7'>❌ Gagal memuat data</td></tr>";
+  tb.innerHTML="<tr><td colspan='9'>❌ Gagal memuat data</td></tr>";
 });
 
 /* INIT FILTER */
@@ -163,12 +165,9 @@ function initFilter(data){
   const iSet=new Set(), jSet=new Set(), jenSet=new Set();
 
   data.forEach(d=>{
-    if(d["Instansi/ Institusi Pelayanan Kesehatan"])
-      iSet.add(d["Instansi/ Institusi Pelayanan Kesehatan"]);
-    if(d["Jenis Jabatan Fungsional"])
-      jSet.add(d["Jenis Jabatan Fungsional"]);
-    if(d["Jenjang Jabatan"])
-      jenSet.add(d["Jenjang Jabatan"]);
+    iSet.add(d["Instansi/ Institusi Pelayanan Kesehatan"]);
+    jSet.add(d["Jenis Jabatan Fungsional"]);
+    jenSet.add(d["Jenjang Jabatan"]);
   });
 
   iSet.forEach(v=>instansi.add(new Option(v,v)));
@@ -176,7 +175,7 @@ function initFilter(data){
   jenSet.forEach(v=>jenjang.add(new Option(v,v)));
 }
 
-/* RENDER (RINGAN) */
+/* RENDER */
 function render(data){
   tb.innerHTML="";
   const frag=document.createDocumentFragment();
@@ -197,6 +196,8 @@ function render(data){
       <td>${kebutuhan}</td>
       <td>${pemangku}</td>
       <td><span class="badge ${low>0?'no':'ok'}">${low}</span></td>
+      <td>${(d["Nama-Nama Pemangku Saat Ini"]||"-").replace(/\n/g,"<br>")}</td>
+      <td>${(d["Nama-Nama Pemangku Yang telah disetujui Untuk Mengisi Lowongan"]||"-").replace(/\n/g,"<br>")}</td>
     `;
     frag.appendChild(tr);
   }
@@ -221,3 +222,4 @@ instansi.onchange=applyFilter;
 jabatan.onchange=applyFilter;
 jenjang.onchange=applyFilter;
 </script>
+
