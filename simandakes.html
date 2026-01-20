@@ -5,27 +5,83 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIMANDAKES | Sistem Informasi SDM Kesehatan</title>
 
-<!-- CDN CSS -->
+<!-- CDN -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
 <style>
-body { font-family: 'Segoe UI', sans-serif; background:#f4f6f9 }
-.hero {
-  background: linear-gradient(135deg,#198754,#0d6efd);
-  color:#fff; padding:90px 0;
+:root{
+  --primary:#0d6efd;
+  --success:#198754;
+  --dark:#0b132b;
 }
-.card { border:none; border-radius:16px }
-.card:hover { transform:translateY(-5px); transition:.3s }
-footer { background:#0b132b; color:#ddd }
+body{
+  font-family:'Segoe UI',system-ui,sans-serif;
+  background:#f4f6f9;
+  scroll-behavior:smooth;
+}
+.navbar{
+  backdrop-filter: blur(6px);
+}
+.hero{
+  min-height:100vh;
+  background:
+    linear-gradient(120deg,rgba(13,110,253,.85),rgba(25,135,84,.85)),
+    url('https://images.unsplash.com/photo-1580281657527-47f249e8f6e1?auto=format&fit=crop&w=1600&q=80');
+  background-size:cover;
+  background-position:center;
+  color:#fff;
+  display:flex;
+  align-items:center;
+}
+.hero h1{
+  font-size:3.2rem;
+  font-weight:700;
+}
+.hero p{
+  font-size:1.15rem;
+}
+.section-title{
+  font-weight:700;
+}
+.card{
+  border:none;
+  border-radius:18px;
+  transition:.4s;
+}
+.card:hover{
+  transform:translateY(-10px);
+  box-shadow:0 20px 40px rgba(0,0,0,.12);
+}
+.icon-box{
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  background:linear-gradient(135deg,var(--primary),var(--success));
+  color:#fff;
+  margin-bottom:20px;
+}
+.stats{
+  background:linear-gradient(135deg,#0d6efd,#198754);
+  color:#fff;
+}
+footer{
+  background:var(--dark);
+  color:#ccc;
+}
+footer a{color:#ccc;text-decoration:none}
 </style>
 </head>
 
 <body>
 
 <!-- NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-success fixed-top">
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
   <div class="container">
     <a class="navbar-brand fw-bold" href="#">SIMANDAKES</a>
     <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
@@ -33,81 +89,151 @@ footer { background:#0b132b; color:#ddd }
     </button>
     <div class="collapse navbar-collapse" id="nav">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link active" href="#">Beranda</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Profil</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Platform</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Informasi</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Kontak</a></li>
+        <li class="nav-item"><a class="nav-link active" href="#hero">Beranda</a></li>
+        <li class="nav-item"><a class="nav-link" href="#tentang">Tentang</a></li>
+        <li class="nav-item"><a class="nav-link" href="#platform">Platform</a></li>
+        <li class="nav-item"><a class="nav-link" href="#dashboard">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="#kontak">Kontak</a></li>
       </ul>
     </div>
   </div>
 </nav>
 
 <!-- HERO -->
-<section class="hero text-center mt-5">
+<section id="hero" class="hero text-center">
   <div class="container" data-aos="zoom-in">
-    <h1 class="fw-bold">SIMANDAKES</h1>
-    <p class="lead mt-3">
+    <h1>SIMANDAKES</h1>
+    <p class="mt-3">
       Sistem Informasi dan Manajemen Pendayagunaan<br>
       <strong>Sumber Daya Manusia Kesehatan</strong>
     </p>
-    <a href="#" class="btn btn-light btn-lg mt-3">
-      <i class="bi bi-speedometer2"></i> Masuk Dashboard
-    </a>
+    <div class="mt-4">
+      <a href="#dashboard" class="btn btn-light btn-lg me-2">
+        <i class="bi bi-speedometer2"></i> Dashboard
+      </a>
+      <a href="#" class="btn btn-outline-light btn-lg">
+        <i class="bi bi-pencil-square"></i> Isi Formulir
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- TENTANG -->
+<section id="tentang" class="py-5">
+  <div class="container">
+    <div class="row justify-content-center text-center mb-4">
+      <div class="col-lg-8" data-aos="fade-up">
+        <h2 class="section-title">Tentang SIMANDAKES</h2>
+        <p class="text-muted mt-3">
+          SIMANDAKES merupakan sistem terintegrasi yang digunakan untuk
+          pendataan, perencanaan, pendayagunaan, serta monitoring dan evaluasi
+          Sumber Daya Manusia Kesehatan di tingkat daerah.
+        </p>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- PLATFORM -->
-<section class="container my-5">
-  <div class="text-center mb-4">
-    <h2 class="fw-bold">Platform SIMANDAKES</h2>
+<section id="platform" class="py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="section-title">Platform SIMANDAKES</h2>
+    </div>
+
+    <div class="row g-4">
+
+      <div class="col-md-6 col-lg-3" data-aos="fade-up">
+        <div class="card p-4 h-100 text-center">
+          <div class="icon-box mx-auto"><i class="bi bi-people-fill"></i></div>
+          <h5>Pendataan SDMK</h5>
+          <p class="text-muted">
+            Pengelolaan data tenaga kesehatan secara terintegrasi dan mutakhir.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+        <div class="card p-4 h-100 text-center">
+          <div class="icon-box mx-auto"><i class="bi bi-diagram-3-fill"></i></div>
+          <h5>Distribusi & Mutasi</h5>
+          <p class="text-muted">
+            Pemerataan tenaga kesehatan sesuai kebutuhan wilayah.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+        <div class="card p-4 h-100 text-center">
+          <div class="icon-box mx-auto"><i class="bi bi-geo-alt-fill"></i></div>
+          <h5>Pemetaan Kebutuhan</h5>
+          <p class="text-muted">
+            Analisis kebutuhan berbasis beban kerja dan layanan.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+        <div class="card p-4 h-100 text-center">
+          <div class="icon-box mx-auto"><i class="bi bi-graph-up-arrow"></i></div>
+          <h5>Monitoring & Evaluasi</h5>
+          <p class="text-muted">
+            Laporan dan indikator kinerja SDM Kesehatan.
+          </p>
+        </div>
+      </div>
+
+    </div>
   </div>
+</section>
 
-  <div class="row g-4">
-    <div class="col-md-3" data-aos="fade-up">
-      <div class="card p-4 text-center h-100">
-        <i class="bi bi-people-fill fs-1 text-success"></i>
-        <h5 class="mt-3">Pendataan SDMK</h5>
-        <p class="text-muted">Pendataan tenaga kesehatan terintegrasi.</p>
+<!-- STAT -->
+<section class="stats py-5 text-center">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-4" data-aos="zoom-in">
+        <h2>100%</h2>
+        <p>Terintegrasi</p>
       </div>
-    </div>
-
-    <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
-      <div class="card p-4 text-center h-100">
-        <i class="bi bi-diagram-3-fill fs-1 text-primary"></i>
-        <h5 class="mt-3">Distribusi</h5>
-        <p class="text-muted">Pemerataan dan mutasi tenaga kesehatan.</p>
+      <div class="col-md-4" data-aos="zoom-in" data-aos-delay="100">
+        <h2>Real-time</h2>
+        <p>Berbasis Data</p>
       </div>
-    </div>
-
-    <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
-      <div class="card p-4 text-center h-100">
-        <i class="bi bi-geo-alt-fill fs-1 text-danger"></i>
-        <h5 class="mt-3">Pemetaan</h5>
-        <p class="text-muted">Analisis kebutuhan berbasis wilayah.</p>
-      </div>
-    </div>
-
-    <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
-      <div class="card p-4 text-center h-100">
-        <i class="bi bi-graph-up-arrow fs-1 text-warning"></i>
-        <h5 class="mt-3">Monitoring</h5>
-        <p class="text-muted">Evaluasi dan laporan SDMK.</p>
+      <div class="col-md-4" data-aos="zoom-in" data-aos-delay="200">
+        <h2>Akuntabel</h2>
+        <p>Transparan & Terukur</p>
       </div>
     </div>
   </div>
 </section>
 
+<!-- DASHBOARD CTA -->
+<section id="dashboard" class="py-5 text-center">
+  <div class="container" data-aos="fade-up">
+    <h2 class="section-title">Dashboard SIMANDAKES</h2>
+    <p class="text-muted mt-2">
+      Akses dashboard untuk melihat kebutuhan, pemangku, dan lowongan formasi SDMK
+    </p>
+    <a href="#" class="btn btn-primary btn-lg mt-3">
+      <i class="bi bi-bar-chart-fill"></i> Buka Dashboard
+    </a>
+  </div>
+</section>
+
 <!-- FOOTER -->
-<footer class="py-4 text-center">
-  <p class="mb-1 fw-bold">SIMANDAKES</p>
-  <small>Dinas Kesehatan • Pemerintah Daerah</small>
+<footer id="kontak" class="py-4">
+  <div class="container text-center">
+    <p class="fw-bold mb-1">SIMANDAKES</p>
+    <small>
+      Sistem Informasi dan Manajemen Pendayagunaan SDM Kesehatan<br>
+      Dinas Kesehatan • Pemerintah Daerah
+    </small>
+  </div>
 </footer>
 
-<!-- CDN JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-<script>AOS.init();</script>
+<script>AOS.init({once:true,duration:900});</script>
 
 </body>
 </html>
