@@ -1,88 +1,81 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<title>Dashboard SDMK</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<title>Dashboard Peminat SDMK</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
 <style>
-body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:#f1f5f9}
-.hidden{display:none}
+body{font-family:Segoe UI,Arial;background:#f1f5f9;margin:0}
+header{
+  background:#0f172a;color:#fff;
+  padding:16px 20px;
+  display:flex;justify-content:space-between;align-items:center
+}
+.container{padding:20px}
 
-/* LOGIN */
-.login{
-  position:fixed;inset:0;display:flex;
-  align-items:center;justify-content:center;
-  background:#020617;
-}
-.login-box{
-  width:340px;padding:24px;border-radius:16px;
-  background:#111827;color:#fff;
-}
-.login-box h2{text-align:center}
-.login-box input{
-  width:100%;margin-top:10px;padding:10px;
-  border-radius:10px;border:none;
-}
-.login-box button{
-  width:100%;margin-top:12px;padding:10px;
-  border:none;border-radius:10px;
-  background:#2563eb;color:#fff;
-}
+input{padding:10px;width:260px}
 
-/* DASHBOARD */
-.dash{padding:16px}
-.top{display:flex;justify-content:space-between;align-items:center}
-.logout{background:#ef4444;color:#fff;border:none;padding:6px 12px;border-radius:8px}
-
-input,select{padding:8px;margin:6px 0}
-
-table{
-  width:100%;border-collapse:collapse;background:#fff;margin-top:10px
-}
-th,td{border:1px solid #e5e7eb;padding:8px}
+table{width:100%;border-collapse:collapse;background:#fff}
+th,td{padding:10px;border-bottom:1px solid #e5e7eb}
 th{background:#f8fafc}
-tbody tr:hover{background:#f9fafb;cursor:pointer}
-img.thumb{width:42px;height:42px;border-radius:50%}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:#f1f5f9}
+
+img.thumb{
+  width:44px;height:44px;
+  border-radius:50%;object-fit:cover
+}
 
 /* MODAL */
 .modal{
-  position:fixed;inset:0;background:rgba(0,0,0,.7);
-  display:flex;align-items:center;justify-content:center;
-  visibility:hidden;opacity:0;
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.7);
+  display:none;align-items:center;justify-content:center;
+  z-index:9999
 }
-.modal.show{visibility:visible;opacity:1}
+.modal.show{display:flex}
 .modal-box{
-  background:#fff;padding:20px;border-radius:16px;
-  width:95%;max-width:800px;max-height:90vh;overflow:auto;
+  background:#fff;
+  width:90%;max-width:900px;
+  border-radius:18px;
+  padding:24px;
+  display:grid;
+  grid-template-columns:1.4fr 1fr;
+  gap:24px
 }
-.modal-box img{width:160px;border-radius:14px}
+.modal-box img{
+  width:100%;
+  border-radius:16px;
+  cursor:zoom-in
+}
+.close{
+  position:absolute;top:14px;right:18px;
+  font-size:26px;cursor:pointer
+}
+
+/* LIGHTBOX */
+.lightbox{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.9);
+  display:none;align-items:center;justify-content:center;
+  z-index:10000
+}
+.lightbox img{max-width:90%;max-height:90%}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div class="login" id="loginWrap">
-  <div class="login-box">
-    <h2>🔐 Admin</h2>
-    <input id="user" placeholder="Username">
-    <input id="pass" type="password" placeholder="Password">
-    <button onclick="login()">Masuk</button>
-    <div id="err" style="color:#fecaca;text-align:center"></div>
-  </div>
-</div>
+<header>
+  <b>📊 Dashboard Peminat SDMK</b>
+  <button onclick="logout()">Logout</button>
+</header>
 
-<!-- DASHBOARD -->
-<div class="dash hidden" id="dashWrap">
-  <div class="top">
-    <h3>📋 Dashboard Peminat SDMK</h3>
-    <button class="logout" onclick="logout()">Logout</button>
-  </div>
+<div class="container">
+  <input id="q" placeholder="Cari nama...">
 
-  <input id="search" placeholder="🔍 Cari Nama">
-
-  <table id="tbl">
+  <table>
     <thead>
       <tr>
         <th>Foto</th>
@@ -92,84 +85,72 @@ img.thumb{width:42px;height:42px;border-radius:50%}
         <th>Jurusan</th>
       </tr>
     </thead>
-    <tbody></tbody>
+    <tbody id="tb"></tbody>
   </table>
 </div>
 
 <!-- MODAL -->
-<div class="modal" id="modal" onclick="closeModal(event)">
+<div class="modal" id="modal">
   <div class="modal-box">
-    <img id="mFoto"><br><br>
-    <div id="mData"></div>
+    <div>
+      <h3 id="mNama"></h3>
+      <p><b>Jenis Kelamin:</b> <span id="mJK"></span></p>
+      <p><b>Alamat Domisili:</b> <span id="mAlamat"></span></p>
+      <p><b>Pendidikan:</b> <span id="mPend"></span></p>
+      <p><b>Jurusan / Keahlian:</b> <span id="mJur"></span></p>
+    </div>
+    <img id="mFoto">
+    <span class="close" onclick="closeModal()">×</span>
   </div>
 </div>
 
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="this.style.display='none'">
+  <img id="lbImg">
+</div>
+
 <script>
-/* CONFIG */
-const ADMIN_USER="rsudami";
-const ADMIN_PASS="muarabadak";
-const URL="https://script.google.com/macros/s/AKfycbye5mnDcMD_JjPC0kYHAYMDrAFjbLhycO2UYsQ0qrynXMNNAlhO-zQmo1JS0lsILY-G/exec";
-let dataAll=[];
+const URL = "https://script.google.com/macros/s/AKfycbz35MWnIdotF3DfUFKnK3IrJ4Ln4Kyj3W4BMxpSt9mncdjajKnbKDrDKPfCwY0Mtuue/exec";
+let data=[];
 
-/* LOGIN */
-function login(){
-  if(user.value===ADMIN_USER && pass.value===ADMIN_PASS){
-    localStorage.setItem("login","1");
-    showDash();
-  }else err.textContent="Login salah";
-}
-function logout(){localStorage.clear();location.reload()}
-if(localStorage.getItem("login")==="1") showDash();
+fetch(URL).then(r=>r.json()).then(d=>{
+  data=d; render();
+});
 
-function showDash(){
-  loginWrap.style.display="none";
-  dashWrap.classList.remove("hidden");
-  loadData();
-}
-
-/* LOAD DATA */
-function loadData(){
-  fetch(URL).then(r=>r.json()).then(d=>{
-    dataAll=d;
-    render();
-  });
-}
-
-search.oninput=render;
+q.oninput=render;
 
 function render(){
-  const q=search.value.toLowerCase();
-  const d=dataAll.filter(r=>
-    r["Nama Lengkap & Gelar"].toLowerCase().includes(q)
-  );
-
-  tbl.querySelector("tbody").innerHTML=d.map((r,i)=>`
-    <tr onclick="openModal(${i})">
-      <td><img class="thumb" src="https://lh3.googleusercontent.com/d/${r["ID FOTO DRIVE"]}=s96"></td>
-      <td>${r["Nama Lengkap & Gelar"]}</td>
-      <td>${r["Jenis Kelamin"]}</td>
-      <td>${r["Pendidikan"]}</td>
-      <td>${r["Jurusan / Keahlian"]}</td>
-    </tr>
-  `).join("");
+  const s=q.value.toLowerCase();
+  tb.innerHTML=data
+    .filter(r=>r["Nama Lengkap & Gelar"].toLowerCase().includes(s))
+    .map(r=>`
+      <tr onclick='openModal(${JSON.stringify(r)})'>
+        <td><img class="thumb"
+          src="https://lh3.googleusercontent.com/d/${r["ID FOTO DRIVE"]}"></td>
+        <td>${r["Nama Lengkap & Gelar"]}</td>
+        <td>${r["Jenis Kelamin"]}</td>
+        <td>${r["Pendidikan"]}</td>
+        <td>${r["Jurusan / Keahlian"]}</td>
+      </tr>
+    `).join("");
 }
 
-/* MODAL */
-function openModal(i){
-  const r=dataAll[i];
+function openModal(r){
   modal.classList.add("show");
-  mFoto.src=`https://lh3.googleusercontent.com/d/${r["ID FOTO DRIVE"]}=s400`;
-  mData.innerHTML=`
-    <b>Nama</b>: ${r["Nama Lengkap & Gelar"]}<br>
-    <b>Jenis Kelamin</b>: ${r["Jenis Kelamin"]}<br>
-    <b>Alamat Domisili</b>: ${r["Alamat Domisili"]}<br>
-    <b>Pendidikan</b>: ${r["Pendidikan"]}<br>
-    <b>Jurusan / Keahlian</b>: ${r["Jurusan / Keahlian"]}
-  `;
+  mNama.textContent=r["Nama Lengkap & Gelar"];
+  mJK.textContent=r["Jenis Kelamin"];
+  mAlamat.textContent=r["Alamat Domisili"];
+  mPend.textContent=r["Pendidikan"];
+  mJur.textContent=r["Jurusan / Keahlian"];
+  mFoto.src=`https://lh3.googleusercontent.com/d/${r["ID FOTO DRIVE"]}`;
+  mFoto.onclick=()=>{
+    lbImg.src=mFoto.src;
+    lightbox.style.display="flex";
+  }
 }
-function closeModal(e){
-  if(e.target===modal) modal.classList.remove("show");
-}
+
+function closeModal(){modal.classList.remove("show")}
+function logout(){localStorage.clear();location.reload()}
 </script>
 
 </body>
