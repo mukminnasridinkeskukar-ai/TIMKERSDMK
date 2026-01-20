@@ -1,0 +1,149 @@
+<div class="container">
+  <h2>📊 REKAP KEGIATAN ABDIMAS DINAS KESEHATAN</h2>
+
+  <div class="filter">
+    <input id="fKegiatan" placeholder="Cari Nama Kegiatan">
+    <input id="fPenyelenggara" placeholder="Cari Penyelenggara">
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama Kegiatan</th>
+        <th>Tanggal</th>
+        <th>Penyelenggara</th>
+        <th>PIC</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<style>
+.container{
+  max-width:1200px;
+  margin:auto;
+  font-family:Tahoma,Arial,sans-serif;
+}
+h2{text-align:center}
+
+/* FILTER */
+.filter{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:15px;
+}
+.filter input{
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  font-family:Tahoma;
+}
+
+/* TABLE */
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+th,td{
+  padding:12px;
+  border-bottom:1px solid #eee;
+}
+th{
+  background:#e0f2fe;       /* biru muda */
+  color:#0f172a;
+  font-weight:bold;
+}
+
+/* BUTTON */
+.klik{
+  background:linear-gradient(135deg,#60a5fa,#3b82f6);
+  color:#fff;
+  border:none;
+  padding:8px 18px;
+  border-radius:999px;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  font-family:Tahoma;
+  font-weight:bold;
+  transition:transform .2s;
+}
+.klik:active{
+  transform:scale(.9) rotate(-2deg);
+}
+.klik span{
+  position:absolute;
+  background:rgba(255,255,255,.7);
+  border-radius:50%;
+  transform:scale(0);
+  animation:ripple .6s linear;
+}
+@keyframes ripple{
+  to{transform:scale(4);opacity:0}
+}
+
+@media(max-width:768px){
+  .filter{grid-template-columns:1fr}
+}
+</style>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbwzhyv3Rh-m9AP28_BBNyc_Jn-QWuM_exXzL0vWhG4pD_0RY3NAPsUad-SLCwXbNBwNSA/exec";
+let dataAll=[];
+
+fetch(API_URL)
+  .then(r=>r.json())
+  .then(d=>{
+    dataAll=d;
+    render(d);
+  });
+
+function render(data){
+  const tb=document.getElementById('tbody');
+  tb.innerHTML='';
+  data.forEach(r=>{
+    tb.innerHTML+=`
+    <tr>
+      <td>${r.no}</td>
+      <td>${r.kegiatan}</td>
+      <td>${r.tanggal}</td>
+      <td>${r.penyelenggara}</td>
+      <td>${r.pic}</td>
+      <td>
+        <button class="klik" onclick="boom(event,'${r.link}')">
+          Klik
+        </button>
+      </td>
+    </tr>`;
+  });
+}
+
+function boom(e,link){
+  const b=e.currentTarget;
+  const s=document.createElement("span");
+  const d=Math.max(b.clientWidth,b.clientHeight);
+  s.style.width=s.style.height=d+"px";
+  s.style.left=e.offsetX-d/2+"px";
+  s.style.top=e.offsetY-d/2+"px";
+  b.appendChild(s);
+  setTimeout(()=>s.remove(),600);
+  setTimeout(()=>window.open(link,'_blank'),250);
+}
+
+document.querySelectorAll('.filter input').forEach(i=>{
+  i.addEventListener('input',()=>{
+    const k=fKegiatan.value.toLowerCase();
+    const p=fPenyelenggara.value.toLowerCase();
+    render(dataAll.filter(r=>
+      r.kegiatan.toLowerCase().includes(k) &&
+      r.penyelenggara.toLowerCase().includes(p)
+    ));
+  });
+});
+</script>
