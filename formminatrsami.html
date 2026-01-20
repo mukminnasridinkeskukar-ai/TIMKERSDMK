@@ -19,7 +19,7 @@ body{
   box-shadow:0 25px 45px rgba(0,0,0,.08);
 }
 h2{text-align:center;margin-bottom:30px}
-label{font-weight:600;margin-top:16px}
+label{font-weight:600;margin-top:16px;display:block}
 input,select,textarea{
   width:100%;
   padding:12px;
@@ -40,7 +40,7 @@ button{
   cursor:pointer;
 }
 button:disabled{opacity:.6}
-.note{font-size:14px;color:#475569;margin-top:10px}
+.note{font-size:14px;color:#475569;margin-top:10px;text-align:center}
 </style>
 </head>
 
@@ -52,7 +52,7 @@ button:disabled{opacity:.6}
 <form id="sdmkForm">
 
 <label>NIK *</label>
-<input type="text" name="nik" required maxlength="16">
+<input type="text" name="nik" maxlength="16" required>
 
 <label>Nama Lengkap & Gelar *</label>
 <input type="text" name="nama" required>
@@ -112,86 +112,90 @@ button:disabled{opacity:.6}
 <label>Upload Dokumen *</label>
 <input type="file" id="dokumen" accept=".pdf,.jpg,.png" required>
 
-<button type="submit">📨 Kirim Data</button>
-<p class="note">* Semua data wajib diisi dengan benar. NIK tidak dapat diubah.</p>
+<button type="submit" id="btnSubmit">📨 Kirim Data</button>
+<p class="note">
+  * Semua data wajib diisi dengan benar.  
+  NIK tidak dapat diubah.
+</p>
 
 </form>
 </div>
 
 <script>
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxwPTafYpuogjvf71gS0xa8_vLkSZEXN2VXfB7UlXcfQQrJ7_0sOOe0Pq8q44CRCc4Z/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxVzqRlnxf6lK-RhxtM7YicWqaB3Bdsp7-BumII10jqRc2yb6tjB0hc6xwvZGrysjVi/exec";
+const REDIRECT_URL = "terimakasih.html";
 
 function toBase64(file){
-  return new Promise((res,rej)=>{
-    const r=new FileReader();
-    r.onload=()=>res(r.result.split(",")[1]);
-    r.onerror=rej;
-    r.readAsDataURL(file);
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
   });
 }
 
-document.getElementById("sdmkForm").onsubmit = async e=>{
+document.getElementById("sdmkForm").addEventListener("submit", async function(e){
   e.preventDefault();
-  const f=e.target;
-  const btn=f.querySelector("button");
-  btn.disabled=true;
-  btn.textContent="Mengirim...";
 
-  // 🔧 FIX DI SINI
-  const fotoInput = document.getElementById("foto");
-  const dokumenInput = document.getElementById("dokumen");
+  const f = e.target;
+  const btn = document.getElementById("btnSubmit");
+  btn.disabled = true;
+  btn.textContent = "Mengirim...";
 
-  const foto = fotoInput.files[0];
-  const dok = dokumenInput.files[0];
+  try{
+    const fotoFile = document.getElementById("foto").files[0];
+    const dokFile  = document.getElementById("dokumen").files[0];
 
-  const payload={
-    nik:f.nik.value,
-    nama:f.nama.value,
-    usia:f.usia.value,
-    jk:f.jk.value,
-    alamatKTP:f.alamatKTP.value,
-    alamatDomisili:f.alamatDomisili.value,
-    wa:f.wa.value,
-    email:f.email.value,
-    pendidikan:f.pendidikan.value,
-    jurusan:f.jurusan.value,
-    riwayat:f.riwayat.value,
-    jenisSDMK:f.jenisSDMK.value,
-    str:f.str.value,
-    bekerja:f.bekerja.value,
-    foto:{
-      name:foto.name,
-      type:foto.type,
-      data:await toBase64(foto)
-    },
-    dokumen:{
-      name:dok.name,
-      type:dok.type,
-      data:await toBase64(dok)
+    const payload = {
+      nik: f.nik.value.trim(),
+      nama: f.nama.value.trim(),
+      usia: f.usia.value,
+      jk: f.jk.value,
+      alamatKTP: f.alamatKTP.value,
+      alamatDomisili: f.alamatDomisili.value,
+      wa: f.wa.value,
+      email: f.email.value,
+      pendidikan: f.pendidikan.value,
+      jurusan: f.jurusan.value,
+      riwayat: f.riwayat.value,
+      jenisSDMK: f.jenisSDMK.value,
+      str: f.str.value,
+      bekerja: f.bekerja.value,
+      foto:{
+        name: fotoFile.name,
+        type: fotoFile.type,
+        data: await toBase64(fotoFile)
+      },
+      dokumen:{
+        name: dokFile.name,
+        type: dokFile.type,
+        data: await toBase64(dokFile)
+      }
+    };
+
+    const res = await fetch(WEBAPP_URL,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const json = await res.json();
+
+    if(json.status === "success"){
+      window.location.href = REDIRECT_URL;
+    }else{
+      alert(json.message || "Terjadi kesalahan");
+      btn.disabled = false;
+      btn.textContent = "📨 Kirim Data";
     }
-  };
 
-  fetch(WEBAPP_URL,{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify(payload)
-  })
-  .then(r=>r.json())
-  .then(j=>{
-    alert(j.message || "Berhasil");
-    if(j.status==="success") f.reset();
-  })
-  .catch(err=>{
-    console.error(err);
-    alert("Gagal mengirim data");
-  })
-  .finally(()=>{
-    btn.disabled=false;
-    btn.textContent="📨 Kirim Data";
-  });
-};
+  }catch(err){
+    alert("Gagal mengirim data. Silakan coba kembali.");
+    btn.disabled = false;
+    btn.textContent = "📨 Kirim Data";
+  }
+});
 </script>
-
 
 </body>
 </html>
