@@ -119,6 +119,30 @@ button:disabled{opacity:.6}
 </p>
 
 </form>
+  <!-- 🔽 TEMPEL DI SINI -->
+<div id="successBox" style="display:none;text-align:center;padding:30px">
+  <h2 style="color:#1e40af;margin-bottom:16px">Terima Kasih 🙏</h2>
+
+  <p style="font-size:18px;line-height:1.8;color:#334155">
+    Terima kasih telah mengajukan minat menjadi bagian dari keluarga besar layanan kesehatan kami.
+  </p>
+
+  <p style="font-size:18px;line-height:1.8;color:#334155">
+    Data Saudara/i telah kami terima dan akan digunakan sebagai bahan perencanaan
+    <strong>Sumber Daya Manusia Kesehatan (SDMK)</strong>.
+  </p>
+
+  <p style="font-size:18px;line-height:1.8;color:#334155">
+    Silakan menunggu informasi selanjutnya melalui media resmi atau kontak yang telah
+    Saudara/i sampaikan.
+  </p>
+
+  <p style="margin-top:24px;font-size:14px;color:#64748b">
+    Hormat kami,<br>
+    <strong>Tim Pengelola SDMK</strong>
+  </p>
+</div>
+<!-- 🔼 SAMPAI SINI -->
 </div>
 
 <script>
@@ -181,7 +205,8 @@ document.getElementById("sdmkForm").addEventListener("submit", async function(e)
 const json = await res.json();
 
 if(json.status === "success"){
-  window.location.href = REDIRECT_URL;
+  document.getElementById("sdmkForm").style.display = "none";
+  document.getElementById("successBox").style.display = "block";
 }else{
   alert(json.message || "Terjadi kesalahan");
   btn.disabled = false;
