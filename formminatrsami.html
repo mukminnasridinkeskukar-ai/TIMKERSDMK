@@ -119,7 +119,7 @@ button:disabled{opacity:.6}
 </div>
 
 <script>
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxVzqRlnxf6lK-RhxtM7YicWqaB3Bdsp7-BumII10jqRc2yb6tjB0hc6xwvZGrysjVi/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxwPTafYpuogjvf71gS0xa8_vLkSZEXN2VXfB7UlXcfQQrJ7_0sOOe0Pq8q44CRCc4Z/exec";
 
 function toBase64(file){
   return new Promise((res,rej)=>{
@@ -137,8 +137,12 @@ document.getElementById("sdmkForm").onsubmit = async e=>{
   btn.disabled=true;
   btn.textContent="Mengirim...";
 
-  const foto=fotoInput.files[0];
-  const dok=dokumen.files[0];
+  // 🔧 FIX DI SINI
+  const fotoInput = document.getElementById("foto");
+  const dokumenInput = document.getElementById("dokumen");
+
+  const foto = fotoInput.files[0];
+  const dok = dokumenInput.files[0];
 
   const payload={
     nik:f.nik.value,
@@ -169,6 +173,7 @@ document.getElementById("sdmkForm").onsubmit = async e=>{
 
   fetch(WEBAPP_URL,{
     method:"POST",
+    headers:{ "Content-Type":"application/json" },
     body:JSON.stringify(payload)
   })
   .then(r=>r.json())
@@ -176,7 +181,8 @@ document.getElementById("sdmkForm").onsubmit = async e=>{
     alert(j.message || "Berhasil");
     if(j.status==="success") f.reset();
   })
-  .catch(()=>{
+  .catch(err=>{
+    console.error(err);
     alert("Gagal mengirim data");
   })
   .finally(()=>{
@@ -185,6 +191,7 @@ document.getElementById("sdmkForm").onsubmit = async e=>{
   });
 };
 </script>
+
 
 </body>
 </html>
