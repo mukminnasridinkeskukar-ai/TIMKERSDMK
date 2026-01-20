@@ -64,7 +64,26 @@ body{
   transform:translateY(-6px);
   box-shadow:0 20px 40px rgba(0,0,0,.15);
 }
+.card-link{
+  text-decoration:none;
+  color:inherit;
+  display:block;
+}
 
+.card-box{
+  height:100%;
+  padding:20px;
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  transition:.3s ease;
+}
+
+.card-link:hover .card-box{
+  transform:translateY(-6px);
+  box-shadow:0 18px 40px rgba(0,0,0,.15);
+}
+  
 /* Flow */
 .flow-step{
   background:white;
@@ -134,16 +153,23 @@ body{
 <!-- LAYANAN -->
 <section id="layanan" class="container py-5">
   <div class="section-title">
-    <h2>Layanan Perizinan</h2>
+    <h2>Layanan SIMANTRI</h2>
   </div>
 
   <div class="row g-4">
-    <div class="col-md-4">
+  <div class="col-md-4">
+    <a href="penerbitan-unit-fasyankes.html" class="card-link">
       <div class="card-box">
-        <h5>Penerbitan SIP Baru</h5>
-        <p>Penerbitan Surat Izin Praktik bagi Tenaga Medis dan Tenaga Kesehatan.</p>
+        <h5>Penerbitan unit fasyankes dan tpm baru di SI-SDMK</h5>
+        <p>
+          Penambahan data fasyankes dan tpm named dan nakes
+          di unit pekerjaan pada platform Satu Sehat SDMK.
+        </p>
       </div>
-    </div>
+    </a>
+  </div>
+</div>
+
     <div class="col-md-4">
       <div class="card-box">
         <h5>Perpanjangan SIP</h5>
