@@ -125,6 +125,78 @@ header p{
   cursor:pointer;
 }
 
+/* ============================= */
+/* ANIMATED ICON INSIDE CARD */
+/* ============================= */
+
+.card{
+  position:relative;
+  overflow:hidden;
+}
+
+/* ICON DASAR */
+.card::before{
+  content:"";
+  position:absolute;
+  top:18px;
+  right:18px;
+  width:56px;
+  height:56px;
+  background-size:contain;
+  background-repeat:no-repeat;
+  opacity:.9;
+  animation:floatIcon 4s ease-in-out infinite;
+}
+
+/* BARIS 1 */
+.grid:nth-of-type(1) .card:nth-child(1)::before{
+  background-image:url("https://cdn-icons-png.flaticon.com/512/3135/3135715.png"); /* formasi */
+}
+.grid:nth-of-type(1) .card:nth-child(2)::before{
+  background-image:url("https://cdn-icons-png.flaticon.com/512/942/942748.png"); /* form */
+}
+.grid:nth-of-type(1) .card:nth-child(3)::before{
+  background-image:url("https://cdn-icons-png.flaticon.com/512/190/190411.png"); /* validasi */
+}
+
+/* BARIS 2 */
+.grid:nth-of-type(2) .card:nth-child(1)::before{
+  background-image:url("https://cdn-icons-png.flaticon.com/512/2965/2965567.png"); /* gizi */
+}
+.grid:nth-of-type(2) .card:nth-child(2)::before{
+  background-image:url("https://cdn-icons-png.flaticon.com/512/3103/3103446.png"); /* lingkungan */
+}
+.grid:nth-of-type(2) .card:nth-child(3)::before{
+  background-image:url("https://cdn-icons-png.flaticon.com/512/2991/2991231.png"); /* farmasi */
+}
+
+/* BARIS 3 */
+.grid:nth-of-type(3) .card:nth-child(1)::before{
+  background-image:url("https://cdn-icons-png.flaticon.com/512/3209/3209265.png"); /* lab */
+}
+.grid:nth-of-type(3) .card:nth-child(2)::before{
+  background-image:url("https://cdn-icons-png.flaticon.com/512/2784/2784459.png"); /* epidemiologi */
+}
+.grid:nth-of-type(3) .card:nth-child(3)::before{
+  background-image:url("https://cdn-icons-png.flaticon.com/512/2784/2784465.png"); /* promkes */
+}
+.grid:nth-of-type(3) .card:nth-child(4)::before{
+  background-image:url("https://cdn-icons-png.flaticon.com/512/3135/3135768.png"); /* lainnya */
+}
+
+/* ANIMASI HALUS */
+@keyframes floatIcon{
+  0%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+  100%{transform:translateY(0)}
+}
+
+/* EFEK SAAT HOVER */
+.card:hover::before{
+  transform:scale(1.08);
+  opacity:1;
+}
+  
 /* SLIDER */
 .swiper{
   width:100%;
