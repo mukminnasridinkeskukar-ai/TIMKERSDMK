@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Profil Tim Kerja SDM Kesehatan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+body{
+  background:#f4f6f9;
+  font-family:Segoe UI,Arial,sans-serif;
+}
+
+.team-card{
+  border:none;
+  border-radius:18px;
+  transition:.35s;
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
+  cursor:pointer;
+}
+.team-card:hover{
+  transform:translateY(-8px);
+  box-shadow:0 18px 40px rgba(0,0,0,.15);
+}
+
+.team-photo{
+  width:120px;
+  height:120px;
+  object-fit:cover;
+  border-radius:50%;
+  margin:20px auto 10px;
+  border:4px solid #e9ecef;
+}
+
+.team-name{
+  font-weight:700;
+}
+
+.team-role{
+  font-size:.9rem;
+  color:#6c757d;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container py-5">
+  <div class="text-center mb-4">
+    <h2 class="fw-bold">Profil Tim Kerja SDM Kesehatan</h2>
+    <p class="text-muted">Struktur dan personel pengelola SDM Kesehatan</p>
+  </div>
+
+  <div class="row g-4" id="teamGallery"></div>
+</div>
+
+<!-- MODAL DETAIL -->
+<div class="modal fade" id="teamModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="modalName"></h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-4 text-center">
+            <img id="modalPhoto" class="img-fluid rounded-circle mb-3" style="width:160px;height:160px;object-fit:cover">
+          </div>
+          <div class="col-md-8">
+            <table class="table table-sm">
+              <tbody id="modalData"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbwMy50cAU4L-GCMzq-OIdMakNBVLBU_vfLiDJcWnIRrDuoRUO3lZu54c1yLvaAzVX3a/exec";
+
+fetch(API_URL)
+.then(res=>res.json())
+.then(data=>{
+  const gallery=document.getElementById("teamGallery");
+
+  data.forEach(p=>{
+    const col=document.createElement("div");
+    col.className="col-md-6 col-lg-3";
+
+    col.innerHTML=`
+      <div class="card team-card text-center p-3"
+           onclick='openModal(${JSON.stringify(p)})'>
+        <img src="${p["Foto"]}" class="team-photo">
+        <h6 class="team-name mt-2">${p["Nama Lengkap dan Gelar"]}</h6>
+        <div class="team-role">${p["Jenis Jabatan"]}</div>
+      </div>
+    `;
+    gallery.appendChild(col);
+  });
+});
+
+function openModal(p){
+  document.getElementById("modalName").innerText=p["Nama Lengkap dan Gelar"];
+  document.getElementById("modalPhoto").src=p["Foto"];
+
+  const fields=[
+    ["NIP","NIP"],
+    ["Tempat Tanggal Lahir","TTL"],
+    ["Status Kepegawaian","Status"],
+    ["Pangkat/Golongan","Pangkat"],
+    ["Jenis Jabatan","Jenis Jabatan"],
+    ["Jenjang Jabatan","Jenjang"],
+    ["Alamat KTP","Alamat KTP"],
+    ["Alamat Domisili","Alamat Domisili"],
+    ["Telpon/Whatsapp","Kontak"]
+  ];
+
+  document.getElementById("modalData").innerHTML=
+    fields.map(f=>`
+      <tr>
+        <th width="40%">${f[1]}</th>
+        <td>${p[f[0]]||"-"}</td>
+      </tr>
+    `).join("");
+
+  new bootstrap.Modal(teamModal).show();
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
