@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Uji Kompetensi Jabatan Fungsional Bidang Kesehatan</title>
+
+<!-- SWIPER -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css">
+
+<style>
+:root{
+  --primary:#0f172a;
+  --accent:#2563eb;
+  --bg:#f8fafc;
+  --card:#ffffff;
+  --border:#e5e7eb;
+}
+
+body{
+  margin:0;
+  font-family:Segoe UI,Inter,Arial,sans-serif;
+  background:var(--bg);
+  color:#0f172a;
+}
+
+/* HEADER */
+header{
+  background:linear-gradient(135deg,#0f172a,#1e40af);
+  color:#fff;
+  padding:40px 20px;
+  text-align:center;
+}
+header h1{
+  margin:0;
+  font-size:28px;
+  font-weight:700;
+}
+header p{
+  margin-top:10px;
+  opacity:.9;
+}
+
+/* CONTAINER */
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:30px 20px;
+}
+
+/* GRID BOX */
+.grid{
+  display:grid;
+  gap:20px;
+  margin-bottom:40px;
+}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.grid-4{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+
+.card{
+  background:var(--card);
+  border-radius:18px;
+  padding:28px;
+  text-align:center;
+  box-shadow:0 12px 35px rgba(0,0,0,.08);
+  cursor:pointer;
+  transition:.3s;
+}
+.card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 20px 50px rgba(0,0,0,.12);
+}
+.card h3{
+  margin:0;
+  font-size:16px;
+}
+.card span{
+  display:block;
+  margin-top:10px;
+  font-size:13px;
+  color:#64748b;
+}
+
+/* LIGHTBOX */
+.lightbox{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+.lightbox.active{display:flex}
+.lb-box{
+  background:#fff;
+  border-radius:16px;
+  padding:30px;
+  max-width:420px;
+  width:90%;
+  text-align:center;
+  animation:zoom .3s ease;
+}
+@keyframes zoom{
+  from{transform:scale(.8);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+.lb-box h2{margin-top:0}
+.lb-box a{
+  display:inline-block;
+  margin-top:18px;
+  padding:12px 20px;
+  background:var(--accent);
+  color:#fff;
+  text-decoration:none;
+  border-radius:10px;
+}
+.close{
+  margin-top:16px;
+  display:block;
+  color:#64748b;
+  cursor:pointer;
+}
+
+/* SLIDER */
+.swiper{
+  width:100%;
+  border-radius:20px;
+  box-shadow:0 12px 35px rgba(0,0,0,.1);
+}
+.swiper-slide img,
+.swiper-slide video{
+  width:100%;
+  height:420px;
+  object-fit:cover;
+  border-radius:20px;
+}
+
+/* FOOTER TEXT */
+.closing{
+  margin-top:40px;
+  text-align:center;
+  font-size:16px;
+  font-weight:600;
+  color:#1e293b;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>UJI KOMPETENSI JABATAN FUNGSIONAL<br>BIDANG KESEHATAN</h1>
+  <p>Informasi, layanan, dan pelaksanaan Ukom Jabatan Fungsional Kesehatan</p>
+</header>
+
+<div class="container">
+
+  <!-- BARIS 1 -->
+  <div class="grid grid-3">
+    <div class="card" onclick="openLB('Ukom Dokter','https://link-anda-1')">
+      <h3>Ukom Dokter</h3><span>Klinis & Fungsional</span>
+    </div>
+    <div class="card" onclick="openLB('Ukom Perawat','https://link-anda-2')">
+      <h3>Ukom Perawat</h3><span>Pelayanan Keperawatan</span>
+    </div>
+    <div class="card" onclick="openLB('Ukom Bidan','https://link-anda-3')">
+      <h3>Ukom Bidan</h3><span>Kesehatan Ibu & Anak</span>
+    </div>
+  </div>
+
+  <!-- BARIS 2 -->
+  <div class="grid grid-3">
+    <div class="card" onclick="openLB('Ukom Nutrisionis','https://link-anda-4')">
+      <h3>Ukom Nutrisionis</h3><span>Gizi & Dietetik</span>
+    </div>
+    <div class="card" onclick="openLB('Ukom Sanitarian','https://link-anda-5')">
+      <h3>Ukom Sanitarian</h3><span>Kesehatan Lingkungan</span>
+    </div>
+    <div class="card" onclick="openLB('Ukom Farmasi','https://link-anda-6')">
+      <h3>Ukom Farmasi</h3><span>Pelayanan Kefarmasian</span>
+    </div>
+  </div>
+
+  <!-- BARIS 3 -->
+  <div class="grid grid-4">
+    <div class="card" onclick="openLB('Ukom Analis','https://link-anda-7')">
+      <h3>Ukom Analis</h3><span>Laboratorium</span>
+    </div>
+    <div class="card" onclick="openLB('Ukom Epidemiolog','https://link-anda-8')">
+      <h3>Ukom Epidemiolog</h3><span>Surveilans</span>
+    </div>
+    <div class="card" onclick="openLB('Ukom Promkes','https://link-anda-9')">
+      <h3>Ukom Promkes</h3><span>Promosi Kesehatan</span>
+    </div>
+    <div class="card" onclick="openLB('Ukom Lainnya','https://link-anda-10')">
+      <h3>Ukom Lainnya</h3><span>JF Kesehatan</span>
+    </div>
+  </div>
+
+  <!-- SLIDER -->
+  <div class="swiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide">
+        <img src="https://images.unsplash.com/photo-1580281658629-4e90f2c5d67b">
+      </div>
+      <div class="swiper-slide">
+        <img src="https://images.unsplash.com/photo-1579684453423-f84349ef60b0">
+      </div>
+      <div class="swiper-slide">
+        <video controls>
+          <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  </div>
+
+  <div class="closing">
+    Ukom JFK merupakan salah satu syarat utama dalam kenaikan jenjang Jabatan Fungsional Bidang Kesehatan
+  </div>
+
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lb">
+  <div class="lb-box">
+    <h2 id="lbTitle"></h2>
+    <a id="lbLink" href="#" target="_blank">Lanjut ke Halaman</a>
+    <span class="close" onclick="closeLB()">Tutup</span>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+<script>
+function openLB(title,link){
+  document.getElementById("lbTitle").innerText = title;
+  document.getElementById("lbLink").href = link;
+  document.getElementById("lb").classList.add("active");
+}
+function closeLB(){
+  document.getElementById("lb").classList.remove("active");
+}
+
+new Swiper('.swiper',{
+  loop:true,
+  autoplay:{delay:3500},
+  pagination:{el:null}
+});
+</script>
+
+</body>
+</html>
