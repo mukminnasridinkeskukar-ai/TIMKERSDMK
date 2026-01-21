@@ -12,7 +12,7 @@ body{
   background:linear-gradient(180deg,#60a5fa,#e0f2fe);
 }
 .container{
-  max-width:840px;
+  max-width:860px;
   margin:50px auto;
   background:#fff;
   padding:32px;
@@ -67,7 +67,7 @@ button:disabled{opacity:.6}
 <body>
 <div class="container">
 <h2>FORMULIR UKOM JABATAN FUNGSIONAL KESEHATAN</h2>
-<p>Lengkapi data dan unggah dokumen sesuai ketentuan</p>
+<p>Isi data sesuai kondisi sebenarnya</p>
 
 <form id="form">
 
@@ -110,9 +110,51 @@ button:disabled{opacity:.6}
   <option value="Administrator Kesehatan">Administrator Kesehatan</option>
 </select>
 
+<label>Jenjang Jabatan</label>
+<select name="jenjang" required>
+  <option value="">-- pilih --</option>
+  <option value="Terampil">Terampil</option>
+  <option value="Ahli Pertama">Ahli Pertama</option>
+  <option value="Ahli Muda">Ahli Muda</option>
+</select>
+
+<label>Pangkat dan Golongan</label>
+<select name="pangkat" required>
+  <option value="">-- pilih --</option>
+  <option value="III/a">III/a</option>
+  <option value="III/b">III/b</option>
+  <option value="III/c">III/c</option>
+  <option value="IV/a">IV/a</option>
+</select>
+
+<label>Nilai PAK Terakhir</label>
+<input name="pak">
+
 <label>Nomor STR</label>
 <input name="str" id="str">
-<div class="note" id="strNote">STR WAJIB untuk jabatan fungsional kesehatan tertentu</div>
+<div class="note" id="strNote">STR wajib untuk jabatan fungsional kesehatan tertentu</div>
+
+<label>Kategori Penjenjangan Jabatan</label>
+<select name="kategori" required>
+  <option value="">-- pilih --</option>
+  <option value="Penyesuaian / Inpassing">Penyesuaian / Inpassing</option>
+  <option value="Kenaikan Jenjang">Kenaikan Jenjang</option>
+</select>
+
+<label>Nama Jabatan Fungsional Yang Dituju</label>
+<select name="jabatan_tujuan" required>
+  <option value="">-- pilih --</option>
+  <option value="Perawat">Perawat</option>
+  <option value="Bidan">Bidan</option>
+  <option value="Nutrisionis">Nutrisionis</option>
+</select>
+
+<label>Jenjang Jabatan Tujuan</label>
+<select name="jenjang_tujuan" required>
+  <option value="">-- pilih --</option>
+  <option value="Ahli Pertama">Ahli Pertama</option>
+  <option value="Ahli Muda">Ahli Muda</option>
+</select>
 
 <label>Upload Foto Latar Merah</label>
 <input type="file" name="foto" accept=".jpg,.jpeg,.png" required>
@@ -127,7 +169,7 @@ button:disabled{opacity:.6}
 </div>
 
 <script>
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzV4c-FebJJzh9pHwTwHN61X6707t3cCe7l5FeB_x_llPTmMGkJkJV0tiOzGyqr37K1/exec';
+const WEB_APP_URL = 'PASTE_URL_WEB_APP_DI_SINI';
 
 const jenis = document.getElementById('jenis');
 const str = document.getElementById('str');
@@ -176,20 +218,17 @@ document.getElementById('form').onsubmit = async e=>{
   .then(r=>r.json())
   .then(res=>{
     notif.style.display='block';
-    if(res.status==='OK'){
-      notif.className='ok';
-      notif.innerHTML='✅ Data berhasil dikirim';
-      e.target.reset();
-    }else{
-      notif.className='err';
-      notif.innerHTML='❌ '+res.message;
-    }
+    notif.className = res.status==='OK' ? 'ok' : 'err';
+    notif.innerHTML = res.status==='OK'
+      ? '✅ Data berhasil dikirim'
+      : '❌ ' + res.message;
+    if(res.status==='OK') e.target.reset();
     btn.disabled=false;
   })
-  .catch(err=>{
+  .catch(()=>{
     notif.style.display='block';
     notif.className='err';
-    notif.innerHTML='❌ Koneksi gagal';
+    notif.innerHTML='❌ Koneksi ke server gagal';
     btn.disabled=false;
   });
 };
