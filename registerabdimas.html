@@ -37,13 +37,58 @@ body{background:#f4f6f9;font-family:Segoe UI,Arial}
 <input class="form-control mb-3" name="participant_count" type="number" placeholder="Jumlah Peserta" required>
 
 <h5 class="mt-4">C. Upload Dokumen</h5>
-<input class="form-control mb-3" type="file" id="participant_list" required>
-<input class="form-control mb-3" type="file" id="recommendation" required>
-<input class="form-control mb-3" type="file" id="photo_docs" required>
-<input class="form-control mb-3" type="file" id="video_docs" required>
-<input class="form-control mb-3" type="file" id="letter_request" required>
-<input class="form-control mb-3" type="file" id="attendance" required>
-<input class="form-control mb-3" type="file" id="minutes" required>
+<h5 class="mt-4">C. Upload Dokumen Pendukung</h5>
+
+<div class="mb-3">
+  <label class="form-label fw-semibold">Daftar Lengkap Peserta</label>
+  <small class="text-muted d-block mb-1">File Excel (.xls / .xlsx)</small>
+  <input class="form-control" type="file" id="participant_list" accept=".xls,.xlsx" required>
+</div>
+
+<div class="mb-3">
+  <label class="form-label fw-semibold">Rekomendasi / Surat Tugas</label>
+  <small class="text-muted d-block mb-1">Dari organisasi profesi / instansi kerja</small>
+  <input class="form-control" type="file" id="recommendation" accept=".pdf,.jpg,.png" required>
+</div>
+
+<div class="mb-3">
+  <label class="form-label fw-semibold">Dokumentasi Foto Kegiatan</label>
+  <small class="text-muted d-block mb-1">Minimal 8–10 foto, resolusi 1920×1080</small>
+  <input class="form-control" type="file" id="photo_docs" accept="image/*" multiple required>
+</div>
+
+<div class="mb-3">
+  <label class="form-label fw-semibold">Dokumentasi Video Kegiatan</label>
+  <small class="text-muted d-block mb-1">Format MP4, durasi 5–10 menit</small>
+  <input class="form-control" type="file" id="video_docs" accept="video/mp4" required>
+</div>
+
+<div class="mb-3">
+  <label class="form-label fw-semibold">
+    Surat Permohonan Penerbitan Sertifikat
+  </label>
+  <small class="text-muted d-block mb-1">
+    Ditujukan kepada Kepala Dinas Kesehatan
+  </small>
+  <input class="form-control" type="file" id="letter_request" accept=".pdf" required>
+</div>
+
+<div class="mb-3">
+  <label class="form-label fw-semibold">Daftar Hadir Peserta</label>
+  <small class="text-muted d-block mb-1">
+    Ditandatangani peserta, panitia & undangan
+  </small>
+  <input class="form-control" type="file" id="attendance" accept=".pdf,.jpg,.png" required>
+</div>
+
+<div class="mb-4">
+  <label class="form-label fw-semibold">Berita Acara Pelaksanaan (BAP)</label>
+  <small class="text-muted d-block mb-1">
+    File PDF
+  </small>
+  <input class="form-control" type="file" id="minutes" accept=".pdf" required>
+</div>
+
 
 <button class="btn btn-primary btn-lg w-100 mt-4">Kirim</button>
 
