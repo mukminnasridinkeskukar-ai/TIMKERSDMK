@@ -220,18 +220,44 @@ header p{margin-top:10px;opacity:.9}
   <div class="card" onclick="openLB('Ukom Lainnya','https://link-anda-10')"><h3>Ukom Lainnya</h3><span>JF Kesehatan</span></div>
 </div>
 
-<!-- SLIDER -->
-<div class="swiper">
+<!-- SWIPER SLIDER -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+
+<div class="swiper mySwiper">
   <div class="swiper-wrapper">
-    <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1580281658629-4e90f2c5d67b"></div>
-    <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1579684453423-f84349ef60b0"></div>
-    <div class="swiper-slide">
-      <video controls>
-        <source src="https://www.w3schools.com/html/mov_bbb.mp4">
-      </video>
+
+    <!-- SLIDE IMAGE -->
+    <div class="swiper-slide media-slide">
+      <img src="https://images.unsplash.com/photo-1580281658629-4e90f2c5d67b" alt="Kegiatan SDMK">
     </div>
+
+    <div class="swiper-slide media-slide">
+      <img src="https://images.unsplash.com/photo-1579684453423-f84349ef60b0" alt="Pelayanan Kesehatan">
+    </div>
+
+    <!-- SLIDE YOUTUBE -->
+    <div class="swiper-slide media-slide">
+      <div class="video-wrapper">
+        <iframe 
+          src="https://www.youtube.com/embed/<iframe width="560" height="315" src="LTUiwH50j0g?rel=0&modestbranding=1"
+          title="Panduan Uji Kompetensi JF Kesehatan"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+
   </div>
+
+  <!-- OPTIONAL -->
+  <div class="swiper-pagination"></div>
+  <div class="swiper-button-next"></div>
+  <div class="swiper-button-prev"></div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
 
 <div class="closing">
   Ukom JFK merupakan salah satu syarat utama dalam kenaikan jenjang Jabatan Fungsional Bidang Kesehatan
