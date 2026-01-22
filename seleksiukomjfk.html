@@ -1,162 +1,103 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Dashboard Seleksi UKOM JFK</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
+<title>Dashboard Keputusan UKOM JFK</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-body{font-family:Segoe UI,Arial;background:#f8fafc;margin:0}
-.container{max-width:1200px;margin:auto;padding:24px}
-table{width:100%;border-collapse:collapse;background:#fff}
-th,td{padding:12px;border-bottom:1px solid #e5e7eb}
-th{background:#1e40af;color:#fff}
-img.thumb{width:60px;height:60px;border-radius:10px;object-fit:cover;cursor:pointer;filter:blur(6px)}
-/* MODAL */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:99}
-.box{background:#fff;border-radius:16px;padding:24px;max-width:900px;width:90%}
-.close{cursor:pointer;color:#dc2626;font-weight:bold}
-.grid{display:grid;grid-template-columns:2fr 1fr;gap:20px}
-.foto-besar{width:100%;border-radius:12px}
-input{width:100%;padding:10px;margin:8px 0}
-button{padding:12px 20px;background:#2563eb;color:#fff;border:none;border-radius:10px}
+body{margin:0;font-family:Inter,Arial;background:#f1f5f9}
+.login,.dash{display:none}
+.active{display:block}
+.card{background:#fff;border-radius:16px;padding:20px;
+box-shadow:0 10px 30px rgba(0,0,0,.12)}
+img{width:90px;height:90px;border-radius:50%;cursor:pointer}
+table{width:100%;border-collapse:collapse}
+td,th{padding:10px;border-bottom:1px solid #e5e7eb}
+.lightbox{position:fixed;inset:0;background:#0008;display:none;
+align-items:center;justify-content:center}
+.lightbox.active{display:flex}
+.lb{background:#fff;padding:30px;border-radius:16px;max-width:700px}
 </style>
 </head>
-
 <body>
-<div class="container">
-<h2>Dashboard Proses Seleksi Calon Peserta UKOM JFK</h2>
 
-<table id="tbl">
-<thead>
-<tr>
-<th>Tanggal Diperiksa</th>
-<th>Nama</th>
-<th>NIP</th>
-<th>Kategori</th>
-<th>Jabatan Dituju</th>
-<th>Jenjang</th>
-<th>Foto</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
+<div class="login active" id="login">
+  <div class="card">
+    <h3>Login UKOM JFK</h3>
+    <input id="u" placeholder="Username"><br>
+    <input id="p" type="password" placeholder="Password"><br>
+    <button onclick="login()">Masuk</button>
+  </div>
 </div>
 
-<!-- LOGIN MODAL -->
-<div class="modal" id="loginModal">
-<div class="box">
-<span class="close" onclick="closeLogin()">✖</span>
-<h3>Login Peserta</h3>
-<input id="nik" placeholder="NIK">
-<input id="nip" placeholder="NIP">
-<button onclick="login()">Masuk</button>
-</div>
-</div>
+<div class="dash" id="userDash"></div>
+<div class="dash" id="adminDash"></div>
 
-<!-- DETAIL MODAL -->
-<div class="modal" id="detailModal">
-<div class="box">
-<span class="close" onclick="closeDetail()">✖</span>
-<div class="grid">
-<div id="detailText"></div>
-<div><img id="detailFoto" class="foto-besar"></div>
-</div>
-</div>
+<div class="lightbox" id="lb">
+  <div class="lb">
+    <span onclick="lb.classList.remove('active')">❌</span>
+    <pre id="detail"></pre>
+  </div>
 </div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbz62cKRMdms7sOzG0du70DXJL5mO5-qorLNqYBnotzJM5QrJbsK-Ss1s6bSpKB1aRdJ6w/exec';
-
-let currentNIK = '', currentNIP = '';
-
-fetch(API,{
-  method:'POST',
-  headers:{'Content-Type':'application/json'},
-  body:JSON.stringify({action:'list'})
-})
-.then(r=>r.json())
-.then(res=>{
-  const tb = document.querySelector('#tbl tbody');
-  if(!res.data || res.data.length===0){
-    tb.innerHTML = '<tr><td colspan="7">Belum ada data</td></tr>';
-    return;
-  }
-
-  res.data.forEach(r=>{
-    tb.innerHTML += `
-      <tr>
-        <td>${r.tanggal}</td>
-        <td>${r.nama}</td>
-        <td>${r.nip_masked}</td>
-        <td>${r.kategori}</td>
-        <td>${r.jabatan}</td>
-        <td>${r.jenjang}</td>
-        <td>
-          <img class="thumb"
-            src="https://drive.google.com/uc?export=view&id=${r.foto}"
-            onclick="openLogin()">
-        </td>
-      </tr>`;
-  });
-})
-.catch(err=>{
-  console.error(err);
-  document.querySelector('#tbl tbody').innerHTML =
-    '<tr><td colspan="7">Gagal memuat data</td></tr>';
-});
-
-function openLogin(){
-  document.getElementById('loginModal').style.display='flex';
-}
-function closeLogin(){
-  document.getElementById('loginModal').style.display='none';
-}
+const API="https://script.google.com/macros/s/AKfycbw9SV--A0ZEWD8qUr0BdbDrSicx9BYCyrwXSqncIK1Za7pSpIJTm1pDxc9UePNTc4Dxmg/exec";
+let role="", nip="";
 
 function login(){
-  const nik = document.getElementById('nik').value;
-  const nip = document.getElementById('nip').value;
-
-  fetch(API,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({action:'login', nik, nip})
-  })
-  .then(r=>r.json())
-  .then(res=>{
-    if(res.status==='OK'){
-      showDetail(res.detail);
-      closeLogin();
-    } else {
-      alert('NIK / NIP tidak sesuai');
-    }
-  });
+fetch(API,{method:"POST",body:JSON.stringify({
+action:"login",username:u.value,password:p.value
+})}).then(r=>r.json()).then(d=>{
+if(d.status==="ok"){
+role=d.role; nip=d.nip;
+login.classList.remove("active");
+(role==="ADMIN"?loadAdmin():loadUser());
+}else alert("Login gagal");
+});
 }
 
-function showDetail(d){
-  document.getElementById('detailText').innerHTML = `
-    <b>Nama:</b> ${d.nama}<br>
-    <b>NIK:</b> ${d.nik}<br>
-    <b>NIP:</b> ${d.nip}<br>
-    <b>Unit:</b> ${d.unit}<br>
-    <b>Jenis Jabatan:</b> ${d.jenis}<br>
-    <b>Jenjang:</b> ${d.jenjang}<br>
-    <b>Pangkat:</b> ${d.pangkat}<br>
-    <b>Nilai PAK:</b> ${d.pak}<br>
-    <b>STR:</b> ${d.str}<br>
-    <b>Kategori:</b> ${d.kategori}<br>
-    <b>Jabatan Dituju:</b> ${d.jabatan}<br>
-    <b>Jenjang Tujuan:</b> ${d.jenjang_tujuan}<br>
-    <b>Keputusan:</b> <b>${d.keputusan}</b>
-  `;
-  document.getElementById('detailFoto').src =
-    'https://drive.google.com/uc?export=view&id='+d.foto;
-  document.getElementById('detailModal').style.display='flex';
+function loadUser(){
+fetch(API,{method:"POST",body:JSON.stringify({
+action:"profile",nip
+})}).then(r=>r.json()).then(d=>{
+const r=d.data;
+userDash.classList.add("active");
+userDash.innerHTML=`
+<div class="card">
+<img src="${r[16]}" onclick="show('${r.join("\\n")}')">
+<h3>${r[2]}</h3>
+<p>${r[4]}</p>
+<p>${r[13]} - ${r[14]}</p>
+<p><b>${r[15]}</b></p>
+</div>`;
+});
 }
-function closeDetail(){
-  document.getElementById('detailModal').style.display='none';
+
+function loadAdmin(){
+fetch(API,{method:"POST",body:JSON.stringify({
+action:"all",role
+})}).then(r=>r.json()).then(d=>{
+adminDash.classList.add("active");
+let h="<table><tr><th>Foto</th><th>Nama</th><th>NIP</th><th>JF</th></tr>";
+d.rows.forEach(x=>{
+h+=`<tr>
+<td><img src="${x.foto}" onclick="show('${x.detail.join("\\n")}')"></td>
+<td>${x.nama}</td>
+<td>${x.nip}</td>
+<td>${x.tujuan}</td>
+</tr>`;
+});
+adminDash.innerHTML=h+"</table>";
+});
 }
+
+function show(t){
+detail.innerText=t;
+lb.classList.add("active");
+}
+document.addEventListener("keydown",e=>{
+if(e.key==="Escape") lb.classList.remove("active");
+});
 </script>
-
 </body>
 </html>
