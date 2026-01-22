@@ -1,103 +1,179 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <title>Dashboard Keputusan UKOM JFK</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 <style>
 body{margin:0;font-family:Inter,Arial;background:#f1f5f9}
 .login,.dash{display:none}
 .active{display:block}
-.card{background:#fff;border-radius:16px;padding:20px;
-box-shadow:0 10px 30px rgba(0,0,0,.12)}
-img{width:90px;height:90px;border-radius:50%;cursor:pointer}
-table{width:100%;border-collapse:collapse}
-td,th{padding:10px;border-bottom:1px solid #e5e7eb}
-.lightbox{position:fixed;inset:0;background:#0008;display:none;
-align-items:center;justify-content:center}
+.card{
+  background:#fff;
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.12);
+  max-width:520px;
+  margin:auto
+}
+img{
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  object-fit:cover;
+  cursor:pointer
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  border-radius:16px;
+  overflow:hidden
+}
+th,td{
+  padding:12px;
+  border-bottom:1px solid #e5e7eb;
+  text-align:left
+}
+
+/* LIGHTBOX */
+.lightbox{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999
+}
 .lightbox.active{display:flex}
-.lb{background:#fff;padding:30px;border-radius:16px;max-width:700px}
+.lb{
+  background:#fff;
+  padding:30px;
+  border-radius:18px;
+  max-width:700px;
+  width:90%;
+  position:relative
+}
+.close{
+  position:absolute;
+  top:14px;
+  right:18px;
+  cursor:pointer;
+  font-size:20px
+}
 </style>
 </head>
+
 <body>
 
+<!-- LOGIN -->
 <div class="login active" id="login">
   <div class="card">
-    <h3>Login UKOM JFK</h3>
-    <input id="u" placeholder="Username"><br>
-    <input id="p" type="password" placeholder="Password"><br>
+    <h3>Login Peserta UKOM JFK</h3>
+    <input id="u" placeholder="Username"><br><br>
+    <input id="p" type="password" placeholder="Password"><br><br>
     <button onclick="login()">Masuk</button>
   </div>
 </div>
 
+<!-- USER DASHBOARD -->
 <div class="dash" id="userDash"></div>
+
+<!-- ADMIN DASHBOARD -->
 <div class="dash" id="adminDash"></div>
 
+<!-- LIGHTBOX -->
 <div class="lightbox" id="lb">
   <div class="lb">
-    <span onclick="lb.classList.remove('active')">❌</span>
-    <pre id="detail"></pre>
+    <span class="close" onclick="closeLB()">✖</span>
+    <div id="lbContent"></div>
   </div>
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbw9SV--A0ZEWD8qUr0BdbDrSicx9BYCyrwXSqncIK1Za7pSpIJTm1pDxc9UePNTc4Dxmg/exec";
-let role="", nip="";
+const API = "https://script.google.com/macros/s/AKfycby0tN7OcBApAFnbPzdG-9-43-I7_OBgS9k92eue_QaSyi5uVnpimZo-ldlGDaaMKOtOlw/exec";
+let nip="", role="";
 
 function login(){
-fetch(API,{method:"POST",body:JSON.stringify({
-action:"login",username:u.value,password:p.value
-})}).then(r=>r.json()).then(d=>{
-if(d.status==="ok"){
-role=d.role; nip=d.nip;
-login.classList.remove("active");
-(role==="ADMIN"?loadAdmin():loadUser());
-}else alert("Login gagal");
+fetch(API,{
+  method:"POST",
+  body:JSON.stringify({
+    action:"login",
+    username:u.value,
+    password:p.value
+  })
+}).then(r=>r.json()).then(d=>{
+  if(d.status==="ok"){
+    nip=d.nip; role=d.role;
+    login.classList.remove("active");
+    role==="ADMIN" ? loadAdmin() : loadUser();
+  }else alert("Login gagal");
 });
 }
 
 function loadUser(){
-fetch(API,{method:"POST",body:JSON.stringify({
-action:"profile",nip
-})}).then(r=>r.json()).then(d=>{
-const r=d.data;
-userDash.classList.add("active");
-userDash.innerHTML=`
-<div class="card">
-<img src="${r[16]}" onclick="show('${r.join("\\n")}')">
-<h3>${r[2]}</h3>
-<p>${r[4]}</p>
-<p>${r[13]} - ${r[14]}</p>
-<p><b>${r[15]}</b></p>
-</div>`;
+fetch(API,{
+  method:"POST",
+  body:JSON.stringify({action:"profile", nip})
+}).then(r=>r.json()).then(d=>{
+  const r=d.data;
+  userDash.classList.add("active");
+  userDash.innerHTML=`
+  <div class="card">
+    <img src="${r[16]}" onclick="openLB(${JSON.stringify(r)})">
+    <h3>${r[2]}</h3>
+    <p>NIP: ${r[4]}</p>
+    <p>${r[13]} - ${r[14]}</p>
+    <p><b>${r[15]}</b></p>
+  </div>`;
 });
 }
 
 function loadAdmin(){
-fetch(API,{method:"POST",body:JSON.stringify({
-action:"all",role
-})}).then(r=>r.json()).then(d=>{
-adminDash.classList.add("active");
-let h="<table><tr><th>Foto</th><th>Nama</th><th>NIP</th><th>JF</th></tr>";
-d.rows.forEach(x=>{
-h+=`<tr>
-<td><img src="${x.foto}" onclick="show('${x.detail.join("\\n")}')"></td>
-<td>${x.nama}</td>
-<td>${x.nip}</td>
-<td>${x.tujuan}</td>
-</tr>`;
-});
-adminDash.innerHTML=h+"</table>";
+fetch(API,{
+  method:"POST",
+  body:JSON.stringify({action:"all", role})
+}).then(r=>r.json()).then(d=>{
+  let h="<table><tr><th>Foto</th><th>Nama</th><th>NIP</th><th>JF Tujuan</th></tr>";
+  d.rows.forEach(r=>{
+    h+=`
+    <tr>
+      <td><img src="${r[16]}" onclick="openLB(${JSON.stringify(r)})"></td>
+      <td>${r[2]}</td>
+      <td>${r[4]}</td>
+      <td>${r[13]}</td>
+    </tr>`;
+  });
+  adminDash.classList.add("active");
+  adminDash.innerHTML=h+"</table>";
 });
 }
 
-function show(t){
-detail.innerText=t;
-lb.classList.add("active");
+function openLB(r){
+  lbContent.innerHTML=`
+    <h2>${r[2]}</h2>
+    <p><b>NIK:</b> ${r[3]}</p>
+    <p><b>NIP:</b> ${r[4]}</p>
+    <p><b>WA:</b> ${r[5]}</p>
+    <p><b>Unit:</b> ${r[6]}</p>
+    <p><b>Pangkat:</b> ${r[9]}</p>
+    <p><b>PAK:</b> ${r[10]}</p>
+    <p><b>STR:</b> ${r[11]}</p>
+    <p><b>Keputusan:</b> ${r[15]}</p>
+  `;
+  lb.classList.add("active");
 }
+
+function closeLB(){
+  lb.classList.remove("active");
+}
+
 document.addEventListener("keydown",e=>{
-if(e.key==="Escape") lb.classList.remove("active");
+  if(e.key==="Escape") closeLB();
 });
 </script>
+
 </body>
 </html>
