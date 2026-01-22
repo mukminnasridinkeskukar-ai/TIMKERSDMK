@@ -178,7 +178,7 @@ textarea{resize:vertical}
       <label>Komentar / Saran</label>
       <textarea id="komentar" rows="3" placeholder="Opsional"></textarea>
 
-      <button class="btn" id="submitBtn">KIRIM ABSENSI</button>
+     <button type="submit" class="btn" id="submitBtn">KIRIM ABSENSI</button>
 
       <div class="status success" id="successMsg">
         ✅ Absensi berhasil dikirim. Menunggu proses validasi Admin SIPANDAI-ASN.
@@ -199,8 +199,14 @@ textarea{resize:vertical}
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw6k44VlUbI6sFnagxzlR6eeJqpqzEgVnQs-W-t2lUB9LFuj6-nanFgih-31Y63hSKvnA/exec";
 
+const form = document.getElementById("form");
+const submitBtn = document.getElementById("submitBtn");
+const successMsg = document.getElementById("successMsg");
+const errorMsg = document.getElementById("errorMsg");
+
 form.onsubmit = async e => {
   e.preventDefault();
+
   submitBtn.disabled = true;
   submitBtn.innerText = "Mengirim...";
 
@@ -218,29 +224,31 @@ form.onsubmit = async e => {
     komentar: komentar.value
   };
 
-  try{
-    const res = await fetch(SCRIPT_URL,{
-      method:"POST",
-      body:JSON.stringify(payload)
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify(payload)
     });
+
     const out = await res.json();
 
-    if(!out.success){
+    if (!out.success) {
       throw new Error(out.message || "Gagal mengirim absensi");
     }
 
     successMsg.style.display = "block";
     form.reset();
 
-  }catch(err){
+  } catch (err) {
     errorMsg.innerText = "❌ " + err.message;
     errorMsg.style.display = "block";
-  }finally{
+  } finally {
     submitBtn.disabled = false;
     submitBtn.innerText = "KIRIM ABSENSI";
   }
 };
 </script>
+
 
 </body>
 </html>
