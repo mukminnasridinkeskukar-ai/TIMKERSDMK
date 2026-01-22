@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <title>Dashboard UKOM JFK</title>
@@ -7,54 +7,81 @@
 <style>
 body{background:#f4f6f9}
 .hidden{display:none}
-.avatar{width:40px;height:40px;border-radius:50%;object-fit:cover}
-.fullscreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:9999;overflow:auto}
+.avatar{width:42px;height:42px;border-radius:50%;object-fit:cover}
+.fullscreen{
+  position:fixed;top:0;left:0;
+  width:100%;height:100%;
+  background:#fff;z-index:9999;
+  overflow:auto;
+}
 </style>
 </head>
-
 <body>
 
-<!-- ================= DASHBOARD ================= -->
-<section id="dashboard" class="container py-4">
-<h4>📊 Dashboard UKOM JFK</h4>
+<!-- DASHBOARD -->
+<div id="dashboard" class="container py-4">
+<h3>📊 Dashboard UKOM JFK</h3>
 <table class="table table-hover bg-white">
 <thead>
 <tr>
 <th>Foto</th><th>Nama</th><th>Unit</th><th>Jenis</th>
-<th>Jenjang</th><th>Kategori</th><th>JF Tujuan</th><th>Jenjang Tujuan</th>
+<th>Jenjang</th><th>Kategori</th><th>JF</th><th>Jenjang Tujuan</th>
 </tr>
 </thead>
 <tbody id="tbl"></tbody>
 </table>
-</section>
+</div>
 
-<!-- ================= LOGIN PROFIL ================= -->
-<section id="login" class="hidden container d-flex justify-content-center align-items-center vh-100">
-<div class="card p-4" style="width:360px">
+<!-- LOGIN -->
+<div id="login" class="hidden d-flex justify-content-center align-items-center vh-100">
+<div class="card p-4" style="width:350px">
 <h5>🔐 Login Akses Profil</h5>
 <input id="user" class="form-control mb-2" placeholder="Username">
 <input id="pass" type="password" class="form-control mb-3" placeholder="Password">
 <button class="btn btn-primary w-100" onclick="doLogin()">Masuk</button>
+<button class="btn btn-link" onclick="show('dashboard')">Batal</button>
 </div>
-</section>
+</div>
 
-<!-- ================= PROFIL ================= -->
-<section id="profil" class="fullscreen hidden p-4">
-<button class="btn btn-secondary mb-3" onclick="back()">← Kembali</button>
+<!-- PROFIL -->
+<div id="profil" class="fullscreen hidden p-4">
+<button class="btn btn-secondary mb-3" onclick="show('dashboard')">← Kembali</button>
 <div class="row">
 <div class="col-md-8">
 <h4 id="nama"></h4>
 <ul class="list-group" id="detail"></ul>
 </div>
 <div class="col-md-4 text-center">
-<img id="foto" class="img-fluid rounded shadow">
+<img id="foto" class="img-fluid rounded">
 </div>
 </div>
-</section>
+</div>
 
 <script>
-let selectedNIP = null;
+const API_URL = "https://script.google.com/macros/s/AKfycbz4ZjK2jvbYZdzTyqNsS0SllhUcMoZBVK2qx0SRL_ONVGcm8JFJ6Z3n_FcKo64MifuFhQ/exec";
+let nipDipilih=null;
 
+/* ===== LOAD DASHBOARD ===== */
+fetch(API_URL+"?action=dashboard")
+.then(r=>r.json())
+.then(data=>{
+  tbl.innerHTML="";
+  data.forEach(r=>{
+    tbl.innerHTML+=`
+      <tr onclick="bukaLogin('${r[3]}')">
+        <td><img src="${r[0]}" class="avatar"></td>
+        <td>${r[1]}</td>
+        <td>${r[5]}</td>
+        <td>${r[6]}</td>
+        <td>${r[7]}</td>
+        <td>${r[11]}</td>
+        <td>${r[12]}</td>
+        <td>${r[13]}</td>
+      </tr>`;
+  });
+});
+
+/* ===== NAV ===== */
 function show(id){
   ["dashboard","login","profil"].forEach(x=>{
     document.getElementById(x).classList.add("hidden");
@@ -62,50 +89,49 @@ function show(id){
   document.getElementById(id).classList.remove("hidden");
 }
 
-google.script.run.withSuccessHandler(data=>{
-  data.forEach(r=>{
-    tbl.innerHTML+=`
-    <tr onclick="openLogin('${r[3]}')">
-      <td><img src="${r[0]}" class="avatar"></td>
-      <td>${r[1]}</td>
-      <td>${r[5]}</td>
-      <td>${r[6]}</td>
-      <td>${r[7]}</td>
-      <td>${r[11]}</td>
-      <td>${r[12]}</td>
-      <td>${r[13]}</td>
-    </tr>`;
-  });
-}).getDashboardData();
-
-function openLogin(nip){
-  selectedNIP = nip;
+function bukaLogin(nip){
+  nipDipilih=nip;
   show("login");
 }
 
+/* ===== LOGIN ===== */
 function doLogin(){
-  google.script.run.withSuccessHandler(ok=>{
-    if(ok){
+  fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"login",
+      username:user.value.trim(),
+      password:pass.value.trim()
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.status){
       loadProfil();
-    } else alert("Login gagal");
-  }).login(user.value,pass.value);
+    }else{
+      alert("Username / Password salah");
+    }
+  });
 }
 
+/* ===== LOAD PROFIL ===== */
 function loadProfil(){
-  google.script.run.withSuccessHandler(r=>{
-    nama.innerText = r[1];
-    foto.src = r[0];
+  fetch(API_URL+"?action=profil&nip="+nipDipilih)
+  .then(r=>r.json())
+  .then(r=>{
+    nama.innerText=r[1];
+    foto.src=r[0];
     detail.innerHTML="";
-    const label=["NIK","NIP","Telp","Unit","Jenis","Jenjang","Pangkat","PAK","STR","Kategori","JF","Jenjang Tujuan","Keputusan"];
+    const label=[
+      "NIK","NIP","Telp","Unit","Jenis","Jenjang",
+      "Pangkat","PAK","STR","Kategori","JF","Jenjang Tujuan","Keputusan"
+    ];
     for(let i=2;i<=14;i++){
-      detail.innerHTML+=`<li class="list-group-item"><b>${label[i-2]}</b>: ${r[i]}</li>`;
+      detail.innerHTML+=`
+        <li class="list-group-item"><b>${label[i-2]}</b>: ${r[i]||"-"}</li>`;
     }
     show("profil");
-  }).getProfileByNIP(selectedNIP);
-}
-
-function back(){
-  show("dashboard");
+  });
 }
 </script>
 
