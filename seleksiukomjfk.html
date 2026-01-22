@@ -2,105 +2,89 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Dashboard Keputusan UKOM JFK</title>
+<title>Login Peserta UKOM JFK</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{margin:0;font-family:Inter,Arial;background:#f1f5f9}
-.hidden{display:none}
-
-/* LOGIN */
-.login{
-  min-height:100vh;display:flex;
-  align-items:center;justify-content:center
+body{
+  margin:0;
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  background:linear-gradient(135deg,#0f172a,#1e3a8a);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
-.box{
-  background:#fff;padding:30px;border-radius:18px;
-  width:320px;box-shadow:0 20px 50px rgba(0,0,0,.15)
+.login-card{
+  background:#fff;
+  width:360px;
+  padding:36px 32px;
+  border-radius:20px;
+  box-shadow:0 25px 60px rgba(0,0,0,.25);
 }
-input,button{
-  width:100%;padding:12px;margin-top:12px;
-  border-radius:10px;border:1px solid #cbd5e1
+.login-card h2{
+  margin:0 0 6px;
+  text-align:center;
+  font-size:22px;
+}
+.login-card p{
+  text-align:center;
+  color:#64748b;
+  margin-bottom:24px;
+}
+input{
+  width:100%;
+  padding:14px 16px;
+  border-radius:12px;
+  border:1px solid #cbd5e1;
+  font-size:15px;
+  margin-bottom:14px;
+}
+input:focus{
+  outline:none;
+  border-color:#2563eb;
 }
 button{
-  background:#2563eb;color:#fff;font-weight:700;border:none
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:#2563eb;
+  color:#fff;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
 }
-
-/* DASHBOARD */
-.container{max-width:1200px;margin:auto;padding:40px 20px}
-.card{
-  background:#fff;border-radius:18px;padding:24px;
-  box-shadow:0 15px 40px rgba(0,0,0,.12)
-}
-.profile{
-  display:flex;gap:20px;align-items:center
-}
-.profile img{
-  width:120px;height:120px;border-radius:50%;
-  object-fit:cover;cursor:pointer
-}
-
-/* TABLE ADMIN */
-table{
-  width:100%;border-collapse:collapse;background:#fff;
-  border-radius:16px;overflow:hidden
-}
-th,td{
-  padding:12px;border-bottom:1px solid #e5e7eb;text-align:left
-}
-td img{
-  width:60px;height:60px;border-radius:50%;
-  cursor:pointer;object-fit:cover
-}
-
-/* LIGHTBOX */
-.lightbox{
-  position:fixed;inset:0;background:rgba(0,0,0,.85);
-  display:none;align-items:center;justify-content:center;z-index:9999
-}
-.lightbox.active{display:flex}
-.lb{
-  background:#fff;border-radius:20px;padding:30px;
-  max-width:720px;width:90%;position:relative
-}
-.close{
-  position:absolute;top:16px;right:20px;
-  font-size:22px;cursor:pointer
+button:hover{background:#1e40af}
+.footer{
+  margin-top:20px;
+  text-align:center;
+  font-size:13px;
+  color:#94a3b8;
 }
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div class="login" id="login">
-  <div class="box">
-    <h3>Login UKOM JFK</h3>
-    <input id="username" placeholder="Username">
-    <input id="password" type="password" placeholder="Password">
-    <button onclick="loginUser()">Masuk</button>
-  </div>
-</div>
+<div class="login-card">
+  <h2>Login Peserta UKOM JFK</h2>
+  <p>Silakan masuk menggunakan akun Anda</p>
 
-<!-- USER DASHBOARD -->
-<div class="container hidden" id="userDash"></div>
+  <input id="username" placeholder="Username / NIP">
+  <input id="password" type="password" placeholder="Password">
 
-<!-- ADMIN DASHBOARD -->
-<div class="container hidden" id="adminDash"></div>
+  <button onclick="login()">Masuk</button>
 
-<!-- LIGHTBOX -->
-<div class="lightbox" id="lb">
-  <div class="lb">
-    <span class="close" onclick="closeLB()">✖</span>
-    <div id="lbContent"></div>
+  <div class="footer">
+    Tim Pengelola UKOM Jabatan Fungsional Kesehatan
   </div>
 </div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbxwoeuAk6ogmBxyty-86Uw68YZ_C96-hvHHQR-7MjXFkPEx88GubrnJE90m0Q6E7eMz8A/exec";
-let nipUser="", roleUser="";
+const API = "https://script.google.com/macros/s/AKfycbzqld1koYAKIJb7GFhfqvi1oPRc1BxE9q_iEBhvFPZ6a-87R8OHOhxfKdkCU0yO59Z3/exec";
 
-function loginUser(){
+function login(){
   fetch(API,{
     method:"POST",
     body:JSON.stringify({
@@ -108,87 +92,22 @@ function loginUser(){
       username:username.value,
       password:password.value
     })
-  }).then(r=>r.json()).then(d=>{
+  })
+  .then(r=>r.json())
+  .then(d=>{
     if(d.status==="ok"){
-      nipUser=d.nip; roleUser=d.role;
-      login.classList.add("hidden");
-      roleUser==="ADMIN" ? loadAdmin() : loadUser();
-    }else alert("Login gagal");
+      alert("Login berhasil");
+      // redirect ke dashboard
+      window.location.href = "dashboard.html?nip="+d.nip+"&role="+d.role;
+    }else{
+      alert("Username atau Password salah");
+    }
+  })
+  .catch(err=>{
+    alert("Gagal koneksi ke server");
+    console.error(err);
   });
 }
-
-// ===== USER =====
-function loadUser(){
-  fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"profile", nip:nipUser})
-  }).then(r=>r.json()).then(d=>{
-    const r=d.data;
-    userDash.classList.remove("hidden");
-    userDash.innerHTML=`
-      <div class="card profile">
-        <img src="${r[16]}" onclick="openLB(${JSON.stringify(r)})">
-        <div>
-          <h2>${r[2]}</h2>
-          <p>NIP: ${r[4]}</p>
-          <p>${r[13]} – ${r[14]}</p>
-          <p><b>${r[15]}</b></p>
-        </div>
-      </div>
-    `;
-  });
-}
-
-// ===== ADMIN =====
-function loadAdmin(){
-  fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"all", role:"ADMIN"})
-  }).then(r=>r.json()).then(d=>{
-    adminDash.classList.remove("hidden");
-    let h=`
-    <table>
-      <tr>
-        <th>Foto</th><th>Nama</th><th>NIP</th>
-        <th>JF Tujuan</th><th>Jenjang</th><th>Keputusan</th>
-      </tr>`;
-    d.rows.forEach(r=>{
-      h+=`
-      <tr>
-        <td><img src="${r[16]}" onclick="openLB(${JSON.stringify(r)})"></td>
-        <td>${r[2]}</td>
-        <td>${r[4]}</td>
-        <td>${r[13]}</td>
-        <td>${r[14]}</td>
-        <td>${r[15]}</td>
-      </tr>`;
-    });
-    adminDash.innerHTML=h+"</table>";
-  });
-}
-
-// ===== LIGHTBOX =====
-function openLB(r){
-  lbContent.innerHTML=`
-    <h2>${r[2]}</h2>
-    <p><b>NIK:</b> ${r[3]}</p>
-    <p><b>NIP:</b> ${r[4]}</p>
-    <p><b>WA:</b> ${r[5]}</p>
-    <p><b>Unit Kerja:</b> ${r[6]}</p>
-    <p><b>Jenis/Jenjang:</b> ${r[7]} / ${r[8]}</p>
-    <p><b>Pangkat:</b> ${r[9]}</p>
-    <p><b>PAK:</b> ${r[10]}</p>
-    <p><b>STR:</b> ${r[11]}</p>
-    <p><b>Kategori:</b> ${r[12]}</p>
-    <hr>
-    <p><b>Keputusan:</b> ${r[15]}</p>
-  `;
-  lb.classList.add("active");
-}
-function closeLB(){lb.classList.remove("active")}
-document.addEventListener("keydown",e=>{
-  if(e.key==="Escape") closeLB();
-});
 </script>
 
 </body>
