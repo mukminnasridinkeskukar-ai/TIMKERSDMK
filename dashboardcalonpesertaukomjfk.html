@@ -96,6 +96,19 @@ body{
 }
 </style>
 </head>
+<!-- LOGIN MODAL -->
+<div class="modal" id="loginModal">
+  <div class="modal-box" style="max-width:420px">
+    <button class="modal-close" onclick="closeLogin()">&times;</button>
+    <h3>🔐 Login untuk melihat profil</h3>
+
+    <input id="u" placeholder="Username" style="width:100%;padding:10px;margin:8px 0">
+    <input id="p" type="password" placeholder="Password" style="width:100%;padding:10px;margin:8px 0">
+
+    <button onclick="login()" style="width:100%;padding:10px">Login</button>
+    <div id="loginMsg" style="color:red;margin-top:8px"></div>
+  </div>
+</div>
 
 <body>
 
@@ -115,7 +128,7 @@ body{
 </div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxcdPhELxY66n1j1SPR-w6RxFzRFPSRfjWWwPsYP3cLIXsdPgzOB6Z4H2NOhFeiIAJswQ/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyv_6fw9igGcQfOymvvRXzmwMfES8CtOvLAeeW-3eG5rM4cormaq_cqUGoPgpEb1s_G2w/exec";
 const grid = document.getElementById("grid");
 
 /* ===== LOAD DATA ===== */
@@ -162,6 +175,72 @@ function openProfil(d){
 }
 document.querySelector(".modal-close").onclick=()=>modal.classList.remove("show");
 modal.onclick=e=>{if(e.target===modal)modal.classList.remove("show")};
+
+let userLogin = null;
+let pendingData = null;
+
+/* override klik kartu */
+function openProfil(data){
+  if(!userLogin){
+    pendingData = data;
+    document.getElementById("loginModal").classList.add("show");
+    return;
+  }
+  showProfil(data);
+}
+
+/* LOGIN */
+function login(){
+  fetch(WEB_APP_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"login",
+      username:u.value,
+      password:p.value
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.status==="success"){
+      userLogin = res.data;
+      closeLogin();
+      showProfil(pendingData);
+    }else{
+      loginMsg.textContent = res.message;
+    }
+  });
+}
+
+function closeLogin(){
+  document.getElementById("loginModal").classList.remove("show");
+  loginMsg.textContent="";
+}
+
+/* TAMPILKAN PROFIL */
+function showProfil(d){
+  modal.classList.add("show");
+  fotoProfil.src=`https://lh3.googleusercontent.com/d/${d.idFotoDrive}`;
+
+  profil.innerHTML = `
+    <h2>${d.namaLengkap}</h2>
+    <div><b>NIK</b>: ${d.nik}</div>
+    <div><b>NIP</b>: ${d.nip}</div>
+    <div><b>Nomor WA</b>: ${d.wa}</div>
+    <div><b>Unit Kerja</b>: ${d.unitKerja}</div>
+    <div><b>Jenis Jabatan</b>: ${d.jenisJabatan}</div>
+    <div><b>Jenjang Jabatan</b>: ${d.jenjangJabatan}</div>
+    <div><b>Pangkat/Gol</b>: ${d.pangkatGol}</div>
+    <div><b>Nilai PAK</b>: ${d.nilaiPAK}</div>
+    <div><b>Nomor STR</b>: ${d.nomorSTR}</div>
+    <div><b>Kategori Penjenjangan</b>: ${d.kategoriPenjenjangan}</div>
+    <div><b>Jabatan Tujuan</b>: ${d.jabatanTujuan}</div>
+    <div><b>Jenjang Tujuan</b>: ${d.jenjangTujuan}</div>
+    <div><b>Keputusan Tim</b>: ${d.keputusanTim}</div>
+    <hr>
+    <small>Login sebagai: <b>${userLogin.nama}</b> (${userLogin.role})</small>
+  `;
+}
+  
 </script>
 
 </body>
