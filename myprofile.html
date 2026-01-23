@@ -247,21 +247,21 @@ footer{
 <div class="section-title"><h2>Inovasi</h2></div>
 
 <div class="inovasi-grid">
-  <div class="inovasi-card" onclick="openModal('simandakes')">
+  <div class="inovasi-card" onclick="openModal('simandakes.html')">
     <h3>SIMANDAKES</h3>
-    <p>Sistem Informasi & Manajemen SDM Kesehatan</p>
+    <p>Sistem Informasi & Manajemen Perencanaan, Pendistribusian dan Pendayagunaan SDM Kesehatan</p>
   </div>
-  <div class="inovasi-card" onclick="openModal('bangroma')">
-    <h3>BangROMA</h3>
-    <p>Registrasi, Otorisasi, Monitoring & Akreditasi</p>
+  <div class="inovasi-card" onclick="openModal('sakti.html')">
+    <h3>SAKTI</h3>
+    <p>Sistem Aksesmen dan Kredensial Tenaga Medis & Tenaga Kesehatan di FKTP</p>
   </div>
-  <div class="inovasi-card" onclick="openModal('simantri')">
-    <h3>Si-Mantri</h3>
-    <p>Manajemen Praktik Mandiri Nakes</p>
+  <div class="inovasi-card" onclick="openModal('simantri.html')">
+    <h3>SIMANTRI</h3>
+    <p>Sistem Manajemen Praktik Mandiri Tenaga Medis dan Tenaga Kesehatan</p>
   </div>
-  <div class="inovasi-card" onclick="openModal('pasti')">
-    <h3>PASTI</h3>
-    <p>Administrasi SDM Kesehatan Informatif</p>
+  <div class="inovasi-card" onclick="openModal('abdimas.html')">
+    <h3>ABDIMAS</h3>
+    <p>Pengabdian Masyarakat SDM Kesehatan</p>
   </div>
 </div>
 </div>
@@ -283,10 +283,10 @@ footer{
 
 <script>
 const dataInovasi={
-  simandakes:{title:'SIMANDAKES',desc:'Sistem Informasi dan Manajemen SDM Kesehatan',link:'https://contoh-link-simandakes'},
-  bangroma:{title:'BangROMA',desc:'Basis Registrasi, Otorisasi, Monitoring & Akreditasi',link:'https://contoh-link-bangroma'},
-  simantri:{title:'Si-Mantri',desc:'Manajemen Praktik Mandiri Tenaga Kesehatan',link:'https://contoh-link-simantri'},
-  pasti:{title:'PASTI',desc:'Pengelolaan Administrasi SDM Kesehatan Tertib & Informatif',link:'https://contoh-link-pasti'}
+  simandakes:{title:'SIMANDAKES',desc:'Sistem Informasi dan Manajemen Perencanaan, Pendistribusian dan Pendayagunaan SDM Kesehatan',link:'simandakes.html'},
+  sakti:{title:'SAKTI',desc:'Sistem Asesmen dan Kredensial Tenaga Medis dan Tenaga Kesehatan di FKTP',link:'sakti.html'},
+  simantri:{title:'SIMANTRI',desc:'Sistem Manajemen Praktik Mandiri Tenaga Medis dan Tenaga Kesehatan',link:'simantri.html'},
+  abdimas:{title:'ABDIMAS',desc:'Pengabdian Masyarakat Sumber Daya Manusia Kesehatan',link:'abdimas.html'}
 };
 function openModal(key){
   document.getElementById('modal').style.display='flex';
