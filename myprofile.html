@@ -189,6 +189,35 @@ footer{
   padding:35px;
   font-size:16px;
 }
+.inovasi-card i{
+  font-size:46px;
+  color:var(--primary);
+  margin-bottom:18px;
+  display:block;
+}
+.inovasi-card{
+  background:#fff;
+  padding:34px 30px;
+  border-radius:24px;
+  box-shadow:0 15px 40px rgba(0,0,0,.1);
+  cursor:pointer;
+  transition:.35s;
+  text-align:center;
+}
+.inovasi-card:hover{
+  transform:translateY(-8px);
+  box-shadow:0 20px 50px rgba(0,0,0,.15);
+}
+.inovasi-card h3{
+  font-size:26px;
+  margin:12px 0;
+}
+.inovasi-card p{
+  font-size:19px;
+  line-height:1.7;
+}
+
+  
 </style>
 </head>
 
@@ -243,29 +272,41 @@ footer{
 
 <!-- INOVASI -->
 <section>
-<div class="container">
-<div class="section-title"><h2>Inovasi</h2></div>
+  <div class="container">
+    <div class="section-title">
+      <h2><i class="fa-solid fa-lightbulb"></i> Inovasi</h2>
+    </div>
 
-<div class="inovasi-grid">
-  <div class="inovasi-card" onclick="openModal('simandakes.html')">
-    <h3>SIMANDAKES</h3>
-    <p>Sistem Informasi & Manajemen Perencanaan, Pendistribusian dan Pendayagunaan SDM Kesehatan</p>
+    <div class="inovasi-grid">
+
+      <div class="inovasi-card" onclick="openModal('simandakes')">
+        <i class="fa-solid fa-network-wired"></i>
+        <h3>SIMANDAKES</h3>
+        <p>Sistem Informasi & Manajemen Perencanaan, Pendistribusian dan Pendayagunaan SDM Kesehatan</p>
+      </div>
+
+      <div class="inovasi-card" onclick="openModal('sakti')">
+        <i class="fa-solid fa-shield-halved"></i>
+        <h3>SAKTI</h3>
+        <p>Sistem Asesmen dan Kredensial Tenaga Medis & Tenaga Kesehatan di FKTP</p>
+      </div>
+
+      <div class="inovasi-card" onclick="openModal('simantri')">
+        <i class="fa-solid fa-user-doctor"></i>
+        <h3>SIMANTRI</h3>
+        <p>Sistem Manajemen Praktik Mandiri Tenaga Medis dan Tenaga Kesehatan</p>
+      </div>
+
+      <div class="inovasi-card" onclick="openModal('abdimas')">
+        <i class="fa-solid fa-handshake-angle"></i>
+        <h3>ABDIMAS</h3>
+        <p>Pengabdian Masyarakat Sumber Daya Manusia Kesehatan</p>
+      </div>
+
+    </div>
   </div>
-  <div class="inovasi-card" onclick="openModal('sakti.html')">
-    <h3>SAKTI</h3>
-    <p>Sistem Aksesmen dan Kredensial Tenaga Medis & Tenaga Kesehatan di FKTP</p>
-  </div>
-  <div class="inovasi-card" onclick="openModal('simantri.html')">
-    <h3>SIMANTRI</h3>
-    <p>Sistem Manajemen Praktik Mandiri Tenaga Medis dan Tenaga Kesehatan</p>
-  </div>
-  <div class="inovasi-card" onclick="openModal('abdimas.html')">
-    <h3>ABDIMAS</h3>
-    <p>Pengabdian Masyarakat SDM Kesehatan</p>
-  </div>
-</div>
-</div>
 </section>
+
 
 <!-- MODAL -->
 <div class="modal" id="modal">
@@ -273,31 +314,55 @@ footer{
     <span class="close" onclick="closeModal()">×</span>
     <h3 id="modalTitle"></h3>
     <p id="modalDesc"></p>
-    <a id="modalLink" href="#" target="_blank">Buka Sistem</a>
+    <a id="modalLink" href="#" target="_blank">
+      <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      Buka Sistem
+    </a>
   </div>
 </div>
+
 
 <footer>
 © 2026 Mukmin Nasri • Landing Page Premium
 </footer>
 
 <script>
-const dataInovasi={
-  simandakes:{title:'SIMANDAKES',desc:'Sistem Informasi dan Manajemen Perencanaan, Pendistribusian dan Pendayagunaan SDM Kesehatan',link:'simandakes.html'},
-  sakti:{title:'SAKTI',desc:'Sistem Asesmen dan Kredensial Tenaga Medis dan Tenaga Kesehatan di FKTP',link:'sakti.html'},
-  simantri:{title:'SIMANTRI',desc:'Sistem Manajemen Praktik Mandiri Tenaga Medis dan Tenaga Kesehatan',link:'simantri.html'},
-  abdimas:{title:'ABDIMAS',desc:'Pengabdian Masyarakat Sumber Daya Manusia Kesehatan',link:'abdimas.html'}
+const dataInovasi = {
+  simandakes: {
+    title: 'SIMANDAKES',
+    desc: 'Sistem Informasi dan Manajemen Perencanaan, Pendistribusian dan Pendayagunaan SDM Kesehatan',
+    link: 'simandakes.html'
+  },
+  sakti: {
+    title: 'SAKTI',
+    desc: 'Sistem Asesmen dan Kredensial Tenaga Medis dan Tenaga Kesehatan di FKTP',
+    link: 'sakti.html'
+  },
+  simantri: {
+    title: 'SIMANTRI',
+    desc: 'Sistem Manajemen Praktik Mandiri Tenaga Medis dan Tenaga Kesehatan',
+    link: 'simantri.html'
+  },
+  abdimas: {
+    title: 'ABDIMAS',
+    desc: 'Pengabdian Masyarakat Sumber Daya Manusia Kesehatan',
+    link: 'abdimas.html'
+  }
 };
+
 function openModal(key){
-  document.getElementById('modal').style.display='flex';
-  document.getElementById('modalTitle').innerText=dataInovasi[key].title;
-  document.getElementById('modalDesc').innerText=dataInovasi[key].desc;
-  document.getElementById('modalLink').href=dataInovasi[key].link;
+  if(!dataInovasi[key]) return;
+  document.getElementById('modal').style.display = 'flex';
+  document.getElementById('modalTitle').innerText = dataInovasi[key].title;
+  document.getElementById('modalDesc').innerText = dataInovasi[key].desc;
+  document.getElementById('modalLink').href = dataInovasi[key].link;
 }
+
 function closeModal(){
-  document.getElementById('modal').style.display='none';
+  document.getElementById('modal').style.display = 'none';
 }
 </script>
+
 
 </body>
 </html>
