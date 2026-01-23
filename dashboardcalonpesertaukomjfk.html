@@ -3,157 +3,144 @@
 <head>
 <meta charset="UTF-8">
 <title>Dashboard UKOM JFK</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
 <style>
-body{background:#f4f6f9;font-family:Segoe UI}
-.header{
-  background:linear-gradient(135deg,#0d6efd,#084298);
-  color:#fff;padding:20px;border-radius:16px;margin-bottom:20px
+body{
+  font-family:Segoe UI,Arial,sans-serif;
+  background:#f4f6fb;
+  margin:0
 }
-.avatar-lg{
-  width:180px;height:180px;border-radius:50%;
-  object-fit:cover;border:4px solid #dee2e6
+header{
+  background:#1e293b;
+  color:#fff;
+  padding:15px 25px
 }
+.container{
+  padding:20px
+}
+.card{
+  background:#fff;
+  border-radius:12px;
+  padding:20px;
+  box-shadow:0 10px 25px rgba(0,0,0,.08)
+}
+input,select{
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ccc
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px
+}
+th,td{
+  padding:10px;
+  border-bottom:1px solid #eee
+}
+th{
+  background:#f1f5f9;
+  text-align:left
+}
+.badge{
+  padding:5px 10px;
+  border-radius:20px;
+  font-size:12px;
+  color:#fff
+}
+.approve{background:#16a34a}
+.reject{background:#dc2626}
+.pending{background:#f59e0b}
 </style>
 </head>
 
 <body>
-<div class="container py-4">
 
-<div class="header">
-<h4>Dashboard UKOM JFK</h4>
-<small>Monitoring Peserta Uji Kompetensi Jabatan Fungsional</small>
-</div>
+<header>
+  <h2>📊 Dashboard UKOM JFK</h2>
+</header>
 
-<div class="card shadow rounded-4">
-<table class="table table-hover align-middle mb-0">
-<thead class="table-light">
-<tr>
-<th>Nama</th>
-<th>Unit Kerja</th>
-<th>Jenis Jabatan</th>
-<th>Jenjang</th>
-<th>Kategori</th>
-<th>JF Dituju</th>
-<th>Jenjang Tujuan</th>
-</tr>
-</thead>
-<tbody id="tbl"></tbody>
-</table>
-</div>
-</div>
+<div class="container">
+  <div class="card">
 
-<!-- LOGIN -->
-<div class="modal fade" id="loginModal">
-<div class="modal-dialog modal-dialog-centered">
-<div class="modal-content">
-<div class="modal-header bg-primary text-white">
-<h5>Login Akses Profil</h5>
-</div>
-<div class="modal-body">
-<input id="user" class="form-control mb-2" placeholder="Username">
-<input id="pass" type="password" class="form-control mb-3" placeholder="Password">
-<button class="btn btn-primary w-100" onclick="doLogin()">Masuk</button>
-</div>
-</div>
-</div>
-</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <input type="text" id="search" placeholder="🔍 Cari nama / NIK">
+      <select id="filterJenjang">
+        <option value="">Semua Jenjang</option>
+      </select>
+    </div>
 
-<!-- PROFIL -->
-<div class="modal fade" id="profilModal">
-<div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-<div class="modal-content">
-<div class="modal-header bg-primary text-white">
-<h5>Profil Peserta</h5>
-<button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-</div>
-<div class="modal-body">
-<div class="row g-4">
-<div class="col-md-4 text-center">
-<img id="p_foto" class="avatar-lg mb-3">
-</div>
-<div class="col-md-8">
-<h4 id="p_nama"></h4>
-<div id="p_detail"></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>NIK</th>
+          <th>Unit Kerja</th>
+          <th>Jenjang</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="dataBody"></tbody>
+    </table>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </div>
+</div>
 
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbyQus6yuZG-jbFdf-AwHDY4fSNuKHIOoyOq17QsJp3T20V0j6D_FvKR4ixHZ6XWG8GG_g/exec";
-let nipAktif=null;
-const avatar=n=>`https://ui-avatars.com/api/?name=${encodeURIComponent(n)}&background=0D6EFD&color=fff`;
+let dataGlobal = [];
 
-fetch(API_URL+"?action=dashboard")
-.then(r=>r.json())
-.then(d=>{
-  tbl.innerHTML="";
-  d.forEach(r=>{
-    tbl.innerHTML+=`
-    <tr onclick="askLogin('${r.nip}')">
-      <td><b style="cursor:pointer;color:#0d6efd">${r.nama}</b></td>
-      <td>${r.unit}</td>
-      <td>${r.jenis}</td>
-      <td>${r.jenjang}</td>
-      <td>${r.kategori}</td>
-      <td>${r.jf}</td>
-      <td>${r.jenjangTujuan}</td>
-    </tr>`;
+fetch("https://script.google.com/macros/s/AKfycbwimsDA5vAxPSmikhKjIIcK9cLmJ5yJUNr02CFMBYvwmR2kiY4Of8uuy-M3RSH4Iths5w/execL?action=profil&callback=loadData");
+
+function loadData(res){
+  dataGlobal = res;
+  render(res);
+  isiFilter(res);
+}
+
+function isiFilter(data){
+  const set = new Set(data.map(d=>d.jenjangJabatan));
+  const sel = document.getElementById("filterJenjang");
+  set.forEach(j=>{
+    const o = document.createElement("option");
+    o.value=j; o.textContent=j;
+    sel.appendChild(o);
   });
-});
-
-function askLogin(nip){
-  nipAktif=nip;
-  new bootstrap.Modal(loginModal).show();
 }
 
-function doLogin(){
-fetch(API_URL,{
-method:"POST",
-body:JSON.stringify({
-action:"login",
-username:user.value,
-password:pass.value
-})
-})
-.then(r=>r.json())
-.then(res=>{
-  if(!res.status){alert("Login gagal");return;}
-  bootstrap.Modal.getInstance(loginModal).hide();
-  openProfil();
-});
+function render(data){
+  const tb = document.getElementById("dataBody");
+  tb.innerHTML="";
+  data.forEach(d=>{
+    let cls="pending";
+    if(d.keputusanTim=="Disetujui") cls="approve";
+    if(d.keputusanTim=="Ditolak") cls="reject";
+
+    tb.innerHTML += `
+      <tr>
+        <td>${d.namaLengkap}</td>
+        <td>${d.nik}</td>
+        <td>${d.unitKerja}</td>
+        <td>${d.jenjangJabatan}</td>
+        <td><span class="badge ${cls}">${d.keputusanTim}</span></td>
+      </tr>`;
+  });
 }
 
-function openProfil(){
-fetch(API_URL+"?action=profil&nip="+nipAktif)
-.then(r=>r.json())
-.then(r=>{
-  p_foto.src=r.foto||avatar(r.nama);
-  p_nama.innerText=r.nama;
-  p_detail.innerHTML=`
-<b>NIK:</b> ${r.nik}<br>
-<b>NIP:</b> ${r.nip}<br>
-<b>Telp:</b> ${r.telp}<br>
-<b>Unit:</b> ${r.unit}<br>
-<b>Jenis:</b> ${r.jenis}<br>
-<b>Jenjang:</b> ${r.jenjang}<br>
-<b>Pangkat:</b> ${r.pangkat}<br>
-<b>PAK:</b> ${r.pak}<br>
-<b>STR:</b> ${r.str}<br>
-<b>Kategori:</b> ${r.kategori}<br>
-<b>JF Dituju:</b> ${r.jf}<br>
-<b>Jenjang Tujuan:</b> ${r.jenjangTujuan}<br><br>
-<b>Keputusan:</b><br>${r.keputusan}`;
-  new bootstrap.Modal(profilModal).show();
-});
-}
+document.getElementById("search").oninput = function(){
+  const v=this.value.toLowerCase();
+  render(dataGlobal.filter(d =>
+    d.namaLengkap.toLowerCase().includes(v) ||
+    d.nik.includes(v)
+  ));
+};
+
+document.getElementById("filterJenjang").onchange = function(){
+  const v=this.value;
+  render(v?dataGlobal.filter(d=>d.jenjangJabatan==v):dataGlobal);
+};
 </script>
+
 </body>
 </html>
+
