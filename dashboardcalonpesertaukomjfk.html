@@ -119,17 +119,35 @@ function loadProfil(){
   fetch(API_URL+"?action=profil&nip="+nipDipilih)
   .then(r=>r.json())
   .then(r=>{
-    nama.innerText=r[1];
-    foto.src=r[0];
-    detail.innerHTML="";
-    const label=[
-      "NIK","NIP","Telp","Unit","Jenis","Jenjang",
-      "Pangkat","PAK","STR","Kategori","JF","Jenjang Tujuan","Keputusan"
+    // Nama & Foto
+    nama.innerText = r[1];
+    foto.src = r[0];
+
+    // Label PROFIL (URUT SESUAI SHEET)
+    const field = [
+      ["NIK", r[2]],
+      ["NIP", r[3]],
+      ["Nomor Telp / WA", r[4]],
+      ["Unit Kerja", r[5]],
+      ["Jenis Jabatan", r[6]],
+      ["Jenjang Jabatan", r[7]],
+      ["Pangkat dan Golongan", r[8]],
+      ["Nilai PAK Terakhir", r[9]],
+      ["Nomor STR", r[10]],
+      ["Kategori Penjenjangan Jabatan", r[11]],
+      ["Nama Jabatan Fungsional Yang Dituju", r[12]],
+      ["Jenjang Jabatan Tujuan", r[13]],
+      ["Keputusan Tim Pengelola UKOM JFK", r[14]]
     ];
-    for(let i=2;i<=14;i++){
-      detail.innerHTML+=`
-        <li class="list-group-item"><b>${label[i-2]}</b>: ${r[i]||"-"}</li>`;
-    }
+
+    detail.innerHTML = "";
+    field.forEach(f=>{
+      detail.innerHTML += `
+        <li class="list-group-item">
+          <b>${f[0]}</b> : ${f[1] || "-"}
+        </li>`;
+    });
+
     show("profil");
   });
 }
