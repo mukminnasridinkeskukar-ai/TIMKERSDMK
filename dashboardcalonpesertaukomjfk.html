@@ -179,12 +179,41 @@ function loadProfil(nip){
   .then(r=>{
     if(!r.nip){ alert("Data tidak ditemukan"); return; }
 
-fetch(API_URL+"?action=dashboard")
-.then(r=>r.json())
-.then(data=>{
-  console.log("DATA DASHBOARD:", data);
-  ...
-});
+fetch(API_URL + "?action=dashboard")
+  .then(res => {
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  })
+  .then(data => {
+    console.log("DATA DASHBOARD:", data);
+
+    const tbl = document.getElementById("tbl");
+    tbl.innerHTML = "";
+
+    if (!Array.isArray(data)) {
+      alert("Data bukan array. Cek Apps Script.");
+      return;
+    }
+
+    data.forEach(r => {
+      tbl.innerHTML += `
+        <tr onclick="openProfil('${r.nip}')">
+          <td><b>${r.nama}</b></td>
+          <td>${r.unit}</td>
+          <td>${r.jenis}</td>
+          <td>${r.jenjang}</td>
+          <td><span class="badge badge-kategori">${r.kategori}</span></td>
+          <td>${r.jf}</td>
+          <td>${r.jenjangTujuan}</td>
+        </tr>
+      `;
+    });
+  })
+  .catch(err => {
+    console.error("GAGAL LOAD DASHBOARD:", err);
+    alert("Dashboard gagal dimuat. API tidak terbaca.");
+  });
+
     
     const fallback =
       "https://ui-avatars.com/api/?name="+encodeURIComponent(r.nama||"User")+
