@@ -2,194 +2,226 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Personal Profile | Mukmin Nasri</title>
+<title>Mukmin Nasri | Professional Health Profile</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- ICON -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-<!-- AOS ANIMATION -->
-<link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css"/>
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
 <style>
+:root{
+  --primary:#0d6efd;
+  --dark:#0b1c2d;
+}
 body{
-  font-family:'Segoe UI',sans-serif;
-  background:linear-gradient(120deg,#eef2f7,#fdfdfd);
   margin:0;
-  padding:30px;
+  font-family:'Segoe UI',sans-serif;
+  background:#f4f7fb;
   color:#333;
 }
-.container{
-  max-width:1100px;
-  margin:auto;
-  background:#fff;
-  padding:40px;
-  border-radius:14px;
-  box-shadow:0 20px 50px rgba(0,0,0,.1);
-}
-.header{
-  text-align:center;
-}
-.profile-img{
-  width:160px;
-  height:160px;
-  border-radius:50%;
-  object-fit:cover;
-  border:6px solid #0d6efd;
-  margin-bottom:15px;
-  transition:.4s;
-}
-.profile-img:hover{
-  transform:scale(1.05);
-}
-h1{margin:10px 0 5px}
-.section{
-  margin-top:50px;
-}
-.section h2{
-  color:#0d6efd;
-  border-left:6px solid #0d6efd;
-  padding-left:15px;
+.hero{
+  min-height:100vh;
+  background:linear-gradient(135deg,#0d6efd,#0b1c2d);
+  color:#fff;
   display:flex;
   align-items:center;
-  gap:10px;
+  justify-content:center;
+  text-align:center;
+  padding:40px;
 }
-table td{
-  padding:8px;
-  vertical-align:top;
+.hero-card{
+  background:rgba(255,255,255,.15);
+  backdrop-filter:blur(12px);
+  padding:50px;
+  border-radius:24px;
+  max-width:900px;
+}
+.hero img{
+  width:180px;height:180px;
+  border-radius:50%;
+  border:6px solid #fff;
+}
+section{
+  padding:80px 20px;
+}
+.container{
+  max-width:1200px;
+  margin:auto;
+}
+.section-title{
+  text-align:center;
+  margin-bottom:50px;
+}
+.section-title h2{
+  color:var(--primary);
 }
 .timeline{
   position:relative;
-  margin-top:30px;
+  margin-top:40px;
 }
 .timeline::before{
   content:'';
   position:absolute;
-  left:20px;
+  left:30px;
   top:0;
   width:4px;
   height:100%;
-  background:#0d6efd;
+  background:var(--primary);
 }
 .timeline-item{
-  margin-left:60px;
+  margin-left:80px;
   margin-bottom:30px;
   position:relative;
 }
 .timeline-item::before{
   content:'';
   position:absolute;
-  left:-48px;
+  left:-58px;
   top:6px;
-  width:16px;
-  height:16px;
-  background:#0d6efd;
+  width:18px;
+  height:18px;
+  background:var(--primary);
   border-radius:50%;
 }
-.timeline-item h4{
-  margin:0;
-  color:#333;
+.box{
+  background:#fff;
+  padding:20px;
+  border-radius:16px;
+  box-shadow:0 15px 40px rgba(0,0,0,.08);
 }
-.timeline-item span{
-  font-size:14px;
-  color:#666;
+.list li{
+  margin-bottom:8px;
 }
 .badge{
   display:inline-block;
-  background:#0d6efd;
+  background:var(--primary);
   color:#fff;
-  padding:6px 12px;
-  border-radius:20px;
-  margin:6px 6px 0 0;
-  font-size:14px;
+  padding:8px 14px;
+  border-radius:30px;
+  margin:6px;
+}
+footer{
+  background:#0b1c2d;
+  color:#fff;
+  text-align:center;
+  padding:30px;
 }
 </style>
 </head>
 
 <body>
-<div class="container">
 
-  <!-- HEADER -->
-  <div class="header" data-aos="fade-down">
-    <img src="mukminnasri.png" class="profile-img" alt="Mukmin Nasri">
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-card" data-aos="zoom-in">
+    <img src="foto-profil.png">
     <h1>Mukmin Nasri</h1>
-    <p>Tenaga Kesehatan | Manajemen SDM Kesehatan | Inovator Sistem</p>
+    <p>Tenaga Kesehatan • Manajemen SDM Kesehatan • Inovator Sistem</p>
   </div>
-
-  <!-- BIODATA -->
-  <div class="section" data-aos="fade-up">
-    <h2><i class="fa-solid fa-id-card"></i> Biodata</h2>
-    <table>
-      <tr><td>Tempat/Tgl Lahir</td><td>: Kota Baru, 17 Mei</td></tr>
-      <tr><td>WhatsApp</td><td>: 0821-3027-5800</td></tr>
-      <tr><td>Email</td><td>: mukminnasri.dinkeskukar@gmail.com</td></tr>
-      <tr>
-        <td>Alamat</td>
-        <td>: Jl. A.M. Idris RT.5 Desa Loa Lepu<br>
-        Kec. Tenggarong Seberang<br>
-        Kab. Kutai Kartanegara</td>
-      </tr>
-    </table>
-  </div>
-
-  <!-- PENDIDIKAN -->
-  <div class="section" data-aos="fade-right">
-    <h2><i class="fa-solid fa-graduation-cap"></i> Riwayat Pendidikan</h2>
-    <div class="timeline">
-      <div class="timeline-item">
-        <h4>ITKES Wiyata Husada Samarinda</h4>
-        <span>Ners (2022–2023)</span>
-      </div>
-      <div class="timeline-item">
-        <h4>ITKES Wiyata Husada Samarinda</h4>
-        <span>S1 Keperawatan (2019–2021)</span>
-      </div>
-      <div class="timeline-item">
-        <h4>Stikes Muhammadiyah Samarinda</h4>
-        <span>S1 Keperawatan (2008–2010)</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- PEKERJAAN -->
-  <div class="section" data-aos="fade-left">
-    <h2><i class="fa-solid fa-briefcase"></i> Riwayat Pekerjaan</h2>
-    <div class="timeline">
-      <div class="timeline-item">
-        <h4>Ketua Tim Kerja SDM Kesehatan</h4>
-        <span>Dinkes Kutai Kartanegara (2024–Sekarang)</span>
-      </div>
-      <div class="timeline-item">
-        <h4>Plt. Sub Koordinator Data & Informasi</h4>
-        <span>Dinkes Kutai Kartanegara (2022–2024)</span>
-      </div>
-      <div class="timeline-item">
-        <h4>Ketua Komite Keperawatan</h4>
-        <span>RSUD Aji Muhammad Parikesit</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- INOVASI -->
-  <div class="section" data-aos="zoom-in">
-    <h2><i class="fa-solid fa-lightbulb"></i> Inovasi</h2>
-    <span class="badge">SIMANDAKES</span>
-    <span class="badge">BangROMA</span>
-    <span class="badge">Si-Mantri</span>
-    <span class="badge">PASTI</span>
-    <span class="badge">Abdimas</span>
-  </div>
-
 </div>
 
-<!-- AOS SCRIPT -->
+<!-- PENDIDIKAN -->
+<section>
+<div class="container">
+<div class="section-title"><h2><i class="fa-solid fa-graduation-cap"></i> Riwayat Pendidikan</h2></div>
+<div class="timeline">
+  <div class="timeline-item"><div class="box">SDN 005 Samarinda Seberang (1985–1991)</div></div>
+  <div class="timeline-item"><div class="box">SMPN 3 Samarinda Seberang (1991–1994)</div></div>
+  <div class="timeline-item"><div class="box">SPK Depkes Samarinda (1994–1997)</div></div>
+  <div class="timeline-item"><div class="box">SMAN 5 Samarinda (1998–1999)</div></div>
+  <div class="timeline-item"><div class="box">Poltekkes Samarinda – D-III Keperawatan (2002–2004)</div></div>
+  <div class="timeline-item"><div class="box">ABA Colorado Samarinda – D-III Bahasa Inggris (2003–2005)</div></div>
+  <div class="timeline-item"><div class="box">Stikes Muhammadiyah Samarinda – S1 Keperawatan (2008–2010)</div></div>
+  <div class="timeline-item"><div class="box">ITKES Wiyata Husada Samarinda – S1 Keperawatan (2019–2021)</div></div>
+  <div class="timeline-item"><div class="box">ITKES Wiyata Husada Samarinda – Profesi Ners (2022–2023)</div></div>
+</div>
+</div>
+</section>
+
+<!-- PEKERJAAN -->
+<section>
+<div class="container">
+<div class="section-title"><h2><i class="fa-solid fa-briefcase"></i> Riwayat Pekerjaan</h2></div>
+<ul class="list">
+<li>Paramedik PT. Buma Kumawa Muara Badak – Kontraktor PT. VICO Indonesia (1998)</li>
+<li>Tenaga Sukarela (TKS) Puskesmas Baqa Samarinda Seberang (1998–1999)</li>
+<li>Perawat Klinis; Kepala Ruang; Komite Keperawatan; Kepala Divisi Pelayanan Keperawatan dan Kebidanan RS Islam Samarinda (1999–2010)</li>
+<li>Perawat Klinis; Plt. Kepala Ruang; Ketua Komite Keperawatan; Rekam Medik; Casemix; Unit Cost; Verifikasi Keuangan; Preceptorship; Panitia PMKP RSUD Aji Muhammad Parikesit (2010–2020)</li>
+<li>Surveilans Kesehatan; Plt. Kepala Seksi Surveilans, Imunisasi & Penanggulangan KLB Dinkes Kukar (2020–2022)</li>
+<li>Plt. Sub Koordinator Data & Informasi Kesehatan Dinkes Kukar (2022–2024)</li>
+<li>Narasumber Seminar/Workshop/Pelatihan Kesehatan (2022–sekarang)</li>
+<li>Tutor/Dosen Tidak Tetap Poltekkes Kemenkes Kaltim & ITKES Wiyata Husada (2022–2023)</li>
+<li>Ketua Tim Kerja SDM Kesehatan Bidang SDK Dinkes Kukar (2024–sekarang)</li>
+<li>Praktik Mandiri Perawat – TPMP Mukmin Nasri, A.Md.Kep (2025–sekarang)</li>
+<li>Perawat Pelaksana – TPMP Ns. Pujianah, S.Tr.Kep (2025–sekarang)</li>
+</ul>
+</div>
+</section>
+
+<!-- PELATIHAN -->
+<section>
+<div class="container">
+<div class="section-title"><h2><i class="fa-solid fa-certificate"></i> Daftar Pelatihan</h2></div>
+<ul class="list">
+<li>Pelatihan Sitostatika & Kemoterapi (2005)</li>
+<li>Pelatihan Kepala Bangsal Keperawatan (2012)</li>
+<li>Manajemen Asuhan Keperawatan Profesional (2013)</li>
+<li>Clinical Pathway & Clinical Audit RS (2013)</li>
+<li>Preceptorship (2013)</li>
+<li>Audit Keperawatan Akreditasi KARS (2014)</li>
+<li>CWCCA – Certified Wound Care Clinician Associate (2015)</li>
+<li>Pelatihan Rekam Medis (2015)</li>
+<li>Asesor Kompetensi Perawat Klinik (2015)</li>
+<li>TOT Program Kesehatan Kemenkes RI (2017)</li>
+<li>BTCLS & Pemeriksaan EKG (2017)</li>
+<li>Master of Trainer (MOT) PERSI (2017)</li>
+<li>Asesor Kompetensi Nakes (2022)</li>
+<li>Data Analisa Excel (2022)</li>
+<li>Surveilans Advokasi Kesehatan (2022)</li>
+<li>Surveyor Akreditasi Puskesmas & Klinik (2023)</li>
+<li>Pelatihan TBC Kemenkes (2023)</li>
+<li>Training Officer Course & Quality Control (2024)</li>
+<li>Kredensial Tenaga Medis & Nakes (2024)</li>
+<li>TOC & MOT LAN RI (2025)</li>
+<li>Pelayanan Prima SDM Kesehatan (2025)</li>
+</ul>
+</div>
+</section>
+
+<!-- ORGANISASI -->
+<section>
+<div class="container">
+<div class="section-title"><h2><i class="fa-solid fa-users"></i> Organisasi</h2></div>
+<ul class="list">
+<li>Koordinator Kerohanian SPK Depkes Samarinda</li>
+<li>Sekretaris & Ketua PPNI RS Islam Samarinda</li>
+<li>Presiden BEM ABA Colorado Samarinda</li>
+<li>Ketua Divisi Organisasi DPD PPNI Kukar</li>
+<li>Ketua Komite Keperawatan RSUD AMP</li>
+<li>Sekretaris & Ketua DPD PPNI Kukar (2022–2027)</li>
+</ul>
+</div>
+</section>
+
+<!-- INOVASI -->
+<section>
+<div class="container">
+<div class="section-title"><h2><i class="fa-solid fa-lightbulb"></i> Inovasi</h2></div>
+<span class="badge">SIMANDAKES</span>
+<span class="badge">BangROMA</span>
+<span class="badge">Si-Mantri</span>
+<span class="badge">Model</span>
+<span class="badge">Abdimas</span>
+<span class="badge">PASTI</span>
+</div>
+</section>
+
+<footer>
+© 2026 Mukmin Nasri • Landing Page Premium
+</footer>
+
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script>
-AOS.init({
-  duration:1000,
-  once:true
-});
-</script>
+<script>AOS.init({duration:1000,once:true});</script>
 
 </body>
 </html>
