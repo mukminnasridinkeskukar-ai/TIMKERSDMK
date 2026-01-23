@@ -91,10 +91,7 @@ fetch(API_URL+"?action=dashboard")
     tbl.innerHTML+=`
     <tr onclick="askLogin('${r.nip}')">
     <td><img src="${r.foto||avatar(r.nama)}" class="avatar" onclick="event.stopPropagation();openImg(this.src)"></td>
-    <td>${r.nama}</td><td>${r.nik}</td><td>${r.nip}</td><td>${r.telp}</td>
-    <td>${r.unit}</td><td>${r.jenis}</td><td>${r.jenjang}</td>
-    <td>${r.pangkat}</td><td>${r.pak}</td><td>${r.str}</td>
-    <td>${r.kategori}</td><td>${r.jf}</td><td>${r.jenjangTujuan}</td>
+    <td>${r.nama}</td><td>${r.unit}</td><td>${r.jenis}</td><td>${r.jenjang}</td><td>${r.kategori}</td><td>${r.jf}</td><td>${r.jenjangTujuan}</td>
     </tr>`;
   });
 });
