@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Absensi Digital</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family:Poppins,sans-serif;
+  background:linear-gradient(135deg,#1e40af,#2563eb);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.card{
+  background:rgba(255,255,255,.12);
+  backdrop-filter:blur(18px);
+  border-radius:18px;
+  padding:30px;
+  width:100%;
+  max-width:700px;
+  color:white;
+}
+input,select,textarea{
+  width:100%;
+  padding:12px;
+  margin-top:6px;
+  border:none;
+  border-radius:10px;
+}
+button{
+  margin-top:20px;
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:#22c55e;
+  color:white;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+}
+.info{
+  font-size:13px;
+  opacity:.85;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>📋 Absensi Digital</h2>
+  <p class="info">
+    📅 <span id="tgl"></span> | ⏰ <span id="jam"></span><br>
+    📍 <span id="lokasi">Mendeteksi lokasi...</span>
+  </p>
+
+  <input id="nama" placeholder="Nama Lengkap" required>
+  <input id="unit" placeholder="Unit Kerja" required>
+
+  <select id="status">
+    <option value="">Status Kepegawaian</option>
+    <option>PNS</option>
+    <option>PPPK</option>
+    <option>Non ASN</option>
+  </select>
+
+  <input id="jabatan" placeholder="Jabatan">
+  <textarea id="komentar" rows="3" placeholder="Komentar (opsional)"></textarea>
+
+  <button onclick="kirim()">✅ Kirim Absensi</button>
+</div>
+
+<script>
+const WEB_APP_URL = "WEB_APP_URL_KAMU";
+
+let lat = "", lng = "", alamat = "";
+
+/* TANGGAL & JAM REALTIME */
+function updateTime(){
+  const now = new Date();
+  document.getElementById("tgl").innerText =
+    now.toLocaleDateString("id-ID",{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById("jam").innerText =
+    now.toLocaleTimeString("id-ID");
+}
+setInterval(updateTime,1000);
+updateTime();
+
+/* LOKASI */
+navigator.geolocation.getCurrentPosition(pos=>{
+  lat = pos.coords.latitude;
+  lng = pos.coords.longitude;
+  document.getElementById("lokasi").innerText =
+    `Lat ${lat.toFixed(5)}, Lng ${lng.toFixed(5)}`;
+
+  fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+    .then(res=>res.json())
+    .then(d=>{
+      alamat = d.display_name || "";
+      document.getElementById("lokasi").innerText = alamat;
+    });
+},()=>{
+  document.getElementById("lokasi").innerText="Lokasi tidak diizinkan";
+});
+
+/* KIRIM DATA */
+function kirim(){
+  const data = {
+    nama: nama.value,
+    unit: unit.value,
+    status: status.value,
+    jabatan: jabatan.value,
+    komentar: komentar.value,
+    lat, lng, alamat
+  };
+
+  fetch(WEB_APP_URL,{
+    method:"POST",
+    body:JSON.stringify(data)
+  })
+  .then(()=>alert("✅ Absensi berhasil"))
+  .catch(()=>alert("❌ Gagal kirim"));
+}
+</script>
+
+</body>
+</html>
