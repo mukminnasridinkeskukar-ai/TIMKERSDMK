@@ -6,11 +6,13 @@
 <title>Form UKOM Jabatan Fungsional Kesehatan</title>
 
 <style>
+/* ===== GLOBAL ===== */
 body{
   margin:0;
-  font-family:Segoe UI,Inter,Arial,sans-serif;
+  font-family:Segoe UI, Inter, Arial, sans-serif;
   background:linear-gradient(180deg,#60a5fa,#e0f2fe);
 }
+
 .container{
   max-width:860px;
   margin:50px auto;
@@ -19,11 +21,25 @@ body{
   border-radius:20px;
   box-shadow:0 20px 45px rgba(0,0,0,.15);
 }
-h2{text-align:center;color:#1e40af}
-p{text-align:center;color:#475569}
 
-label{font-weight:600;margin-top:14px;display:block}
-input,select{
+h2{
+  text-align:center;
+  color:#1e40af;
+}
+
+p{
+  text-align:center;
+  color:#475569;
+}
+
+/* ===== FORM ===== */
+label{
+  font-weight:600;
+  margin-top:14px;
+  display:block;
+}
+
+input, select{
   width:100%;
   padding:12px;
   margin-top:6px;
@@ -31,6 +47,12 @@ input,select{
   border:1px solid #cbd5e1;
   font-size:15px;
 }
+
+input[type="file"]{
+  padding:8px;
+  font-size:14px;
+}
+
 button{
   margin-top:26px;
   width:100%;
@@ -43,8 +65,13 @@ button{
   font-weight:700;
   cursor:pointer;
 }
-button:disabled{opacity:.6}
 
+button:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+/* ===== NOTIFIKASI ===== */
 .note{
   font-size:12px;
   color:#dc2626;
@@ -59,19 +86,23 @@ button:disabled{opacity:.6}
   font-weight:600;
   text-align:center;
 }
-.ok{background:#dcfce7;color:#166534}
-.err{background:#fee2e2;color:#991b1b}
 
+.ok{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.err{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+/* ===== FOTO ===== */
 .foto-wrap{
   display:flex;
   gap:20px;
   align-items:flex-start;
   margin-top:8px;
-}
-
-input[type="file"]{
-  padding:8px;
-  font-size:14px;
 }
 
 .preview-box{
@@ -101,17 +132,8 @@ input[type="file"]{
   padding:8px;
 }
 
-.ketentuan{
-  display:block;
-  margin-top:8px;
-  color:#475569;
-  font-size:13px;
-  line-height:1.5;
-}
-
-  
-</style>
-  .pdf-preview{
+/* ===== PDF PREVIEW ===== */
+.pdf-preview{
   margin-top:10px;
   width:100%;
   max-width:520px;
@@ -141,6 +163,7 @@ input[type="file"]{
   text-align:center;
 }
 
+/* ===== KETENTUAN ===== */
 .ketentuan{
   display:block;
   margin-top:6px;
@@ -148,6 +171,8 @@ input[type="file"]{
   font-size:13px;
   line-height:1.5;
 }
+</style>
+
 
 </head>
 
