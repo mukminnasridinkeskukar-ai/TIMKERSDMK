@@ -12,6 +12,7 @@
 :root{
   --bg:#020617;--panel:#0f172a;--border:#1e293b;
   --text:#e5e7eb;--muted:#94a3b8;--accent:#38bdf8;
+  --green:#22c55e;--red:#ef4444;
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter;background:var(--bg);color:var(--text)}
@@ -22,30 +23,22 @@ header small{color:var(--muted)}
 .grid{display:grid;gap:18px}
 .grid.kpi{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
 .grid.main{grid-template-columns:2fr 1fr}
-.grid.sub{grid-template-columns:1fr 1fr 1fr}
 .card,.panel{
   background:linear-gradient(180deg,var(--panel),#020617);
-  border:1px solid var(--border);
-  border-radius:22px;
-  padding:18px
+  border:1px solid var(--border);border-radius:22px;padding:18px
 }
 .card h4{margin:0;font-size:13px;color:var(--muted)}
 .card .v{margin-top:6px;font-size:30px;font-weight:800}
-.panel h3{margin:0 0 10px;font-size:15px;font-weight:700}
-select{
-  background:#020617;color:var(--text);
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:6px 10px;
-  margin-right:6px
+.badge{font-size:12px;padding:4px 8px;border-radius:10px}
+.ok{background:rgba(34,197,94,.2);color:#22c55e}
+.bad{background:rgba(239,68,68,.2);color:#ef4444}
+button{
+  background:#2563eb;color:#fff;border:0;
+  padding:10px 14px;border-radius:10px;font-weight:700;
 }
-footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
-
-/* TV WALL */
-.tv header,.tv footer,.tv .filter{display:none}
-.tv .container{max-width:none}
-@media(max-width:1000px){
-  .grid.main,.grid.sub{grid-template-columns:1fr}
+@media print{
+  button,.filter{display:none}
+  body{background:#fff;color:#000}
 }
 </style>
 </head>
@@ -59,164 +52,94 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
 
 <div class="container">
 
-<!-- FILTER -->
-<div class="filter" style="margin-bottom:14px">
-  <select id="fTahun"></select>
-  <select id="fBulan"></select>
+<div class="filter" style="margin-bottom:12px">
+  <button onclick="exportPDF()">📄 Export PDF Laporan Kadis</button>
 </div>
 
-<!-- KPI -->
-<div class="grid kpi" id="slide-kpi">
-  <div class="card"><h4>Total SDM</h4><div class="v" id="k_total">0</div></div>
-  <div class="card"><h4>Dokter</h4><div class="v" id="k_dokter">0</div></div>
-  <div class="card"><h4>Perawat</h4><div class="v" id="k_perawat">0</div></div>
-  <div class="card"><h4>Bidan</h4><div class="v" id="k_bidan">0</div></div>
-  <div class="card"><h4>Rasio Dokter</h4><div class="v" id="r_dokter">-</div></div>
-  <div class="card"><h4>Rasio Perawat</h4><div class="v" id="r_perawat">-</div></div>
-</div>
+<!-- KPI TOP 6 -->
+<div class="grid kpi" id="kpi"></div>
 
 <!-- GRAFIK -->
-<div class="grid main" id="slide-grafik" style="margin-top:20px">
+<div class="grid main" style="margin-top:20px">
   <div class="panel">
-    <h3>Komposisi SDM</h3>
+    <h3>Komposisi SDMK</h3>
     <canvas id="donut"></canvas>
   </div>
   <div class="panel">
-    <h3>Distribusi Tenaga</h3>
-    <canvas id="bar"></canvas>
-  </div>
-</div>
-
-<!-- TREND -->
-<div class="grid sub" id="slide-trend" style="margin-top:20px">
-  <div class="panel">
-    <h3>Tren Dokter</h3>
-    <canvas id="lineDokter"></canvas>
-  </div>
-  <div class="panel">
-    <h3>Tren Perawat</h3>
-    <canvas id="linePerawat"></canvas>
-  </div>
-  <div class="panel">
-    <h3>Insight</h3>
-    <div id="insight" style="font-size:14px;line-height:1.6;color:#cbd5f5"></div>
+    <h3>Status SDMK Utama</h3>
+    <div id="status"></div>
   </div>
 </div>
 
 </div>
-
-<footer>© Dinkes Kabupaten Kutai Kartanegara</footer>
 
 <script>
-/* ================= JENIS SDMK RESMI ================= */
-const JENIS_NAKES = [
-  "Akupuntur","Apoteker","Audiologis","Bidan","Dokter","Dokter Gigi",
-  "Elektromedis","Entomolog Kesehatan","Epidemiolog Kesehatan",
-  "Fisikiawan Medik","Fisioterapis","Nutrisionis","Optometris",
-  "Ortotik Prostetik","Pembimbing Kesehatan Kerja","Penata Anestesi",
-  "Perawat","Perekam Medis dan Informasi Kesehatan","Psikolog Klinis",
-  "Radiografer","Teknisi Gigi","Teknisi Kardiovaskuler",
-  "Teknisi Pelayanan Darah",
-  "Tenaga Administratif dan Kebijakan Kesehatan",
-  "Tenaga Kesehatan Masyarakat",
-  "Tenaga Kesehatan Tradisional Interkontinental",
-  "Tenaga Kesehatan Tradisional Pengobat Tradisional",
-  "Tenaga Kesehatan Tradisional Ramuan atau Jamu",
-  "Tenaga Promosi Kesehatan dan Ilmu Perilaku",
-  "Tenaga Sanitasi Lingkungan",
-  "Tenaga Teknologi Laboratorium Medik",
-  "Terapis Gigi dan Mulut","Terapis Okupasional","Terapis Wicara"
-];
-
 /* ================= KONFIG ================= */
-const API_URL="https://script.google.com/macros/s/AKfycbyk7K2KaA3Wj1R4WxdTiW0GyPoPc1C0h-4JDj8g8Bukh_t4_VsWE-J6XtCVgnlqH_Cs/exec?page=api";
+const API_URL="https://script.google.com/macros/s/AKfycbxqZGc0qfI1TgbT76PZEwKK8BkTF86dA1sojKPvHapuRZc9zF1LrUPQkgrggITXppec/exec?page=api";
 const PENDUDUK=780000;
-const TV=new URLSearchParams(location.search).get("tv")==="1";
-if(TV) document.body.classList.add("tv");
+const STANDAR={
+  "Dokter":2500,
+  "Perawat":1000
+};
 
-/* ================= LOAD DATA ================= */
-let RAW=[];
-fetch(API_URL).then(r=>r.json()).then(d=>{
-  RAW=d;
-  initFilter();
-  render();
-});
-
-function initFilter(){
-  const tahun=[...new Set(RAW.map(d=>d.Tahun))];
-  const bulan=[...new Set(RAW.map(d=>d.Bulan))];
-  fTahun.innerHTML=`<option value="">Semua Tahun</option>`+
-    tahun.map(x=>`<option>${x}</option>`).join("");
-  fBulan.innerHTML=`<option value="">Semua Bulan</option>`+
-    bulan.map(x=>`<option>${x}</option>`).join("");
-  fTahun.onchange=fBulan.onchange=render;
-}
-
-function render(){
-  const t=fTahun.value,b=fBulan.value;
-  const data=RAW.filter(d=>(!t||d.Tahun==t)&&(!b||d.Bulan==b));
-
+/* ================= DATA ================= */
+fetch(API_URL).then(r=>r.json()).then(data=>{
   const sum={};
-  JENIS_NAKES.forEach(j=>sum[j]=0);
-  data.forEach(d=>{ if(sum[d.Jenis]!=null) sum[d.Jenis]+=Number(d.Jumlah); });
+  data.forEach(d=>{
+    sum[d.Jenis]=(sum[d.Jenis]||0)+Number(d.Jumlah);
+  });
 
-  const total=Object.values(sum).reduce((a,b)=>a+b,0);
-  k_total.textContent=total;
-  k_dokter.textContent=sum["Dokter"];
-  k_perawat.textContent=sum["Perawat"];
-  k_bidan.textContent=sum["Bidan"];
+  const entries=Object.entries(sum).sort((a,b)=>b[1]-a[1]);
 
-  r_dokter.textContent=`1 : ${Math.round(PENDUDUK/Math.max(sum["Dokter"],1))}`;
-  r_perawat.textContent=`1 : ${Math.round(PENDUDUK/Math.max(sum["Perawat"],1))}`;
+  /* KPI TOP 6 */
+  const kpi=document.getElementById("kpi");
+  const total=entries.reduce((a,b)=>a+b[1],0);
+  kpi.innerHTML=`<div class="card"><h4>Total SDM</h4><div class="v">${total}</div></div>`;
+  entries.slice(0,6).forEach(e=>{
+    kpi.innerHTML+=`
+      <div class="card">
+        <h4>${e[0]}</h4>
+        <div class="v">${e[1]}</div>
+      </div>`;
+  });
 
-  draw(donut,"doughnut",sum);
-  draw(bar,"bar",sum);
-  trend(lineDokter,"Dokter");
-  trend(linePerawat,"Perawat");
+  /* STATUS SURPLUS / DEFISIT */
+  const s=document.getElementById("status");
+  Object.keys(STANDAR).forEach(j=>{
+    const ideal=Math.ceil(PENDUDUK/STANDAR[j]);
+    const aktual=sum[j]||0;
+    const ok=aktual>=ideal;
+    s.innerHTML+=`
+      <p>
+        <b>${j}</b> :
+        ${aktual} / ideal ${ideal}
+        <span class="badge ${ok?'ok':'bad'}">
+          ${ok?'Surplus':'Defisit'}
+        </span>
+      </p>`;
+  });
 
-  const top=Object.entries(sum).sort((a,b)=>b[1]-a[1]).slice(0,2);
-  insight.innerHTML=`Total SDM <b>${total}</b>. Terbesar <b>${top[0][0]}</b> (${top[0][1]}), disusul <b>${top[1][0]}</b> (${top[1][1]}).`;
-}
-
-function draw(el,type,sum){
-  new Chart(el,{
-    type,
+  /* GRAFIK */
+  new Chart(donut,{
+    type:"doughnut",
     data:{
-      labels:Object.keys(sum),
+      labels:entries.map(e=>e[0]),
       datasets:[{
-        data:Object.values(sum),
-        backgroundColor:Object.keys(sum).map((_,i)=>`hsl(${i*11},70%,60%)`)
+        data:entries.map(e=>e[1]),
+        backgroundColor:entries.map((_,i)=>`hsl(${i*11},70%,60%)`)
       }]
     },
     options:{plugins:{legend:{position:"bottom"}}}
   });
-}
+});
 
-function trend(el,jenis){
-  const map={};
-  RAW.filter(d=>d.Jenis==jenis).forEach(d=>{
-    const k=d.Tahun+"-"+d.Bulan;
-    map[k]=(map[k]||0)+Number(d.Jumlah);
-  });
-  new Chart(el,{
-    type:"line",
-    data:{labels:Object.keys(map),datasets:[{data:Object.values(map),borderColor:"#38bdf8",tension:.4}]},
-    options:{plugins:{legend:{display:false}}}
-  });
-}
-
-/* ================= TV WALL ================= */
-if(TV){
-  const slides=["slide-kpi","slide-grafik","slide-trend"];
-  let i=0;
-  setInterval(()=>{
-    slides.forEach(id=>document.getElementById(id).style.display="none");
-    document.getElementById(slides[i]).style.display="grid";
-    i=(i+1)%slides.length;
-  },12000);
+/* ================= PDF ================= */
+function exportPDF(){
+  const d=new Date().toISOString().slice(0,10);
+  document.title=`Laporan_SDM_Kesehatan_Kukar_${d}`;
+  window.print();
 }
 </script>
 
 </body>
 </html>
-
