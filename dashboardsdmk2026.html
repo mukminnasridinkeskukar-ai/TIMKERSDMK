@@ -2,94 +2,44 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Command Center SDM Kesehatan | Dinkes Kukar</title>
+<title>SDM Command Center | Dinkes Kukar</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 :root{
-  --bg:#020617;
-  --panel:#0f172a;
-  --panel2:#020617;
-  --border:#1e293b;
-  --accent:#38bdf8;
-  --green:#22c55e;
-  --pink:#f472b6;
-  --yellow:#facc15;
-  --text:#e5e7eb;
-  --muted:#94a3b8;
+  --bg:#020617;--panel:#0f172a;--border:#1e293b;
+  --text:#e5e7eb;--muted:#94a3b8;--accent:#38bdf8;
+  --green:#22c55e;--yellow:#facc15;--red:#ef4444;
 }
 *{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Inter,Segoe UI,Arial;
-  background:linear-gradient(180deg,#020617,#020617);
-  color:var(--text);
+body{margin:0;font-family:Inter;background:var(--bg);color:var(--text)}
+header{padding:20px;border-bottom:1px solid var(--border)}
+header h1{margin:0;font-size:22px;font-weight:800}
+header small{color:var(--muted)}
+.container{max-width:1600px;margin:auto;padding:22px}
+.grid{display:grid;gap:18px}
+.grid.kpi{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.grid.main{grid-template-columns:2fr 1fr}
+.grid.sub{grid-template-columns:1fr 1fr 1fr}
+.card,.panel{
+  background:linear-gradient(180deg,var(--panel),#020617);
+  border:1px solid var(--border);border-radius:22px;padding:18px
 }
-header{
-  padding:24px;
-  border-bottom:1px solid var(--border);
+.card h4{margin:0;font-size:13px;color:var(--muted)}
+.card .v{margin-top:6px;font-size:30px;font-weight:800}
+.panel h3{margin:0 0 10px;font-size:15px;font-weight:700}
+select{
+  background:#020617;color:var(--text);
+  border:1px solid var(--border);border-radius:10px;
+  padding:6px 10px;margin-right:6px
 }
-header h1{
-  margin:0;
-  font-size:24px;
-  font-weight:800;
-}
-header small{
-  color:var(--muted);
-}
-.container{
-  max-width:1500px;
-  margin:auto;
-  padding:24px;
-}
-.grid{
-  display:grid;
-  gap:20px;
-}
-.grid.kpi{
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-}
-.grid.main{
-  grid-template-columns:2fr 1fr;
-}
-.grid.sub{
-  grid-template-columns:1fr 1fr 1fr;
-}
-.card, .panel{
-  background:linear-gradient(180deg,var(--panel),var(--panel2));
-  border:1px solid var(--border);
-  border-radius:22px;
-  padding:20px;
-}
-.card h4{
-  margin:0;
-  font-size:14px;
-  color:var(--muted);
-}
-.card .v{
-  margin-top:6px;
-  font-size:34px;
-  font-weight:800;
-}
-.panel h3{
-  margin:0 0 12px;
-  font-size:16px;
-  font-weight:700;
-}
-.insight{
-  font-size:14px;
-  line-height:1.6;
-  color:#cbd5f5;
-}
-footer{
-  text-align:center;
-  color:var(--muted);
-  font-size:13px;
-  padding:24px;
-}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+
+/* TV WALL */
+.tv header,.tv footer,.tv .filter{display:none}
+.tv .container{max-width:none}
 @media(max-width:1000px){
   .grid.main,.grid.sub{grid-template-columns:1fr}
 }
@@ -99,111 +49,149 @@ footer{
 <body>
 
 <header>
-  <h1>🛰️ Command Center SDM Kesehatan</h1>
-  <small>Dinas Kesehatan Kabupaten Kutai Kartanegara • Data Agregat Publik</small>
+  <h1>🛰️ SDM Kesehatan – Command Center</h1>
+  <small>Dinas Kesehatan Kabupaten Kutai Kartanegara</small>
 </header>
 
 <div class="container">
 
-  <!-- KPI -->
-  <div class="grid kpi">
-    <div class="card"><h4>Total SDM</h4><div class="v" id="k_total">0</div></div>
-    <div class="card"><h4>Dokter</h4><div class="v" id="k_dokter">0</div></div>
-    <div class="card"><h4>Perawat</h4><div class="v" id="k_perawat">0</div></div>
-    <div class="card"><h4>Bidan</h4><div class="v" id="k_bidan">0</div></div>
-    <div class="card"><h4>Rasio Dokter</h4><div class="v">–</div></div>
-    <div class="card"><h4>Rasio Perawat</h4><div class="v">–</div></div>
-  </div>
+<!-- FILTER -->
+<div class="filter" style="margin-bottom:14px">
+  <select id="fTahun"></select>
+  <select id="fBulan"></select>
+</div>
 
-  <!-- GRAFIK UTAMA -->
-  <div class="grid main" style="margin-top:26px">
-    <div class="panel">
-      <h3>Komposisi SDM</h3>
-      <canvas id="donut"></canvas>
-    </div>
-    <div class="panel">
-      <h3>Distribusi Tenaga</h3>
-      <canvas id="bar"></canvas>
-    </div>
-  </div>
+<!-- KPI -->
+<div class="grid kpi" id="slide-kpi">
+  <div class="card"><h4>Total SDM</h4><div class="v" id="k_total">0</div></div>
+  <div class="card"><h4>Dokter</h4><div class="v" id="k_dokter">0</div></div>
+  <div class="card"><h4>Perawat</h4><div class="v" id="k_perawat">0</div></div>
+  <div class="card"><h4>Bidan</h4><div class="v" id="k_bidan">0</div></div>
+  <div class="card"><h4>Rasio Dokter</h4><div class="v" id="r_dokter">-</div></div>
+  <div class="card"><h4>Rasio Perawat</h4><div class="v" id="r_perawat">-</div></div>
+</div>
 
-  <!-- GRAFIK TAMBAHAN -->
-  <div class="grid sub" style="margin-top:26px">
-    <div class="panel">
-      <h3>Tren SDM</h3>
-      <canvas id="line"></canvas>
-    </div>
-    <div class="panel">
-      <h3>Perbandingan Tenaga</h3>
-      <canvas id="mini"></canvas>
-    </div>
-    <div class="panel">
-      <h3>Insight</h3>
-      <div class="insight" id="insight">
-        Memuat ringkasan data SDM kesehatan Kabupaten Kutai Kartanegara…
-      </div>
-    </div>
+<!-- GRAFIK -->
+<div class="grid main" id="slide-grafik" style="margin-top:20px">
+  <div class="panel">
+    <h3>Komposisi SDM</h3>
+    <canvas id="donut"></canvas>
   </div>
+  <div class="panel">
+    <h3>Distribusi Tenaga</h3>
+    <canvas id="bar"></canvas>
+  </div>
+</div>
+
+<!-- TREND -->
+<div class="grid sub" id="slide-trend" style="margin-top:20px">
+  <div class="panel">
+    <h3>Tren Dokter</h3>
+    <canvas id="lineDokter"></canvas>
+  </div>
+  <div class="panel">
+    <h3>Tren Perawat</h3>
+    <canvas id="linePerawat"></canvas>
+  </div>
+  <div class="panel">
+    <h3>Insight</h3>
+    <div id="insight" style="font-size:14px;line-height:1.6;color:#cbd5f5"></div>
+  </div>
+</div>
 
 </div>
 
-<footer>
-© Dinas Kesehatan Kabupaten Kutai Kartanegara
-</footer>
+<footer>© Dinkes Kabupaten Kutai Kartanegara</footer>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbxqZGc0qfI1TgbT76PZEwKK8BkTF86dA1sojKPvHapuRZc9zF1LrUPQkgrggITXppec/exec?page=api";
+/* ================= CONFIG ================= */
+const API_URL="https://script.google.com/macros/s/AKfycbxqZGc0qfI1TgbT76PZEwKK8BkTF86dA1sojKPvHapuRZc9zF1LrUPQkgrggITXppec/exec?page=api";
+const PENDUDUK=780000;
+const STD_DOKTER=2500;
+const STD_PERAWAT=1000;
+const TV=new URLSearchParams(location.search).get("tv")==="1";
+if(TV) document.body.classList.add("tv");
 
-fetch(API_URL)
-.then(r=>r.json())
-.then(data=>{
+/* ================= DATA ================= */
+let RAW=[];
+fetch(API_URL).then(r=>r.json()).then(d=>{
+  RAW=d;
+  initFilter();
+  render();
+});
+
+function initFilter(){
+  const tahun=[...new Set(RAW.map(d=>d.Tahun))];
+  const bulan=[...new Set(RAW.map(d=>d.Bulan))];
+  fTahun.innerHTML=`<option value="">Semua Tahun</option>`+
+    tahun.map(x=>`<option>${x}</option>`).join("");
+  fBulan.innerHTML=`<option value="">Semua Bulan</option>`+
+    bulan.map(x=>`<option>${x}</option>`).join("");
+  fTahun.onchange=fBulan.onchange=render;
+}
+
+function render(){
+  const t=fTahun.value,b=fBulan.value;
+  const data=RAW.filter(d=>(!t||d.Tahun==t)&&(!b||d.Bulan==b));
+
   const sum={Dokter:0,Perawat:0,Bidan:0,"Nakes Lain":0};
-  data.forEach(d=>{ if(sum[d.Jenis]!=null) sum[d.Jenis]+=Number(d.Jumlah); });
+  data.forEach(d=>sum[d.Jenis]=(sum[d.Jenis]||0)+Number(d.Jumlah));
 
-  const total = Object.values(sum).reduce((a,b)=>a+b,0);
-
+  const total=Object.values(sum).reduce((a,b)=>a+b,0);
   k_total.textContent=total;
   k_dokter.textContent=sum.Dokter;
   k_perawat.textContent=sum.Perawat;
   k_bidan.textContent=sum.Bidan;
 
-  new Chart(donut,{
-    type:"doughnut",
-    data:{labels:Object.keys(sum),datasets:[{data:Object.values(sum),
-      backgroundColor:["#38bdf8","#22c55e","#f472b6","#facc15"]}]},
-    options:{cutout:"65%",plugins:{legend:{position:"bottom"}}}
-  });
+  r_dokter.textContent=`1 : ${Math.round(PENDUDUK/Math.max(sum.Dokter,1))}`;
+  r_perawat.textContent=`1 : ${Math.round(PENDUDUK/Math.max(sum.Perawat,1))}`;
 
-  new Chart(bar,{
-    type:"bar",
-    data:{labels:Object.keys(sum),datasets:[{data:Object.values(sum),backgroundColor:"#38bdf8"}]},
-    options:{plugins:{legend:{display:false}}}
-  });
+  draw(donut,"doughnut",sum);
+  draw(bar,"bar",sum);
 
-  new Chart(line,{
-    type:"line",
-    data:{labels:Object.keys(sum),
-      datasets:[{data:Object.values(sum),borderColor:"#38bdf8",tension:.4}]},
-    options:{plugins:{legend:{display:false}}}
-  });
+  trend(lineDokter,"Dokter");
+  trend(linePerawat,"Perawat");
 
-  new Chart(mini,{
-    type:"bar",
-    data:{labels:Object.keys(sum),
-      datasets:[{data:Object.values(sum),backgroundColor:["#22c55e","#38bdf8","#f472b6","#facc15"]}]},
-    options:{plugins:{legend:{display:false}}}
-  });
-
-  insight.innerHTML = `
-    Total SDM kesehatan saat ini berjumlah <b>${total}</b> orang.
-    Komposisi terbesar berasal dari <b>Perawat</b> (${sum.Perawat}),
-    diikuti <b>Dokter</b> (${sum.Dokter}) dan <b>Bidan</b> (${sum.Bidan}).
-    Data ini menjadi dasar perencanaan kebutuhan SDM ke depan.
+  insight.innerHTML=`
+    Total SDM <b>${total}</b>. Rasio dokter saat ini
+    <b>${r_dokter.textContent}</b> (standar 1:${STD_DOKTER}),
+    rasio perawat <b>${r_perawat.textContent}</b> (standar 1:${STD_PERAWAT}).
   `;
-});
+}
+
+function draw(el,type,sum){
+  new Chart(el,{type,
+    data:{labels:Object.keys(sum),
+      datasets:[{data:Object.values(sum),
+      backgroundColor:["#38bdf8","#22c55e","#f472b6","#facc15"]}]},
+    options:{plugins:{legend:{display:type!="bar"}}}
+  });
+}
+
+function trend(el,jenis){
+  const map={};
+  RAW.filter(d=>d.Jenis==jenis).forEach(d=>{
+    const k=d.Tahun+"-"+d.Bulan;
+    map[k]=(map[k]||0)+Number(d.Jumlah);
+  });
+  new Chart(el,{type:"line",
+    data:{labels:Object.keys(map),
+      datasets:[{data:Object.values(map),borderColor:"#38bdf8",tension:.4}]},
+    options:{plugins:{legend:{display:false}}}
+  });
+}
+
+/* ================= TV WALL ================= */
+if(TV){
+  const slides=["slide-kpi","slide-grafik","slide-trend"];
+  let i=0;
+  setInterval(()=>{
+    slides.forEach(id=>document.getElementById(id).style.display="none");
+    document.getElementById(slides[i]).style.display="grid";
+    i=(i+1)%slides.length;
+  },12000);
+}
 </script>
 
 </body>
 </html>
-
-
