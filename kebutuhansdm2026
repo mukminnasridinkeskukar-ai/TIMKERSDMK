@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Dashboard SDM Kesehatan</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body{font-family:Inter,Arial;background:#f1f5f9;margin:0}
+header{background:#0f172a;color:#fff;padding:16px}
+.card{background:#fff;margin:16px;padding:16px;border-radius:14px;box-shadow:0 8px 20px rgba(0,0,0,.08)}
+select{padding:6px;border-radius:8px}
+.status-DEFISIT{color:#dc2626;font-weight:700}
+.status-SURPLUS{color:#16a34a;font-weight:700}
+.kritis-KRITIS{background:#dc2626;color:#fff;padding:4px 8px;border-radius:6px}
+.kritis-WASPADA{background:#f59e0b;color:#fff;padding:4px 8px;border-radius:6px}
+.kritis-AMAN{background:#16a34a;color:#fff;padding:4px 8px;border-radius:6px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px;border-bottom:1px solid #eee}
+</style>
+</head>
+
+<body>
+<header>
+<h2>📊 Dashboard Kebutuhan Tenaga Kesehatan</h2>
+</header>
+
+<div class="card">
+Unit <select id="unit"></select>
+Bulan <select id="bulan"></select>
+Profesi <select id="profesi"></select>
+<button onclick="load()">Tampilkan</button>
+</div>
+
+<div class="card">
+<h3>Permenkes 19 Tahun 2024</h3>
+<canvas id="c1"></canvas>
+<div id="t1"></div>
+</div>
+
+<div class="card">
+<h3>Rasio per 1.000 Penduduk</h3>
+<canvas id="c2"></canvas>
+<div id="t2"></div>
+</div>
+
+<div class="card">
+<h3>Analisis Beban Kerja (ABK)</h3>
+<canvas id="c3"></canvas>
+<div id="t3"></div>
+</div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbye5cFQvQaMHrxEtE00yeyhPCkq4uWEVZJOPbAT9WWMeIW3SYFgdbf1LDjyHSTXVr-kMA/exec';
+let chart={};
+
+async function init(){
+  const f = await fetch(API+'?action=filter').then(r=>r.json());
+  fill(unit,f.unit); fill(bulan,f.bulan); fill(profesi,f.profesi,true);
+}
+
+function fill(el,data,all){
+  el.innerHTML=all?'<option value="">Semua</option>':'';
+  data.forEach(v=>el.innerHTML+=`<option>${v}</option>`);
+}
+
+async function load(){
+  const q=`&unit=${unit.value}&bulan=${bulan.value}&profesi=${profesi.value}`;
+  const d=await fetch(API+'?action=data'+q).then(r=>r.json());
+  draw(c1,d.permenkes,t1);
+  draw(c2,d.rasio,t2);
+  draw(c3,d.abk,t3);
+}
+
+function draw(c,data,t){
+  if(!data.length){t.innerHTML='Tidak ada data';return;}
+  const l=data.map(x=>x.Profesi),
+        k=data.map(x=>x.Kebutuhan),
+        a=data.map(x=>x.Ada);
+
+  if(chart[c]) chart[c].destroy();
+  chart[c]=new Chart(c,{type:'bar',
+    data:{labels:l,datasets:[
+      {label:'Kebutuhan',data:k},
+      {label:'Ada',data:a}
+    ]}
+  });
+
+  let h='<table><tr>';
+  Object.keys(data[0]).forEach(x=>h+=`<th>${x}</th>`);h+='</tr>';
+  data.forEach(r=>{
+    h+='<tr>';
+    for(let k in r){
+      let v=r[k];
+      if(k==='Status') v=`<span class="status-${v}">${v}</span>`;
+      if(k==='Kritis') v=`<span class="kritis-${v}">${v}</span>`;
+      if(k==='Indeks') v=v+'%';
+      h+=`<td>${v}</td>`;
+    }
+    h+='</tr>';
+  });
+  h+='</table>';
+  t.innerHTML=h;
+}
+
+init();
+</script>
+</body>
+</html>
