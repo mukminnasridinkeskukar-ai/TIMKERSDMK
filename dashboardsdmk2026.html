@@ -1,29 +1,139 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
+<meta charset="UTF-8">
+<title>Dashboard SDM Kesehatan</title>
 <meta name="viewport" content="width=device-width">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-body{font-family:Inter;background:#020617;color:#fff;padding:20px}
+body{
+  margin:0;
+  background:#020617;
+  color:#fff;
+  font-family:Inter,Arial;
+}
+h1{font-size:42px;text-align:center;margin:24px 0}
+.filter{
+  display:flex;gap:16px;justify-content:center;flex-wrap:wrap
+}
+select{
+  font-size:20px;
+  padding:14px;
+  border-radius:12px;
+  background:#020617;
+  color:#fff;
+  border:2px solid #1e293b;
+}
+.kpi{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:20px;
+  padding:24px;
+}
+.card{
+  background:#0f172a;
+  border-radius:24px;
+  padding:24px;
+  text-align:center;
+}
+.card h3{font-size:22px;margin:0}
+.card .v{font-size:48px;font-weight:900}
+.bad{color:#ef4444}
+.ok{color:#22c55e}
+section{padding:30px}
+canvas{max-height:520px}
 </style>
 </head>
+
 <body>
 
-<h2>Dashboard SDM Kesehatan (Publik)</h2>
-<canvas id="chart"></canvas>
+<h1>📊 DASHBOARD SDM KESEHATAN</h1>
+
+<div class="filter">
+  <select id="fUnit"></select>
+  <select id="fBulan"></select>
+  <select id="fJenis"></select>
+</div>
+
+<section class="kpi" id="kpi"></section>
+
+<section>
+  <canvas id="chart"></canvas>
+</section>
 
 <script>
-fetch("https://script.google.com/macros/s/AKfycbyVZfR5cMYQ28EXx4qSDU1ds0BXQ51sda2v7q8hmzC9s-U-iR-p9TmJGuAmX3XDsfjc/exec?page=api")
-.then(r=>r.json())
-.then(d=>{
-  const sum={};
-  d.forEach(x=>sum[x.Jenis]=(sum[x.Jenis]||0)+Number(x.Jumlah));
-  new Chart(chart,{
-    type:'doughnut',
-    data:{labels:Object.keys(sum),datasets:[{data:Object.values(sum)}]}
-  });
-});
-</script>
+const API_URL = "https://script.google.com/macros/s/AKfycbxYP6fB996SLnXSuww-Tf7qsTb6YMzLXoJvKKS17gCttv5FF7iqjjB-hTGaZo_676SE/exec?page=api";
+const PENDUDUK = 780000;
 
-</body>
-</html>
+let RAW=[], PARAM={}, chartObj=null;
+
+/* LOAD */
+fetch(API_URL).then(r=>r.json()).then(res=>{
+  RAW = res.data;
+  res.param.forEach(p=>{
+    PARAM[p.Parameter.replace("Rasio ","")] = Number(p.Nilai);
+  });
+  initFilter();
+  render();
+});
+
+/* FILTER */
+function initFilter(){
+  fill(fUnit,"Unit","Semua Unit");
+  fill(fBulan,"Bulan","Semua Bulan");
+  fill(fJenis,"Jenis","Semua Jenis");
+  fUnit.onchange=fBulan.onchange=fJenis.onchange=render;
+}
+function fill(el,key,label){
+  const v=[...new Set(RAW.map(d=>d[key]))];
+  el.innerHTML=`<option value="">${label}</option>`+
+    v.map(x=>`<option>${x}</option>`).join("");
+}
+
+/* RENDER */
+function render(){
+  const u=fUnit.value,b=fBulan.value,j=fJenis.value;
+  const data=RAW.filter(d=>
+    (!u||d.Unit==u)&&(!b||d.Bulan==b)&&(!j||d.Jenis==j)
+  );
+
+  const sum={};
+  data.forEach(d=>sum[d.Jenis]=(sum[d.Jenis]||0)+Number(d.Jumlah));
+  const entries=Object.entries(sum).sort((a,b)=>b[1]-a[1]);
+  const total=entries.reduce((a,b)=>a+b[1],0);
+
+  /* KPI */
+  kpi.innerHTML=`<div class="card"><h3>TOTAL SDM</h3><div class="v">${total}</div></div>`;
+  entries.slice(0,5).forEach(e=>{
+    let status="";
+    if(PARAM[e[0]]){
+      const ideal=Math.ceil(PENDUDUK/PARAM[e[0]]);
+      status = e[1]>=ideal
+        ? `<div class="ok">Surplus</div>`
+        : `<div class="bad">Defisit (${ideal-e[1]})</div>`;
+    }
+    kpi.innerHTML+=`
+      <div class="card">
+        <h3>${e[0]}</h3>
+        <div class="v">${e[1]}</div>
+        ${status}
+      </div>`;
+  });
+
+  /* CHART */
+  if(chartObj) chartObj.destroy();
+  chartObj=new Chart(chart,{
+    type:"doughnut",
+    data:{
+      labels:entries.map(e=>e[0]),
+      datasets:[{data:entries.map(e=>e[1])}]
+    }
+  });
+}
+
+/* TV WALL AUTO SLIDE */
+let slide=0;
+setInterval(()=>{
+  slide=(slide+1)%3;
+  fUnit.sel
