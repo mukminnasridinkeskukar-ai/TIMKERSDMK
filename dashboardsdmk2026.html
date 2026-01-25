@@ -131,42 +131,78 @@ function initFilter(){
 }
 
 function render(){
-  const t=fTahun.value,b=fBulan.value;
-  const data=RAW.filter(d=>(!t||d.Tahun==t)&&(!b||d.Bulan==b));
+  const t = fTahun.value;
+  const b = fBulan.value;
 
-  const sum={Dokter:0,Perawat:0,Bidan:0,"Nakes Lain":0};
-  data.forEach(d=>sum[d.Jenis]=(sum[d.Jenis]||0)+Number(d.Jumlah));
+  const data = RAW.filter(d =>
+    (!t || d.Tahun == t) &&
+    (!b || d.Bulan == b)
+  );
 
-  const total=Object.values(sum).reduce((a,b)=>a+b,0);
-  k_total.textContent=total;
-  k_dokter.textContent=sum.Dokter;
-  k_perawat.textContent=sum.Perawat;
-  k_bidan.textContent=sum.Bidan;
+  // Inisialisasi semua jenis nakes = 0
+  const sum = {};
+  JENIS_NAKES.forEach(j => sum[j] = 0);
 
-  r_dokter.textContent=`1 : ${Math.round(PENDUDUK/Math.max(sum.Dokter,1))}`;
-  r_perawat.textContent=`1 : ${Math.round(PENDUDUK/Math.max(sum.Perawat,1))}`;
+  // Rekap data
+  data.forEach(d => {
+    if (sum[d.Jenis] != null) {
+      sum[d.Jenis] += Number(d.Jumlah);
+    }
+  });
 
+  const total = Object.values(sum).reduce((a,b)=>a+b,0);
+
+  // ===== KPI UTAMA (ambil 4 terbesar) =====
+  const top = Object.entries(sum)
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,4);
+
+  k_total.textContent = total;
+  k_dokter.textContent = sum["Dokter"] || 0;
+  k_perawat.textContent = sum["Perawat"] || 0;
+  k_bidan.textContent = sum["Bidan"] || 0;
+
+  // ===== RASIO OTOMATIS =====
+  r_dokter.textContent = `1 : ${Math.round(PENDUDUK / Math.max(sum["Dokter"],1))}`;
+  r_perawat.textContent = `1 : ${Math.round(PENDUDUK / Math.max(sum["Perawat"],1))}`;
+
+  // ===== GRAFIK (SEMUA JENIS NAKES) =====
   draw(donut,"doughnut",sum);
   draw(bar,"bar",sum);
 
-  trend(lineDokter,"Dokter");
-  trend(linePerawat,"Perawat");
-
-  insight.innerHTML=`
-    Total SDM <b>${total}</b>. Rasio dokter saat ini
-    <b>${r_dokter.textContent}</b> (standar 1:${STD_DOKTER}),
-    rasio perawat <b>${r_perawat.textContent}</b> (standar 1:${STD_PERAWAT}).
+  // ===== INSIGHT =====
+  insight.innerHTML = `
+    Total SDM Kesehatan <b>${total}</b> orang.
+    Jenis tenaga terbesar adalah <b>${top[0][0]}</b> (${top[0][1]}),
+    diikuti <b>${top[1][0]}</b> (${top[1][1]}).
+    Data ini mencerminkan komposisi tenaga kesehatan aktif
+    di Kabupaten Kutai Kartanegara.
   `;
 }
 
 function draw(el,type,sum){
-  new Chart(el,{type,
-    data:{labels:Object.keys(sum),
-      datasets:[{data:Object.values(sum),
-      backgroundColor:["#38bdf8","#22c55e","#f472b6","#facc15"]}]},
-    options:{plugins:{legend:{display:type!="bar"}}}
+  new Chart(el,{
+    type:type,
+    data:{
+      labels:Object.keys(sum),
+      datasets:[{
+        data:Object.values(sum),
+        backgroundColor:Object.keys(sum).map((_,i)=>
+          `hsl(${i*12},70%,60%)`
+        )
+      }]
+    },
+    options:{
+      plugins:{
+        legend:{
+          position:"bottom",
+          labels:{boxWidth:12}
+        }
+      }
+    }
   });
 }
+
 
 function trend(el,jenis){
   const map={};
