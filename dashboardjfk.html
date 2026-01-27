@@ -10,27 +10,23 @@
 body{
   margin:0;
   font-family:Inter,Segoe UI,Arial;
-  background:linear-gradient(120deg,#020617,#0f172a,#1e293b);
+  background:radial-gradient(circle at top,#1e293b,#020617);
   color:#fff;
 }
 .login{
   max-width:360px;
   margin:120px auto;
-  background:#020617;
-  padding:30px;
+  padding:28px;
   border-radius:18px;
+  background:#020617;
 }
 .login input,button{
-  width:100%;
-  padding:12px;
-  margin:10px 0;
-  border-radius:10px;
-  border:none;
+  width:100%;padding:12px;margin:10px 0;border-radius:10px;border:none;
 }
-button{background:#38bdf8;font-weight:800;cursor:pointer}
+button{background:#38bdf8;font-weight:900;cursor:pointer}
 
 #dash{display:none;padding:24px}
-.tv-title{font-size:22px;font-weight:900;margin-bottom:12px}
+.tv-title{font-size:24px;font-weight:900;margin-bottom:10px}
 
 .cards{
   display:grid;
@@ -45,17 +41,14 @@ button{background:#38bdf8;font-weight:800;cursor:pointer}
 .card h4{margin:0;color:#7dd3fc;font-size:14px}
 .card p{margin:8px 0;font-size:28px;font-weight:900}
 
-.filters{display:flex;gap:12px;margin:20px 0;flex-wrap:wrap}
+.filters{display:flex;gap:12px;margin:18px 0;flex-wrap:wrap}
 select{padding:10px;border-radius:10px;border:none}
 
 table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:13px;
+  width:100%;border-collapse:collapse;font-size:13px;
 }
 th,td{
-  padding:10px;
-  border-bottom:1px solid rgba(255,255,255,.1);
+  padding:10px;border-bottom:1px solid rgba(255,255,255,.1);
 }
 th{background:rgba(56,189,248,.25)}
 </style>
@@ -63,16 +56,14 @@ th{background:rgba(56,189,248,.25)}
 
 <body>
 
-<!-- LOGIN -->
 <div class="login" id="loginBox">
-  <h2>🔐 Login</h2>
+  <h2>🔐 Login Dashboard</h2>
   <input id="u" placeholder="Username">
   <input id="p" type="password" placeholder="Password">
   <button onclick="login()">MASUK</button>
   <div id="msg"></div>
 </div>
 
-<!-- DASHBOARD -->
 <div id="dash">
   <div class="tv-title" id="tvTitle"></div>
 
@@ -109,9 +100,7 @@ th{background:rgba(56,189,248,.25)}
 </div>
 
 <script>
-/* ================== KONFIG ================== */
-const API_URL = "https://script.google.com/macros/s/AKfycbwNVrjroh9hKUhj4Uj6i2HYAEXmGvMTe3HikxmFXzqMYDQeP0HZoGEdL-EXIjOP9Zn5/exec";
-/* ============================================ */
+const API_URL = "https://script.google.com/macros/s/AKfycbxB_J_hXJrS3KIhIn5UnBHB8yYz3YFVmMOCyDLeooFFlFdznJPj9drZsfCABmR3VeGR/exec";
 
 let raw=[], chart, slide=0;
 const titles=[
@@ -121,7 +110,6 @@ const titles=[
   "📋 DATA DETAIL"
 ];
 
-// LOGIN
 function login(){
   fetch(`${API_URL}?action=login&u=${u.value}&p=${p.value}`)
   .then(r=>r.json())
@@ -130,11 +118,9 @@ function login(){
     loginBox.style.display="none";
     dash.style.display="block";
     loadData();
-  })
-  .catch(e=>msg.innerText="API error");
+  });
 }
 
-// LOAD DATA
 function loadData(){
   fetch(`${API_URL}?action=data`)
   .then(r=>r.json())
@@ -146,7 +132,6 @@ function loadData(){
   });
 }
 
-// FILTER
 function initFilter(){
   fill(fI,"instansi");
   fill(fJ,"jabfung");
@@ -155,12 +140,9 @@ function initFilter(){
 }
 function fill(sel,key){
   sel.innerHTML="<option value=''>SEMUA</option>";
-  [...new Set(raw.map(x=>x[key]))].forEach(v=>{
-    if(v) sel.innerHTML+=`<option>${v}</option>`;
-  });
+  [...new Set(raw.map(x=>x[key]))].forEach(v=>v && (sel.innerHTML+=`<option>${v}</option>`));
 }
 
-// RENDER
 function render(){
   const d = raw.filter(x =>
     (!fI.value||x.instansi===fI.value) &&
@@ -173,31 +155,30 @@ function render(){
   d.forEach(x=>{
     Kt+=x.kebutuhan; Pt+=x.pemangku; Lt+=x.lowongan; St+=x.sisa;
     tbody.innerHTML+=`
-      <tr>
-        <td>${x.instansi}</td>
-        <td>${x.jabfung}</td>
-        <td>${x.jenjang}</td>
-        <td>${x.kebutuhan}</td>
-        <td>${x.pemangku}</td>
-        <td>${x.lowongan}</td>
-        <td style="color:${x.sisa>0?'#fb7185':'#4ade80'}">
-          ${x.sisa>0?'DEFISIT':'SURPLUS'} (${x.sisa})
-        </td>
-        <td>${x.ket}</td>
-      </tr>`;
+    <tr>
+      <td>${x.instansi}</td>
+      <td>${x.jabfung}</td>
+      <td>${x.jenjang}</td>
+      <td>${x.kebutuhan}</td>
+      <td>${x.pemangku}</td>
+      <td>${x.lowongan}</td>
+      <td style="color:${x.sisa>0?'#fb7185':'#4ade80'}">
+        ${x.sisa>0?'DEFISIT':'SURPLUS'} (${x.sisa})
+      </td>
+      <td>${x.ket}</td>
+    </tr>`;
   });
 
   K.innerText=Kt; P.innerText=Pt; L.innerText=Lt;
-  S.innerText = St>0?"🔴 DEFISIT NASIONAL":"🟢 SURPLUS NASIONAL";
-  S.style.color = St>0?"#fb7185":"#4ade80";
+  S.innerText=St>0?"🔴 DEFISIT NASIONAL":"🟢 SURPLUS NASIONAL";
+  S.style.color=St>0?"#fb7185":"#4ade80";
 
   drawNasional(Kt,Pt,Lt,St);
 }
 
-// GRAFIK
 function drawNasional(K,P,L,S){
   if(chart) chart.destroy();
-  chart=new Chart(document.getElementById("chart"),{
+  chart=new Chart(chart,{
     type:"bar",
     data:{
       labels:["Kebutuhan","Pemangku","Lowongan","Sisa"],
@@ -211,39 +192,33 @@ function drawNasional(K,P,L,S){
 }
 
 function groupSum(key){
-  const m={};
-  raw.forEach(x=>m[x[key]]=(m[x[key]]||0)+x.sisa);
-  return m;
+  const m={}; raw.forEach(x=>m[x[key]]=(m[x[key]]||0)+x.sisa); return m;
 }
 function drawGroup(key,title){
   const o=groupSum(key);
   if(chart) chart.destroy();
-  chart=new Chart(document.getElementById("chart"),{
+  chart=new Chart(chart,{
     type:"bar",
-    data:{
-      labels:Object.keys(o),
-      datasets:[{
-        data:Object.values(o),
-        backgroundColor:Object.values(o).map(v=>v>0?"#fb7185":"#4ade80")
-      }]
+    data:{labels:Object.keys(o),
+      datasets:[{data:Object.values(o),
+        backgroundColor:Object.values(o).map(v=>v>0?"#fb7185":"#4ade80")}]
     },
     options:{plugins:{legend:{display:false},title:{display:true,text:title,color:"#fff"}}}
   });
 }
 
-// TV WALL
 function startTV(){
   setInterval(()=>{
     slide=(slide+1)%4;
     tvTitle.innerText=titles[slide];
     document.body.requestFullscreen?.();
 
-    cards.style.display = slide===0?"grid":"none";
-    filters.style.display = slide===3?"flex":"none";
-    tbl.style.display = slide===3?"table":"none";
+    cards.style.display=slide===0?"grid":"none";
+    filters.style.display=slide===3?"flex":"none";
+    tbl.style.display=slide===3?"table":"none";
 
     if(slide===1) drawGroup("instansi","Defisit / Surplus per Instansi");
-    if(slide===2) drawGroup("jabfung","Defisit / Surplus per Jabfung");
+    if(slide===2) drawGroup("jabfung","Defisit / Surplus per Jabatan Fungsional");
   },12000);
 }
 </script>
