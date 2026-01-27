@@ -13,7 +13,7 @@ body{
   color:#fff;
 }
 .wrap{padding:24px}
-h2{margin-top:0}
+h2{margin:0 0 15px}
 
 .top{
   display:flex;
@@ -33,7 +33,7 @@ table{
   font-size:14px;
 }
 th,td{
-  padding:10px;
+  padding:12px;
   border-bottom:1px solid rgba(255,255,255,.15);
 }
 th{background:#1e293b}
@@ -45,6 +45,7 @@ button{
   background:#38bdf8;
   font-weight:700;
   cursor:pointer;
+  margin-right:6px;
 }
 
 .modal{
@@ -80,7 +81,6 @@ button{
       <tr>
         <th>Nama Lengkap</th>
         <th>Tempat Kerja</th>
-        <th>Preview</th>
         <th>Download</th>
       </tr>
     </thead>
@@ -88,21 +88,22 @@ button{
   </table>
 </div>
 
+<!-- MODAL PREVIEW -->
 <div class="modal" id="modal" onclick="this.style.display='none'">
   <iframe id="frame"></iframe>
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzK6pnnVtPQRlkRJyvesdBjr-K9yL9oGq7uVKYAKLOKKTpef8xS8nVyCl9RvRFPDSgqGw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzKsxKiCm1FyfETmUiCS5GZg1kWUCJwZ_h95JAsGUWGgdyq34mKj-0J_KGkWACuqBRUyA/exec";
 let raw=[], chart;
 
 fetch(API_URL+"?action=data")
-.then(r=>r.json())
-.then(d=>{
-  raw=d;
-  initFilter();
-  render();
-});
+  .then(r=>r.json())
+  .then(d=>{
+    raw=d;
+    initFilter();
+    render();
+  });
 
 function initFilter(){
   filterKerja.innerHTML="<option value=''>SEMUA TEMPAT KERJA</option>";
@@ -124,6 +125,7 @@ function render(){
 
   tbody.innerHTML="";
   let labels=[], values=[];
+
   d.forEach(x=>{
     labels.push(x.nama);
     values.push(x.download);
@@ -132,8 +134,12 @@ function render(){
       <tr>
         <td>${x.nama}</td>
         <td>${x.kerja}</td>
-        <td><button onclick="preview('${x.link}')">Preview</button></td>
-        <td><button onclick="download(${x.row},'${x.link}')">Download (${x.download})</button></td>
+        <td>
+          <button onclick="preview('${x.link}')">Preview</button>
+          <button onclick="download(${x.row},'${x.link}')">
+            Download (${x.download})
+          </button>
+        </td>
       </tr>`;
   });
 
@@ -141,12 +147,12 @@ function render(){
 }
 
 function preview(link){
-  frame.src=link.replace("/view","/preview");
+  frame.src = link.replace("/view","/preview");
   modal.style.display="flex";
 }
 
 function download(row,link){
-  fetch(`${API_URL}?action=download&row=${row}`)
+  fetch(`${API_URL}?action=download&row=${row}`);
   window.open(link,"_blank");
 }
 
