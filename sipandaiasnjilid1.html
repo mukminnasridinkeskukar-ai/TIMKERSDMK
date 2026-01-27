@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Sertifikat</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Inter,Segoe UI,Arial;
+  background:linear-gradient(135deg,#020617,#0f172a);
+  color:#fff;
+}
+.wrap{padding:24px}
+h2{margin-top:0}
+
+.top{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:15px;
+}
+input,select{
+  padding:10px;
+  border-radius:10px;
+  border:none;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+th,td{
+  padding:10px;
+  border-bottom:1px solid rgba(255,255,255,.15);
+}
+th{background:#1e293b}
+
+button{
+  padding:6px 12px;
+  border-radius:8px;
+  border:none;
+  background:#38bdf8;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+.modal iframe{
+  width:80%;
+  height:80%;
+  background:#000;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+  <h2>🎓 Dashboard Penerima Sertifikat</h2>
+
+  <canvas id="chart" height="90"></canvas>
+
+  <div class="top">
+    <input id="search" placeholder="🔍 Cari nama / tempat kerja">
+    <select id="filterKerja"></select>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nama Lengkap</th>
+        <th>Tempat Kerja</th>
+        <th>Preview</th>
+        <th>Download</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<div class="modal" id="modal" onclick="this.style.display='none'">
+  <iframe id="frame"></iframe>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbzK6pnnVtPQRlkRJyvesdBjr-K9yL9oGq7uVKYAKLOKKTpef8xS8nVyCl9RvRFPDSgqGw/exec";
+let raw=[], chart;
+
+fetch(API_URL+"?action=data")
+.then(r=>r.json())
+.then(d=>{
+  raw=d;
+  initFilter();
+  render();
+});
+
+function initFilter(){
+  filterKerja.innerHTML="<option value=''>SEMUA TEMPAT KERJA</option>";
+  [...new Set(raw.map(x=>x.kerja))].forEach(v=>{
+    filterKerja.innerHTML+=`<option>${v}</option>`;
+  });
+  search.oninput=render;
+  filterKerja.onchange=render;
+}
+
+function render(){
+  const s=search.value.toLowerCase();
+  const f=filterKerja.value;
+
+  const d = raw.filter(x =>
+    (!f || x.kerja===f) &&
+    (x.nama.toLowerCase().includes(s) || x.kerja.toLowerCase().includes(s))
+  );
+
+  tbody.innerHTML="";
+  let labels=[], values=[];
+  d.forEach(x=>{
+    labels.push(x.nama);
+    values.push(x.download);
+
+    tbody.innerHTML+=`
+      <tr>
+        <td>${x.nama}</td>
+        <td>${x.kerja}</td>
+        <td><button onclick="preview('${x.link}')">Preview</button></td>
+        <td><button onclick="download(${x.row},'${x.link}')">Download (${x.download})</button></td>
+      </tr>`;
+  });
+
+  drawChart(labels,values);
+}
+
+function preview(link){
+  frame.src=link.replace("/view","/preview");
+  modal.style.display="flex";
+}
+
+function download(row,link){
+  fetch(`${API_URL}?action=download&row=${row}`)
+  window.open(link,"_blank");
+}
+
+function drawChart(labels,values){
+  if(chart) chart.destroy();
+  chart=new Chart(chart,{
+    type:"bar",
+    data:{
+      labels,
+      datasets:[{
+        label:"Jumlah Download",
+        data:values,
+        backgroundColor:"#38bdf8"
+      }]
+    },
+    options:{plugins:{legend:{display:false}}}
+  });
+}
+</script>
+
+</body>
+</html>
