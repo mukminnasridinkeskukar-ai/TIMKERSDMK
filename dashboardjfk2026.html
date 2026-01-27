@@ -6,11 +6,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-*{box-sizing:border-box}
 body{
   margin:0;
   font-family:Inter,Segoe UI,Arial;
-  background:radial-gradient(circle at top,#1e293b,#020617);
+  background:linear-gradient(135deg,#020617,#0f172a,#1e293b);
   color:#fff;
 }
 .login{
@@ -21,12 +20,13 @@ body{
   background:#020617;
 }
 .login input,button{
-  width:100%;padding:12px;margin:10px 0;border-radius:10px;border:none;
+  width:100%;padding:12px;margin:10px 0;
+  border-radius:10px;border:none;
 }
-button{background:#38bdf8;font-weight:900;cursor:pointer}
+button{background:#38bdf8;font-weight:800;cursor:pointer}
 
 #dash{display:none;padding:24px}
-.tv-title{font-size:24px;font-weight:900;margin-bottom:10px}
+h2{margin:0 0 10px}
 
 .cards{
   display:grid;
@@ -41,14 +41,18 @@ button{background:#38bdf8;font-weight:900;cursor:pointer}
 .card h4{margin:0;color:#7dd3fc;font-size:14px}
 .card p{margin:8px 0;font-size:28px;font-weight:900}
 
-.filters{display:flex;gap:12px;margin:18px 0;flex-wrap:wrap}
-select{padding:10px;border-radius:10px;border:none}
+.filters{
+  display:flex;gap:12px;margin:20px 0;flex-wrap:wrap
+}
+select{
+  padding:10px;border-radius:10px;border:none
+}
 
 table{
-  width:100%;border-collapse:collapse;font-size:13px;
+  width:100%;border-collapse:collapse;font-size:13px
 }
 th,td{
-  padding:10px;border-bottom:1px solid rgba(255,255,255,.1);
+  padding:10px;border-bottom:1px solid rgba(255,255,255,.1)
 }
 th{background:rgba(56,189,248,.25)}
 </style>
@@ -57,7 +61,7 @@ th{background:rgba(56,189,248,.25)}
 <body>
 
 <div class="login" id="loginBox">
-  <h2>🔐 Login Dashboard</h2>
+  <h2>🔐 Login</h2>
   <input id="u" placeholder="Username">
   <input id="p" type="password" placeholder="Password">
   <button onclick="login()">MASUK</button>
@@ -65,24 +69,24 @@ th{background:rgba(56,189,248,.25)}
 </div>
 
 <div id="dash">
-  <div class="tv-title" id="tvTitle"></div>
+  <h2 id="title">📊 Dashboard SDM Kesehatan</h2>
 
-  <div class="cards" id="cards">
+  <div class="cards">
     <div class="card"><h4>Kebutuhan</h4><p id="K">0</p></div>
     <div class="card"><h4>Pemangku</h4><p id="P">0</p></div>
     <div class="card"><h4>Lowongan</h4><p id="L">0</p></div>
-    <div class="card"><h4>Status Nasional</h4><p id="S">-</p></div>
+    <div class="card"><h4>Status</h4><p id="S">-</p></div>
   </div>
 
   <canvas id="chart" height="90"></canvas>
 
-  <div class="filters" id="filters">
+  <div class="filters">
     <select id="fI"></select>
     <select id="fJ"></select>
     <select id="fN"></select>
   </div>
 
-  <table id="tbl">
+  <table>
     <thead>
       <tr>
         <th>Instansi</th>
@@ -91,7 +95,7 @@ th{background:rgba(56,189,248,.25)}
         <th>Kebutuhan</th>
         <th>Pemangku</th>
         <th>Lowongan</th>
-        <th>Status</th>
+        <th>Sisa</th>
         <th>Keterangan</th>
       </tr>
     </thead>
@@ -100,36 +104,31 @@ th{background:rgba(56,189,248,.25)}
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzo845d_0KdbDOZXoo1tuu-Ne-twblb5gA4gUak2ra3IKDxY4nVLXU50HDlGb_d1pWh/exec";
+/* ========= KONFIG ========= */
+const API_URL = "https://script.google.com/macros/s/AKfycbxST9O58k9NeCTkQMr9HTxGZdga_cP-UtOoz-EqlWZwPn8Xr90ufTY7Ylqa3rNWi6HZ/exec";
+/* ========================= */
 
-let raw=[], chart, slide=0;
-const titles=[
-  "📊 RINGKASAN NASIONAL",
-  "🏥 DEFISIT / SURPLUS PER INSTANSI",
-  "👨‍⚕️ DEFISIT / SURPLUS PER JABATAN FUNGSIONAL",
-  "📋 DATA DETAIL"
-];
+let raw=[], chart;
 
 function login(){
   fetch(`${API_URL}?action=login&u=${u.value}&p=${p.value}`)
-  .then(r=>r.json())
-  .then(j=>{
-    if(!j.status){msg.innerText="Login gagal";return;}
-    loginBox.style.display="none";
-    dash.style.display="block";
-    loadData();
-  });
+    .then(r=>r.json())
+    .then(j=>{
+      if(!j.ok){msg.innerText="Login gagal";return;}
+      loginBox.style.display="none";
+      dash.style.display="block";
+      loadData();
+    });
 }
 
 function loadData(){
   fetch(`${API_URL}?action=data`)
-  .then(r=>r.json())
-  .then(d=>{
-    raw=d||[];
-    initFilter();
-    render();
-    startTV();
-  });
+    .then(r=>r.json())
+    .then(d=>{
+      raw=d||[];
+      initFilter();
+      render();
+    });
 }
 
 function initFilter(){
@@ -140,7 +139,9 @@ function initFilter(){
 }
 function fill(sel,key){
   sel.innerHTML="<option value=''>SEMUA</option>";
-  [...new Set(raw.map(x=>x[key]))].forEach(v=>v && (sel.innerHTML+=`<option>${v}</option>`));
+  [...new Set(raw.map(x=>x[key]))].forEach(v=>{
+    if(v) sel.innerHTML+=`<option>${v}</option>`;
+  });
 }
 
 function render(){
@@ -153,32 +154,34 @@ function render(){
   let Kt=0,Pt=0,Lt=0,St=0;
   tbody.innerHTML="";
   d.forEach(x=>{
-    Kt+=x.kebutuhan; Pt+=x.pemangku; Lt+=x.lowongan; St+=x.sisa;
+    Kt+=x.kebutuhan;
+    Pt+=x.pemangku;
+    Lt+=x.lowongan;
+    St+=x.sisa;
     tbody.innerHTML+=`
-    <tr>
-      <td>${x.instansi}</td>
-      <td>${x.jabfung}</td>
-      <td>${x.jenjang}</td>
-      <td>${x.kebutuhan}</td>
-      <td>${x.pemangku}</td>
-      <td>${x.lowongan}</td>
-      <td style="color:${x.sisa>0?'#fb7185':'#4ade80'}">
-        ${x.sisa>0?'DEFISIT':'SURPLUS'} (${x.sisa})
-      </td>
-      <td>${x.ket}</td>
-    </tr>`;
+      <tr>
+        <td>${x.instansi}</td>
+        <td>${x.jabfung}</td>
+        <td>${x.jenjang}</td>
+        <td>${x.kebutuhan}</td>
+        <td>${x.pemangku}</td>
+        <td>${x.lowongan}</td>
+        <td style="color:${x.sisa>0?'#fb7185':'#4ade80'}">${x.sisa}</td>
+        <td>${x.ket}</td>
+      </tr>`;
   });
 
-  K.innerText=Kt; P.innerText=Pt; L.innerText=Lt;
-  S.innerText=St>0?"🔴 DEFISIT NASIONAL":"🟢 SURPLUS NASIONAL";
-  S.style.color=St>0?"#fb7185":"#4ade80";
+  K.innerText=Kt;
+  P.innerText=Pt;
+  L.innerText=Lt;
+  S.innerText = St>0 ? "DEFISIT" : "SURPLUS";
 
-  drawNasional(Kt,Pt,Lt,St);
+  drawChart(Kt,Pt,Lt,St);
 }
 
-function drawNasional(K,P,L,S){
+function drawChart(K,P,L,S){
   if(chart) chart.destroy();
-  chart=new Chart(chart,{
+  chart=new Chart(document.getElementById("chart"),{
     type:"bar",
     data:{
       labels:["Kebutuhan","Pemangku","Lowongan","Sisa"],
@@ -189,37 +192,6 @@ function drawNasional(K,P,L,S){
     },
     options:{plugins:{legend:{display:false}}}
   });
-}
-
-function groupSum(key){
-  const m={}; raw.forEach(x=>m[x[key]]=(m[x[key]]||0)+x.sisa); return m;
-}
-function drawGroup(key,title){
-  const o=groupSum(key);
-  if(chart) chart.destroy();
-  chart=new Chart(chart,{
-    type:"bar",
-    data:{labels:Object.keys(o),
-      datasets:[{data:Object.values(o),
-        backgroundColor:Object.values(o).map(v=>v>0?"#fb7185":"#4ade80")}]
-    },
-    options:{plugins:{legend:{display:false},title:{display:true,text:title,color:"#fff"}}}
-  });
-}
-
-function startTV(){
-  setInterval(()=>{
-    slide=(slide+1)%4;
-    tvTitle.innerText=titles[slide];
-    document.body.requestFullscreen?.();
-
-    cards.style.display=slide===0?"grid":"none";
-    filters.style.display=slide===3?"flex":"none";
-    tbl.style.display=slide===3?"table":"none";
-
-    if(slide===1) drawGroup("instansi","Defisit / Surplus per Instansi");
-    if(slide===2) drawGroup("jabfung","Defisit / Surplus per Jabatan Fungsional");
-  },12000);
 }
 </script>
 
