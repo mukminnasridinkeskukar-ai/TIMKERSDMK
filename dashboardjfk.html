@@ -1,225 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard SDM Kesehatan</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-.container{
-  max-width:1200px;
-  margin:auto;
-  font-family:Segoe UI,Arial,sans-serif;
-}
-h2{margin-bottom:14px}
-
-/* ===== TOMBOL PENDAFTARAN ===== */
-.cta-wrap{
-  text-align:center;
-  margin:20px 0 28px;
-}
-.cta-btn{
-  display:inline-block;
-  padding:16px 36px;
-  font-size:18px;
-  font-weight:800;
+body{
+  margin:0;
+  font-family:Inter,Segoe UI,Arial;
+  background:linear-gradient(120deg,#020617,#0f172a,#1e293b);
   color:#fff;
-  text-decoration:none;
-  border-radius:999px;
-  background:linear-gradient(135deg,#ef4444,#f97316);
-  box-shadow:0 14px 32px rgba(239,68,68,.45);
-  position:relative;
-  animation:bounce 2.2s infinite;
-  transition:.3s;
 }
-.cta-btn:hover{
-  transform:scale(1.06);
-  box-shadow:0 20px 44px rgba(239,68,68,.65);
+.login{
+  max-width:360px;
+  margin:120px auto;
+  background:#020617;
+  padding:30px;
+  border-radius:18px;
 }
-.cta-btn::after{
-  content:'';
-  position:absolute;
-  inset:-6px;
-  border-radius:999px;
-  background:linear-gradient(135deg,#fb7185,#fdba74);
-  opacity:.45;
-  z-index:-1;
-  filter:blur(16px);
-  animation:pulse 2.5s infinite;
-}
-@keyframes bounce{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-8px)}
-}
-@keyframes pulse{
-  0%{opacity:.25}
-  50%{opacity:.65}
-  100%{opacity:.25}
-}
-/* ===== END CTA ===== */
-
-.filter{
-  display:grid;
-  grid-template-columns:2fr 2fr 2fr;
-  gap:10px;
-  margin-bottom:16px;
-}
-input,select{
-  padding:10px;
+.login input,button{
+  width:100%;
+  padding:12px;
+  margin:10px 0;
   border-radius:10px;
-  border:1px solid #ddd;
-  font-size:14px;
+  border:none;
 }
+button{background:#38bdf8;font-weight:800;cursor:pointer}
+#dash{display:none;padding:24px}
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;
+}
+.card{
+  background:rgba(255,255,255,.08);
+  padding:18px;
+  border-radius:18px;
+}
+.card h4{margin:0;color:#7dd3fc;font-size:14px}
+.card p{margin:8px 0;font-size:28px;font-weight:900}
+
+.filters{display:flex;gap:12px;margin:20px 0;flex-wrap:wrap}
+select{padding:10px;border-radius:10px;border:none}
+
 table{
   width:100%;
   border-collapse:collapse;
+  font-size:13px;
 }
 th,td{
   padding:10px;
-  border-bottom:1px solid #eee;
-  text-align:left;
+  border-bottom:1px solid rgba(255,255,255,.1);
 }
-th{background:#f3f4f6}
-.badge{
-  padding:4px 10px;
-  border-radius:12px;
-  color:#fff;
-  font-weight:700;
-  font-size:13px;
-}
-.ok{background:#22c55e}
-.no{background:#ef4444}
+th{background:rgba(56,189,248,.25)}
 
-@media(max-width:900px){
-  .filter{grid-template-columns:1fr}
-  .cta-btn{font-size:16px;padding:14px 26px}
-}
+.tv-title{font-size:22px;font-weight:900;margin-bottom:12px}
 </style>
+</head>
 
-<div class="container">
+<body>
 
-<!-- 🔥 TOMBOL PENDAFTARAN (DI ATAS JUDUL) -->
-<div class="cta-wrap">
-  <a
-    href="#"
-    target="_blank"
-    class="cta-btn">
-    🛎️ DASHBOARD JF KESEHATAN DI LINGKUNGAN DINAS KESEHATAN KAB. KUTAI KARTANEGARA
-  </a>
+<div class="login" id="loginBox">
+  <h2>🔐 Login</h2>
+  <input id="u" placeholder="Username">
+  <input id="p" type="password">
+  <button onclick="login()">MASUK</button>
+  <div id="msg"></div>
 </div>
 
-<h2>Formasi Jabatan Fungsional Bidang Kesehatan Tahun 2026</h2>
+<div id="dash">
+  <div class="tv-title" id="tvTitle"></div>
 
-<div class="filter">
-  <select id="instansi">
-    <option value="">🏥 Semua Instansi / Institusi</option>
-  </select>
+  <div class="cards" id="cards">
+    <div class="card"><h4>Kebutuhan</h4><p id="K">0</p></div>
+    <div class="card"><h4>Pemangku</h4><p id="P">0</p></div>
+    <div class="card"><h4>Lowongan</h4><p id="L">0</p></div>
+    <div class="card"><h4>Status Nasional</h4><p id="S">-</p></div>
+  </div>
 
-  <select id="jabatan">
-    <option value="">🧑‍⚕️ Semua Jenis Jabatan</option>
-  </select>
+  <canvas id="chart" height="90"></canvas>
 
-  <select id="jenjang">
-    <option value="">🎓 Semua Jenjang</option>
-  </select>
-</div>
+  <div class="filters" id="filters">
+    <select id="fI"></select>
+    <select id="fJ"></select>
+    <select id="fN"></select>
+  </div>
 
-<table>
-<thead>
-<tr>
-  <th>No</th>
-  <th>Instansi / Institusi</th>
-  <th>Jenis Jabatan Fungsional</th>
-  <th>Jenjang Jabatan</th>
-  <th>Kebutuhan</th>
-  <th>Pemangku</th>
-  <th>Lowongan Formasi</th>
-  <th>Nama Pemangku Saat Ini</th>
-  <th>Nama-Nama Pemangku Yang telah disetujui Untuk Mengisi Lowongan</th>
-</tr>
-</thead>
-<tbody id="tb">
-<tr><td colspan="9">⏳ Memuat data...</td></tr>
-</tbody>
-</table>
-
+  <table id="tbl">
+    <thead>
+      <tr>
+        <th>Instansi</th><th>Jabfung</th><th>Jenjang</th>
+        <th>Kebutuhan</th><th>Pemangku</th><th>Lowongan</th>
+        <th>Status</th><th>Keterangan</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbw2WzxAv8bQl7Z6IjpIGfHRQfmEOCUk5ZvwhnMsUz-ehKsFhLq794ULF3C1DJs_JWFh/exec";
-let dataGlobal=[];
+const API = "https://script.google.com/macros/s/AKfycbyIumaoCLAcvusD7aIsmmO5nKYr3vek9Fp6gYHleuUv6RmVQ5vEbscXhQU94iHicOBI/exec";
 
-const tb=document.getElementById("tb");
-const instansi=document.getElementById("instansi");
-const jabatan=document.getElementById("jabatan");
-const jenjang=document.getElementById("jenjang");
-const MAX_RENDER=300;
+let raw=[], chart, slide=0;
+const titles=[
+ "📊 RINGKASAN NASIONAL",
+ "🏥 PER INSTANSI",
+ "👨‍⚕️ PER JABATAN FUNGSIONAL",
+ "📋 DATA DETAIL"
+];
 
-/* LOAD DATA */
-fetch(API_URL)
-.then(r=>r.json())
-.then(data=>{
-  dataGlobal=data;
-  initFilter(data);
-  render(data);
-})
-.catch(()=>{
-  tb.innerHTML="<tr><td colspan='9'>❌ Gagal memuat data</td></tr>";
-});
+function login(){
+  fetch(`${API}?action=login&u=${u.value}&p=${p.value}`)
+  .then(r=>r.json())
+  .then(j=>{
+    if(!j.status){msg.innerText="Login gagal";return;}
+    loginBox.style.display="none";
+    dash.style.display="block";
+    load();
+  });
+}
 
-/* INIT FILTER */
-function initFilter(data){
-  const iSet=new Set(), jSet=new Set(), jenSet=new Set();
+function load(){
+  fetch(`${API}?action=data`)
+  .then(r=>r.json())
+  .then(d=>{
+    raw=d;
+    initFilter();
+    render();
+    tv();
+  });
+}
 
-  data.forEach(d=>{
-    iSet.add(d["Instansi/ Institusi Pelayanan Kesehatan"]);
-    jSet.add(d["Jenis Jabatan Fungsional"]);
-    jenSet.add(d["Jenjang Jabatan"]);
+function initFilter(){
+  fill(fI,"instansi");
+  fill(fJ,"jabfung");
+  fill(fN,"jenjang");
+  document.querySelectorAll("select").forEach(s=>s.onchange=render);
+}
+
+function fill(sel,k){
+  sel.innerHTML="<option value=''>SEMUA</option>";
+  [...new Set(raw.map(x=>x[k]))].forEach(v=>sel.innerHTML+=`<option>${v}</option>`);
+}
+
+function render(){
+  let d=raw.filter(x=>
+    (!fI.value||x.instansi===fI.value)&&
+    (!fJ.value||x.jabfung===fJ.value)&&
+    (!fN.value||x.jenjang===fN.value)
+  );
+
+  let Kt=0,Pt=0,Lt=0,St=0;
+  tbody.innerHTML="";
+  d.forEach(x=>{
+    Kt+=x.kebutuhan;Pt+=x.pemangku;Lt+=x.lowongan;St+=x.sisa;
+    tbody.innerHTML+=`
+    <tr>
+      <td>${x.instansi}</td>
+      <td>${x.jabfung}</td>
+      <td>${x.jenjang}</td>
+      <td>${x.kebutuhan}</td>
+      <td>${x.pemangku}</td>
+      <td>${x.lowongan}</td>
+      <td style="color:${x.sisa>0?'#fb7185':'#4ade80'}">
+        ${x.sisa>0?'DEFISIT':'SURPLUS'} (${x.sisa})
+      </td>
+      <td>${x.ket||''}</td>
+    </tr>`;
   });
 
-  iSet.forEach(v=>instansi.add(new Option(v,v)));
-  jSet.forEach(v=>jabatan.add(new Option(v,v)));
-  jenSet.forEach(v=>jenjang.add(new Option(v,v)));
+  K.innerText=Kt;P.innerText=Pt;L.innerText=Lt;
+  S.innerText=St>0?"🔴 DEFISIT NASIONAL":"🟢 SURPLUS NASIONAL";
+  S.style.color=St>0?"#fb7185":"#4ade80";
 }
 
-/* RENDER */
-function render(data){
-  tb.innerHTML="";
-  const frag=document.createDocumentFragment();
-  const limit=Math.min(data.length,MAX_RENDER);
-
-  for(let i=0;i<limit;i++){
-    const d=data[i];
-    const kebutuhan=+d["Kebutuhan"]||0;
-    const pemangku=+d["Pemangku"]||0;
-    const low=Math.max(kebutuhan-pemangku,0);
-
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td>${i+1}</td>
-      <td>${d["Instansi/ Institusi Pelayanan Kesehatan"]||"-"}</td>
-      <td>${d["Jenis Jabatan Fungsional"]||"-"}</td>
-      <td>${d["Jenjang Jabatan"]||"-"}</td>
-      <td>${kebutuhan}</td>
-      <td>${pemangku}</td>
-      <td><span class="badge ${low>0?'no':'ok'}">${low}</span></td>
-      <td>${(d["Nama-Nama Pemangku Saat Ini"]||"-").replace(/\n/g,"<br>")}</td>
-      <td>${(d["Nama-Nama Pemangku Yang telah disetujui Untuk Mengisi Lowongan"]||"-").replace(/\n/g,"<br>")}</td>
-    `;
-    frag.appendChild(tr);
-  }
-  tb.appendChild(frag);
+function group(k){
+  const m={}; raw.forEach(x=>m[x[k]]=(m[x[k]]||0)+x.sisa); return m;
 }
 
-/* FILTER */
-function applyFilter(){
-  const i=instansi.value;
-  const j=jabatan.value;
-  const jen=jenjang.value;
-
-  const hasil=dataGlobal.filter(d=>{
-    return (!i || d["Instansi/ Institusi Pelayanan Kesehatan"]===i)
-      && (!j || d["Jenis Jabatan Fungsional"]===j)
-      && (!jen || d["Jenjang Jabatan"]===jen);
+function draw(k,title){
+  const o=group(k);
+  if(chart) chart.destroy();
+  chart=new Chart(chart,{
+    type:"bar",
+    data:{labels:Object.keys(o),
+      datasets:[{data:Object.values(o),
+        backgroundColor:Object.values(o).map(v=>v>0?"#fb7185":"#4ade80")
+      }]
+    },
+    options:{plugins:{legend:{display:false},title:{display:true,text:title,color:"#fff"}}}
   });
-  render(hasil);
 }
 
-instansi.onchange=applyFilter;
-jabatan.onchange=applyFilter;
-jenjang.onchange=applyFilter;
+function tv(){
+  setInterval(()=>{
+    slide=(slide+1)%4;
+    tvTitle.innerText=titles[slide];
+    document.body.requestFullscreen?.();
+
+    cards.style.display=slide===0?"grid":"none";
+    filters.style.display=slide===3?"flex":"none";
+    tbl.style.display=slide===3?"table":"none";
+
+    if(slide===1) draw("instansi","Defisit / Surplus per Instansi");
+    if(slide===2) draw("jabfung","Defisit / Surplus per Jabfung");
+  },12000);
+}
 </script>
 
+</body>
+</html>
