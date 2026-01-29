@@ -2,202 +2,156 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Form Validasi Data SDMK</title>
+<title>Form Validasi SDMK</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* ==== WRAPPER ==== */
 body{
   margin:0;
-  background:#f1f4f8;
-  font-family:'Segoe UI', Arial, sans-serif;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Segoe UI',Arial,sans-serif;
+  background:linear-gradient(135deg,#1e3a8a,#2563eb);
 }
-.sdmk-wrapper{
-  padding:40px 15px;
+.card{
+  background:#fff;
+  width:100%;
+  max-width:520px;
+  padding:30px;
+  border-radius:18px;
+  box-shadow:0 20px 45px rgba(0,0,0,.25);
 }
-
-/* ==== CARD ==== */
-.sdmk-card{
-  max-width:540px;
-  margin:auto;
-  background:#ffffff;
-  padding:30px 28px;
-  border-radius:14px;
-  box-shadow:0 12px 35px rgba(0,0,0,0.08);
-}
-
-/* ==== TITLE ==== */
-.sdmk-card h2{
-  margin:0;
-  text-align:center;
-  color:#0d6efd;
-  font-size:24px;
-}
-.subtitle{
-  text-align:center;
-  color:#6c757d;
-  margin-bottom:25px;
-  font-size:14px;
-}
-
-/* ==== FORM GROUP ==== */
-.form-group{
-  margin-bottom:18px;
-}
-label{
-  display:block;
-  margin-bottom:6px;
-  font-weight:600;
-  color:#333;
-  font-size:14px;
-}
-input, select{
+h2{text-align:center;color:#1e3a8a;margin:0}
+.subtitle{text-align:center;color:#64748b;font-size:14px;margin:8px 0 24px}
+.form-group{margin-bottom:16px}
+label{font-size:14px;font-weight:600;margin-bottom:6px;display:block}
+input,select{
   width:100%;
   padding:12px 14px;
-  border-radius:8px;
-  border:1px solid #ced4da;
+  border-radius:10px;
+  border:1px solid #cbd5e1;
   font-size:14px;
-  transition:.2s;
 }
-input:focus, select:focus{
+input:focus,select:focus{
   outline:none;
-  border-color:#0d6efd;
-  box-shadow:0 0 0 2px rgba(13,110,253,.15);
+  border-color:#2563eb;
+  box-shadow:0 0 0 3px rgba(37,99,235,.2);
 }
-
-/* ==== BUTTON ==== */
 button{
   width:100%;
-  margin-top:10px;
   padding:14px;
-  background:#0d6efd;
+  border:none;
+  border-radius:12px;
+  background:#2563eb;
   color:#fff;
   font-size:16px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  transition:.2s;
-}
-button:hover{background:#0b5ed7}
-button:disabled{
-  background:#9bbcfb;
-  cursor:not-allowed;
-}
-
-/* ==== STATUS ==== */
-#status{
-  margin-top:15px;
-  text-align:center;
   font-weight:600;
-  font-size:14px;
+  cursor:pointer;
 }
-
-/* ==== MOBILE ==== */
-@media(max-width:480px){
-  .sdmk-card{padding:25px 20px}
-  .sdmk-card h2{font-size:22px}
-}
+button:disabled{background:#93c5fd}
+#status{text-align:center;margin-top:15px;font-weight:600}
 </style>
 </head>
 
 <body>
 
-<div class="sdmk-wrapper">
-  <div class="sdmk-card">
-    <h2>Form Validasi Data SDMK</h2>
-    <p class="subtitle">Praktik Mandiri Tenaga Medis dan Tenaga Kesehatan</p>
+<div class="card">
+  <h2>Form Validasi SDMK</h2>
+  <p class="subtitle">Praktik Mandiri Tenaga Medis & Tenaga Kesehatan</p>
 
-    <form id="sdmkForm">
+  <form id="form">
+    <div class="form-group">
+      <label>Nama Lengkap</label>
+      <input name="nama_lengkap" required>
+    </div>
 
-      <div class="form-group">
-        <label>Nama Lengkap</label>
-        <input type="text" name="nama_lengkap"
-               placeholder="Contoh: Mukmin Nasri, A.Md.Kep" required>
-      </div>
+    <div class="form-group">
+      <label>Profesi</label>
+      <input name="profesi" required>
+    </div>
 
-      <div class="form-group">
-        <label>Profesi</label>
-        <input type="text" name="profesi"
-               placeholder="Contoh: Perawat" required>
-      </div>
+    <div class="form-group">
+      <label>Unit Kerja</label>
+      <input name="unit_kerja" required>
+    </div>
 
-      <div class="form-group">
-        <label>Unit Kerja Praktik Mandiri</label>
-        <input type="text" name="unit_kerja"
-               placeholder="Contoh: TPMP Mukmin Nasri, A.Md.Kep" required>
-      </div>
+    <div class="form-group">
+      <label>Jenis Validasi</label>
+      <select name="jenis_validasi" required>
+        <option value="">— Pilih —</option>
+        <option>Validasi Data Existing</option>
+        <option>Validasi SIP</option>
+        <option>Validasi Calon Pekerja</option>
+      </select>
+    </div>
 
-      <div class="form-group">
-        <label>Jenis Validasi</label>
-        <select name="jenis_validasi" required>
-          <option value="">— Pilih Jenis Validasi —</option>
-          <option value="Validasi Data Existing">Validasi Data Existing</option>
-          <option value="Validasi Calon Pekerja">Validasi Calon Pekerja</option>
-          <option value="Validasi SIP">Validasi SIP</option>
-        </select>
-      </div>
+    <div class="form-group">
+      <label>Tujuan Validasi</label>
+      <select name="tujuan_validasi" required>
+        <option value="">— Pilih —</option>
+        <option>Perubahan Data SIP</option>
+        <option>Habis Kontrak</option>
+        <option>Data Ganda / Duplikasi</option>
+        <option>Salah Data</option>
+      </select>
+    </div>
 
-      <div class="form-group">
-        <label>Tujuan Validasi</label>
-        <select name="tujuan_validasi" required>
-          <option value="">— Pilih Tujuan Validasi —</option>
-          <option value="Perubahan Data SIP">Perubahan Data SIP</option>
-          <option value="Habis Kontrak">Habis Kontrak</option>
-          <option value="Data Ganda/Duplikasi">Data Ganda / Duplikasi</option>
-          <option value="Salah Data">Salah Data</option>
-        </select>
-      </div>
+    <div class="form-group">
+      <label>Nomor Whatsapp</label>
+      <input name="nomor_whatsapp" placeholder="08xxxxxxxxxx" required>
+    </div>
 
-      <div class="form-group">
-        <label>Nomor Whatsapp</label>
-        <input type="text" name="nomor_whatsapp"
-               placeholder="Contoh: 0821xxxxxxxx" required>
-      </div>
+    <div class="form-group">
+      <label>Alamat Email</label>
+      <input type="email" name="alamat_email" required>
+    </div>
 
-      <div class="form-group">
-        <label>Alamat Email</label>
-        <input type="email" name="alamat_email"
-               placeholder="Contoh: nama@email.com" required>
-      </div>
-
-      <button type="submit">Kirim Validasi</button>
-      <div id="status"></div>
-
-    </form>
-  </div>
+    <button type="submit">Kirim Validasi</button>
+    <div id="status"></div>
+  </form>
 </div>
 
 <script>
-const form = document.getElementById("sdmkForm");
+const API_URL = "https://script.google.com/macros/s/AKfycbzK1unq6J-T3jI39V0KTtKVmaY9KumGl7WqMiRIMIXfMHes9In0JEZAg1Wrhvl7QsP3/exec";
+
+const form = document.getElementById("form");
 const statusEl = document.getElementById("status");
 const btn = form.querySelector("button");
 
-form.addEventListener("submit", function(e){
+form.addEventListener("submit", e=>{
   e.preventDefault();
 
-  statusEl.style.color = "#0d6efd";
-  statusEl.innerHTML = "⏳ Mengirim data...";
-  btn.disabled = true;
-  btn.innerText = "Mengirim...";
+  statusEl.style.color="#2563eb";
+  statusEl.innerHTML="⏳ Mengirim data...";
+  btn.disabled=true;
 
   const data = new URLSearchParams(new FormData(form));
 
-  fetch("https://script.google.com/macros/s/AKfycby9Ypu9Ep83aCTGgioszmJQhOKPRHjFvqKDol_rpihXMstfJ2t1Il-eF3VZ7oITjWbF/exec", {
-    method: "POST",
-    body: data
+  fetch(API_URL,{
+    method:"POST",
+    body:data
   })
-  .then(() => {
-    statusEl.style.color = "#198754";
-    statusEl.innerHTML = "✅ Data berhasil dikirim & tercatat";
+  .then(res=>res.json())
+  .then(res=>{
+    statusEl.style.color="#16a34a";
+    statusEl.innerHTML="✅ Data terkirim. Konfirmasi dikirim via Email & WhatsApp.";
+
+    if(res.wa){
+      setTimeout(()=>{
+        window.open(res.wa,"_blank");
+      },1200);
+    }
+
     form.reset();
   })
-  .catch(() => {
-    statusEl.style.color = "#dc3545";
-    statusEl.innerHTML = "❌ Gagal mengirim data. Silakan coba lagi.";
+  .catch(()=>{
+    statusEl.style.color="#dc2626";
+    statusEl.innerHTML="❌ Gagal mengirim data";
   })
-  .finally(() => {
-    btn.disabled = false;
-    btn.innerText = "Kirim Validasi";
+  .finally(()=>{
+    btn.disabled=false;
   });
 });
 </script>
