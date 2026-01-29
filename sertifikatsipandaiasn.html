@@ -1,1 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>SIPDANDAI-ASN | Dinkes Kukar</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  font-family:Segoe UI, Arial, sans-serif;
+  background:#f1f5f9;
+  margin:0;
+  color:#1e293b;
+}
+header{
+  background:#1e3a8a;
+  color:#fff;
+  padding:20px;
+}
+.container{
+  max-width:1200px;
+  margin:30px auto;
+  padding:0 16px;
+}
+.toolbar{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+}
+input,select{
+  padding:10px;
+  border:1px solid #cbd5e1;
+  border-radius:8px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  border-radius:12px;
+  overflow:hidden;
+}
+th,td{
+  padding:12px;
+  border-bottom:1px solid #e5e7eb;
+  font-size:14px;
+}
+th{
+  background:#e2e8f0;
+  text-transform:uppercase;
+  font-size:12px;
+}
+.btn{
+  background:#2563eb;
+  color:#fff;
+  padding:6px 12px;
+  border-radius:6px;
+  text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>📜 Dashboard Sertifikat SIPDANDAI-ASN</h2>
+  <p>Dinas Kesehatan Kabupaten Kutai Kartanegara</p>
+</header>
+
+<div class="container">
+
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="Cari tema / tempat">
+    <select id="filterJP">
+      <option value="">Semua JP</option>
+      <option value="2">2 JP</option>
+      <option value="4">4 JP</option>
+      <option value="8">8 JP</option>
+      <option value="16">16 JP</option>
+    </select>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Tanggal</th>
+        <th>Tempat</th>
+        <th>Tema</th>
+        <th>JP</th>
+        <th>Sertifikat</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbzWj5D9Bpt4fEcuBlBa3gAb4jM7SXV3fG1jbsAYi6uB39QLTTPUOvpRvnTgeMZHJbl9/exec";
+
+let data = [];
+
+fetch(API_URL)
+  .then(res => res.json())
+  .then(json => {
+    data = json;
+    render();
+  });
+
+function render(){
+  const search = document.getElementById("search").value.toLowerCase();
+  const jp = document.getElementById("filterJP").value;
+
+  const filtered = data.filter(d=>{
+    const s =
+      d.tema.toLowerCase().includes(search) ||
+      d.tempat.toLowerCase().includes(search);
+    const j = jp ? d.jp == jp : true;
+    return s && j;
+  });
+
+  document.getElementById("tbody").innerHTML = filtered.map((d,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td>${d.tanggal}</td>
+      <td>${d.tempat}</td>
+      <td>${d.tema}</td>
+      <td>${d.jp} JP</td>
+      <td><a class="btn" href="${d.link}" target="_blank">Download</a></td>
+    </tr>
+  `).join("");
+}
+
+document.getElementById("search").oninput = render;
+document.getElementById("filterJP").onchange = render;
+</script>
+
+</body>
+</html>
 
