@@ -1,69 +1,19 @@
-<div class="sdmk-wrapper">
-  <div class="sdmk-card">
-    <h2>Form Validasi Data SDMK</h2>
-    <p class="subtitle">Praktik Mandiri Tenaga Medis dan Tenaga Kesehatan</p>
-
-    <form id="sdmkForm">
-      
-      <div class="form-group">
-        <label>Nama Lengkap</label>
-        <input name="nama_lengkap" placeholder="Contoh: Mukmin Nasri, A.Md.Kep" required="" type="text" />
-      </div>
-
-      <div class="form-group">
-        <label>Profesi</label>
-        <input name="profesi" placeholder="Contoh: Perawat" required="" type="text" />
-      </div>
-
-      <div class="form-group">
-        <label>Unit Kerja Praktik Mandiri</label>
-        <input name="unit_kerja" placeholder="Contoh: TPMP Mukmin Nasri, A.Md.Kep" required="" type="text" />
-      </div>
-
-      <div class="form-group">
-        <label>Jenis Validasi</label>
-        <select name="jenis_validasi" required="">
-          <option value="">— Pilih Jenis Validasi —</option>
-          <option value="Validasi Data Existing">Validasi Data Existing</option>
-          <option value="Validasi Calon Pekerja">Validasi Calon Pekerja</option>
-          <option value="Validasi SIP">Validasi SIP</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Tujuan Validasi</label>
-        <select name="Tujuan_validasi" required="">
-          <option value="">— Pilih Tujuan Validasi —</option>
-          <option value="Perubahan Data SIP">Perubahan Data SIP</option>
-          <option value="Habis Kontrak">Habis Kontrak</option>
-          <option value="Data Ganda/Duplikasi">Data Ganda/Duplikasi</option>
-          <option value="Salah Data">Salah Data</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Nomor Whatsapp</label>
-        <input name="nomor_whatsapp" placeholder="Contoh: 0821xxxxxxxx" required="" type="text" />
-      </div>
-      
-      <div class="form-group">
-        <label>Alamat Email</label>
-        <input name="alamat_email" placeholder="Contoh: mukmin.xxxxxxx@gmail.com" required="" type="text" />
-      </div>
-      
-      <button type="submit">Kirim Validasi</button>
-      <div id="status"></div>
-
-    </form>
-  </div>
-</div>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Form Validasi Data SDMK</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 /* ==== WRAPPER ==== */
-.sdmk-wrapper{
+body{
+  margin:0;
   background:#f1f4f8;
-  padding:40px 15px;
   font-family:'Segoe UI', Arial, sans-serif;
+}
+.sdmk-wrapper{
+  padding:40px 15px;
 }
 
 /* ==== CARD ==== */
@@ -128,8 +78,10 @@ button{
   cursor:pointer;
   transition:.2s;
 }
-button:hover{
-  background:#0b5ed7;
+button:hover{background:#0b5ed7}
+button:disabled{
+  background:#9bbcfb;
+  cursor:not-allowed;
 }
 
 /* ==== STATUS ==== */
@@ -137,29 +89,118 @@ button:hover{
   margin-top:15px;
   text-align:center;
   font-weight:600;
-  color:#198754;
+  font-size:14px;
 }
 
 /* ==== MOBILE ==== */
 @media(max-width:480px){
   .sdmk-card{padding:25px 20px}
-  h2{font-size:22px}
+  .sdmk-card h2{font-size:22px}
 }
 </style>
+</head>
+
+<body>
+
+<div class="sdmk-wrapper">
+  <div class="sdmk-card">
+    <h2>Form Validasi Data SDMK</h2>
+    <p class="subtitle">Praktik Mandiri Tenaga Medis dan Tenaga Kesehatan</p>
+
+    <form id="sdmkForm">
+
+      <div class="form-group">
+        <label>Nama Lengkap</label>
+        <input type="text" name="nama_lengkap"
+               placeholder="Contoh: Mukmin Nasri, A.Md.Kep" required>
+      </div>
+
+      <div class="form-group">
+        <label>Profesi</label>
+        <input type="text" name="profesi"
+               placeholder="Contoh: Perawat" required>
+      </div>
+
+      <div class="form-group">
+        <label>Unit Kerja Praktik Mandiri</label>
+        <input type="text" name="unit_kerja"
+               placeholder="Contoh: TPMP Mukmin Nasri, A.Md.Kep" required>
+      </div>
+
+      <div class="form-group">
+        <label>Jenis Validasi</label>
+        <select name="jenis_validasi" required>
+          <option value="">— Pilih Jenis Validasi —</option>
+          <option value="Validasi Data Existing">Validasi Data Existing</option>
+          <option value="Validasi Calon Pekerja">Validasi Calon Pekerja</option>
+          <option value="Validasi SIP">Validasi SIP</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Tujuan Validasi</label>
+        <select name="tujuan_validasi" required>
+          <option value="">— Pilih Tujuan Validasi —</option>
+          <option value="Perubahan Data SIP">Perubahan Data SIP</option>
+          <option value="Habis Kontrak">Habis Kontrak</option>
+          <option value="Data Ganda/Duplikasi">Data Ganda / Duplikasi</option>
+          <option value="Salah Data">Salah Data</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Nomor Whatsapp</label>
+        <input type="text" name="nomor_whatsapp"
+               placeholder="Contoh: 0821xxxxxxxx" required>
+      </div>
+
+      <div class="form-group">
+        <label>Alamat Email</label>
+        <input type="email" name="alamat_email"
+               placeholder="Contoh: nama@email.com" required>
+      </div>
+
+      <button type="submit">Kirim Validasi</button>
+      <div id="status"></div>
+
+    </form>
+  </div>
+</div>
 
 <script>
-document.getElementById("sdmkForm").addEventListener("submit", function(e){
+const form = document.getElementById("sdmkForm");
+const statusEl = document.getElementById("status");
+const btn = form.querySelector("button");
+
+form.addEventListener("submit", function(e){
   e.preventDefault();
 
-  const data = new URLSearchParams(new FormData(this));
+  statusEl.style.color = "#0d6efd";
+  statusEl.innerHTML = "⏳ Mengirim data...";
+  btn.disabled = true;
+  btn.innerText = "Mengirim...";
 
-  fetch("https://script.google.com/macros/s/AKfycby87LkAv8SRsgRq0MpzB99aDa8w9RJE2Mw5ukStp2Y-9CDKzP4PhXH37MUp9xpRXtJ9/exec", {
+  const data = new URLSearchParams(new FormData(form));
+
+  fetch("https://script.google.com/macros/s/AKfycby9Ypu9Ep83aCTGgioszmJQhOKPRHjFvqKDol_rpihXMstfJ2t1Il-eF3VZ7oITjWbF/exec", {
     method: "POST",
-    mode: "no-cors",
     body: data
+  })
+  .then(() => {
+    statusEl.style.color = "#198754";
+    statusEl.innerHTML = "✅ Data berhasil dikirim & tercatat";
+    form.reset();
+  })
+  .catch(() => {
+    statusEl.style.color = "#dc3545";
+    statusEl.innerHTML = "❌ Gagal mengirim data. Silakan coba lagi.";
+  })
+  .finally(() => {
+    btn.disabled = false;
+    btn.innerText = "Kirim Validasi";
   });
-
-  document.getElementById("status").innerHTML = "✅ Data berhasil dikirim & tercatat";
-  this.reset();
 });
 </script>
+
+</body>
+</html>
