@@ -3263,6 +3263,18 @@ body {
     z-index: 10;
 }
 
+/* PDF Card Special Styling */
+.cert-card-pdf {
+    border-color: #dc2626 !important;
+    background: linear-gradient(145deg, #ffffff, #fee2e2) !important;
+}
+
+.cert-card-pdf:hover {
+    transform: scale(1.03) translateY(-8px) rotateY(2deg) !important;
+    box-shadow: 0 20px 40px rgba(220, 38, 38, 0.3) !important;
+    border-color: #ef4444 !important;
+}
+
 .cert-card-image {
     position: relative;
     aspect-ratio: 4/3;
@@ -8150,7 +8162,7 @@ const CERT_FOLDER_ID = '1b3guXfh6hE-uVjB9AWy54g9wLGIqUP9W'; // Folder KHUSUS unt
 
 // URL Apps Script KHUSUS untuk Sertifikat (CertProxy.gs)
 // Format: https://script.google.com/macros/s/XXXXX/exec
-const CERT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytktpzj69edeTHJLSuTh3JYFl-PU2agpxb0bLgEKVPfrjGHbxF0s0a4GYWuO-cIJSEEA/exec';
+const CERT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzTc1V-flLpq7nW4crJSVaF6r3KngIhQkNK4XU_2X4y_PVU4mORPzcdw7RlPflGjGHgmg/exec';
 
 /**
  * Global variables untuk sertifikat
@@ -8271,28 +8283,56 @@ async function loadCertificateData() {
  */
 function processCertificateFiles(files) {
     const processed = [];
-    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    const supportedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'];
     
     files.forEach((file, index) => {
         const fileName = file.name.toLowerCase();
         const ext = fileName.split('.').pop();
         
-        // Only process image files
-        if (imageExtensions.includes(ext)) {
+        // Process both image and PDF files
+        if (supportedExtensions.includes(ext)) {
+            // Determine file type from server or extension
+            const fileType = file.fileType || (ext === 'pdf' ? 'pdf' : 'image');
+            
+            // Parse metadata
             const parsed = parseCertFileName(file.name);
-            processed.push({
+            
+            // Build object based on file type
+            const certData = {
                 id: file.id,
                 name: file.name,
-                thumbnailUrl: file.altThumbnail || getDriveThumbnailUrl(file.id),
-                fullImageUrl: file.viewUrl || getDriveImageUrl(file.id),
+                fileType: fileType, // 'image' or 'pdf'
                 createdTime: file.createdTime,
                 ...parsed,
                 index: index
-            });
+            };
+            
+            if (fileType === 'pdf') {
+                // For PDF: Use preview URL and special thumbnail
+                certData.thumbnailUrl = file.altThumbnail || generatePdfThumbnail(file.name);
+                certData.fullImageUrl = file.previewUrl || file.viewUrl;
+                certData.viewUrl = file.viewUrl;
+                certData.downloadUrl = file.downloadUrl;
+            } else {
+                // For Image: Use standard image URLs
+                certData.thumbnailUrl = file.altThumbnail || getDriveThumbnailUrl(file.id);
+                certData.fullImageUrl = file.previewUrl || file.viewUrl || getDriveImageUrl(file.id);
+                certData.viewUrl = file.viewUrl;
+            }
+            
+            processed.push(certData);
         }
     });
     
     return processed;
+}
+
+/**
+ * Generate PDF thumbnail SVG
+ */
+function generatePdfThumbnail(fileName) {
+    const shortName = fileName.replace(/\.[^/.]+$/, '').substring(0, 25);
+    return `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><defs><linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fee2e2"/><stop offset="100%" style="stop-color:#fecaca"/></linearGradient></defs><rect fill="url(%23bg)" width="200" height="260" rx="12"/><text x="100" y="110" text-anchor="middle" font-size="64">📄</text><text x="100" y="155" text-anchor="middle" font-size="18" fill="#dc2626" font-weight="bold" font-family="Arial">PDF</text><text x="100" y="180" text-anchor="middle" font-size="11" fill="#991b1b" font-family="Arial">${shortName}</text><rect x="30" y="200" width="140" height="36" rx="8" fill="#dc2626"/><text x="100" y="223" text-anchor="middle" font-size="12" fill="white" font-weight="bold" font-family="Arial">Lihat Dokumen</text></svg>`)}`;
 }
 
 /**
@@ -8395,28 +8435,38 @@ function renderCertificates(certs) {
                 </div>
                 <div class="cert-group-content">
                     <div class="cert-grid">
-                        ${group.items.map((cert, idx) => `
-                            <div class="cert-card" onclick="openCertLightbox(this)" 
-                                 data-img="${cert.fullImageUrl}" 
-                                 data-title="${escapeHtml(cert.judul)}"
-                                 data-meta="${cert.tanggalFormatted ? escapeHtml(cert.tanggalFormatted) : ''}"
+                        ${group.items.map((cert, idx) => {
+                            // Determine if this is a PDF or Image
+                            const isPdf = cert.fileType === 'pdf';
+                            const clickAction = isPdf 
+                                ? `onclick="openPdfDocument('${cert.viewUrl}', '${escapeHtml(cert.judul)}')"` 
+                                : `onclick="openCertLightbox(this)"`;
+                            const dataAttrs = isPdf 
+                                ? `data-type="pdf" data-url="${cert.viewUrl}"` 
+                                : `data-img="${cert.fullImageUrl}" data-title="${escapeHtml(cert.judul)}" data-meta="${cert.tanggalFormatted ? escapeHtml(cert.tanggalFormatted) : ''}"`;
+                            const cardClass = isPdf ? 'cert-card cert-card-pdf' : 'cert-card';
+                            const badgeText = isPdf ? 'PDF' : capitalizeFirst(cert.kategori);
+                            const overlayText = isPdf ? '<p><i class="fas fa-external-link-alt"></i> Buka Dokumen PDF</p>' : '<p><i class="fas fa-search-plus"></i> Klik untuk memperbesar</p>';
+                            
+                            return `
+                            <div class="${cardClass}" ${clickAction} ${dataAttrs}
                                  style="animation-delay: ${idx * 0.05}s;">
                                 <div class="cert-card-image">
-                                    <img src="${cert.thumbnailUrl}" alt="${escapeHtml(cert.judul)}" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22><rect fill=%22%23fef3c7%22 width=%22400%22 height=%22300%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2224%22 fill=%22%23b45309%22>🏆 Sertifikat</text></svg>';">
-                                    <span class="cert-card-badge">${capitalizeFirst(cert.kategori)}</span>
-                                    <div class="cert-card-overlay">
-                                        <p><i class="fas fa-search-plus"></i> Klik untuk memperbesar</p>
+                                    <img src="${cert.thumbnailUrl}" alt="${escapeHtml(cert.judul)}" loading="lazy" onerror="this.src='${isPdf ? generatePdfThumbnail(cert.name) : 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22><rect fill=%22%23fef3c7%22 width=%22400%22 height=%22300%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2224%22 fill=%22%23b45309%22>🏆 Sertifikat</text></svg>'}';">
+                                    <span class="cert-card-badge" style="${isPdf ? 'background: linear-gradient(135deg, #dc2626, #ef4444);' : ''}">${badgeText}</span>
+                                    <div class="cert-card-overlay" style="${isPdf ? 'background: linear-gradient(transparent, rgba(220, 38, 38, 0.9));' : ''}">
+                                        ${overlayText}
                                     </div>
                                 </div>
                                 <div class="cert-card-info">
                                     <div class="cert-card-title">${escapeHtml(cert.judul)}</div>
                                     <div class="cert-card-meta">
-                                        <i class="fas fa-calendar-alt"></i>
-                                        <span>${cert.tanggalFormatted || 'Tidak ada tanggal'}</span>
+                                        <i class="fas ${isPdf ? 'fa-file-pdf' : 'fa-calendar-alt'}"></i>
+                                        <span>${isPdf ? 'Dokumen PDF' : (cert.tanggalFormatted || 'Tidak ada tanggal')}</span>
                                     </div>
                                 </div>
                             </div>
-                        `).join('')}
+                        `}).join('')}
                     </div>
                     
                     <!-- Activity Photos Section (show related photos if available) -->
@@ -8570,6 +8620,15 @@ function closeCertLightbox(event) {
     
     document.getElementById('certLightboxOverlay').classList.remove('show');
     document.body.style.overflow = '';
+}
+
+/**
+ * Open PDF Document in new tab
+ */
+function openPdfDocument(url, title) {
+    if (url) {
+        window.open(url, '_blank');
+    }
 }
 
 /**
