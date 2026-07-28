@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SK JFK - Sistem Informasi Surat Keputusan Jenjang Karier</title>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+:root {
+    --green: #22c55e;
+    --green-light: #4ade80;
+    --green-pale: #dcfce7;
+    --green-dark: #059669;
+    --white: #ffffff;
+    --off-white: #fafafa;
+    --cream: #f0fdf4;
+    --gray-light: #f1f5f9;
+    --gray-100: #e2e8f0;
+    --gray-200: #cbd5e1;
+    --gray-500: #64748b;
+    --text-dark: #1e293b;
+    --gold: #f59e0b;
+    --gold-light: #fbbf24;
+    --blue: #3b82f6;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Poppins', sans-serif;
+    background: linear-gradient(135deg, var(--cream) 0%, var(--off-white) 100%);
+    color: var(--text-dark);
+    min-height: 100vh;
+}
+
+/* Header */
+.app-header {
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+    color: white;
+    padding: 25px 0;
+    box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+}
+
+.app-header h1 {
+    font-weight: 700;
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+}
+
+.app-header p {
+    opacity: 0.9;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Main Container */
+.main-container {
+    max-width: 1400px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+/* Search Section */
+.search-section {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
+}
+
+.search-section h2 {
+    font-size: 1.3rem;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.search-section .subtitle {
+    color: var(--gray-500);
+    font-size: 0.9rem;
+    margin-bottom: 25px;
+}
+
+.search-box {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.search-input-group {
+    flex: 1;
+    min-width: 300px;
+    position: relative;
+}
+
+.search-input-group i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--green);
+    font-size: 1.1rem;
+}
+
+.search-input-group input {
+    width: 100%;
+    padding: 14px 15px 14px 45px;
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.search-input-group input:focus {
+    outline: none;
+    border-color: var(--green);
+    box-shadow: 0 0 0 4px var(--green-pale);
+}
+
+.btn-search {
+    padding: 14px 35px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-search:hover {
+    background: var(--green-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+}
+
+.btn-reset {
+    padding: 14px 25px;
+    background: white;
+    color: var(--gray-500);
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-reset:hover {
+    border-color: var(--gray-500);
+    color: var(--text-dark);
+}
+
+/* Results Section */
+.results-section {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--gray-light);
+}
+
+.results-header h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.results-count {
+    background: var(--green-pale);
+    color: var(--green-dark);
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Table Styles */
+.table-responsive {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--gray-200);
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 14px 12px;
+    border: none;
+    white-space: nowrap;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    padding: 16px 12px;
+    font-size: 0.92rem;
+    border-color: var(--gray-100);
+}
+
+.table tbody tr:hover {
+    background-color: var(--green-pale) !important;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: var(--gray-light);
+}
+
+.table tbody tr:nth-child(even):hover {
+    background-color: var(--green-pale) !important;
+}
+
+/* Photo Styles */
+.foto-container {
+    width: 55px;
+    height: 65px;
+}
+
+.foto-pegawai {
+    width: 55px;
+    height: 65px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid var(--green-light);
+    background: var(--gray-100);
+}
+
+.foto-placeholder {
+    width: 55px;
+    height: 65px;
+    background: linear-gradient(135deg, var(--green-pale) 0%, var(--green-light) 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--green-dark);
+    font-size: 20px;
+}
+
+/* NIP Style */
+.nip-text {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: var(--green-dark);
+    font-size: 0.88rem;
+    background: var(--green-pale);
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+/* Pangkat Badge */
+.pangkat-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+    color: #92400e;
+    border-radius: 15px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+/* Jabatan Styles */
+.jabatan-label {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    margin-bottom: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.jabatan-value {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.unit-kerja {
+    font-size: 0.88rem;
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+.unit-kerja i {
+    color: var(--green);
+    margin-right: 5px;
+}
+
+/* Download Button */
+.btn-download-sk {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, var(--blue) 0%, #2563eb 100%);
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-download-sk:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    color: white;
+}
+
+.no-link {
+    color: var(--gray-500);
+    font-size: 0.82rem;
+    font-style: italic;
+}
+
+/* Loading State */
+.loading-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--green-pale);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state i {
+    font-size: 70px;
+    color: var(--gray-200);
+    margin-bottom: 20px;
+}
+
+.empty-state h4 {
+    color: var(--gray-500);
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: var(--gray-500);
+    font-size: 0.95rem;
+}
+
+/* Initial State */
+.initial-state {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.initial-state i {
+    font-size: 80px;
+    color: var(--green-light);
+    margin-bottom: 25px;
+}
+
+.initial-state h3 {
+    color: var(--text-dark);
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.initial-state p {
+    color: var(--gray-500);
+    font-size: 1rem;
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+/* Error Alert */
+.error-alert {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.error-alert i {
+    font-size: 1.2rem;
+}
+
+/* Info Box */
+.info-box {
+    background: var(--green-pale);
+    border-left: 4px solid var(--green);
+    padding: 15px 20px;
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.info-box i {
+    color: var(--green);
+    font-size: 1.1rem;
+    margin-top: 2px;
+}
+
+.info-box p {
+    margin: 0;
+    color: var(--text-dark);
+    font-size: 0.92rem;
+}
+
+/* Footer */
+.app-footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--gray-500);
+    font-size: 0.85rem;
+}
+
+.app-footer a {
+    color: var(--green);
+    text-decoration: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .app-header h1 {
+        font-size: 1.4rem;
+    }
+    
+    .search-box {
+        flex-direction: column;
+    }
+    
+    .search-input-group {
+        min-width: 100%;
+    }
+    
+    .btn-search, .btn-reset {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .table thead th,
+    .table tbody td {
+        padding: 10px 8px;
+        font-size: 0.82rem;
+    }
+    
+    .results-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="app-header">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between flex-wrap">
+            <div>
+                <h1><i class="fas fa-file-signature me-2"></i>SK JFK - Pencarian Data Pegawai</h1>
+                <p>Sistem Informasi Surat Keputusan Jenjang Karier | Dinas Kesehatan Kutai Kartanegara</p>
+            </div>
+            <div class="d-none d-md-block">
+                <span class="badge bg-white text-success px-3 py-2 fs-6">
+                    <i class="fas fa-database me-1"></i> Web App v1.0
+                </span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="main-container">
+    
+    <!-- Search Section -->
+    <section class="search-section">
+        <h2><i class="fas fa-search text-success me-2"></i>Pencarian Data SK JFK</h2>
+        <p class="subtitle">Masukkan Nomor Induk Pegawai (NIP) untuk mencari data Surat Keputusan Jenjang Karier</p>
+        
+        <div class="info-box">
+            <i class="fas fa-info-circle"></i>
+            <p>Ketik minimal 10 digit NIP untuk pencarian yang akurat. Sistem akan mencocokkan data berdasarkan bagian dari NIP yang Anda masukkan.</p>
+        </div>
+        
+        <div class="search-box">
+            <div class="search-input-group">
+                <i class="fas fa-id-card"></i>
+                <input type="text" id="searchNipInput" 
+                       placeholder="Masukkan NIP (contoh: 198501012010011001)" 
+                       onkeypress="handleKeyPress(event)">
+            </div>
+            <button class="btn-search" onclick="searchByNip()">
+                <i class="fas fa-search"></i> Cari Data
+            </button>
+            <button class="btn-reset" onclick="clearSearch()">
+                <i class="fas fa-eraser"></i> Reset
+            </button>
+        </div>
+    </section>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="results-section loading-state" style="display: none;">
+        <div class="spinner"></div>
+        <h5 style="color: var(--gray-500);">Mencari data...</h5>
+        <p style="color: var(--gray-500);">Mohon tunggu sebentar</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="results-section" style="display: none;">
+        <div class="error-alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="errorMessage">Terjadi kesalahan saat mengambil data</span>
+        </div>
+    </div>
+
+    <!-- Empty/No Results State -->
+    <div id="emptyState" class="results-section empty-state" style="display: none;">
+        <i class="fas fa-user-slash"></i>
+        <h4>Data Tidak Ditemukan</h4>
+        <p>Tidak ditemukan data SK JFK untuk NIP yang Anda masukkan.<br>Pastikan NIP sudah benar dan coba lagi.</p>
+    </div>
+
+    <!-- Initial State -->
+    <div id="initialState" class="results-section initial-state">
+        <i class="fas fa-file-signature"></i>
+        <h3>Siap Mencari Data</h3>
+        <p>Masukkan NIP pada kolom pencarian di atas untuk menampilkan data Surat Keputusan Jenjang Karier pegawai.</p>
+    </div>
+
+    <!-- Results Table -->
+    <div id="resultsSection" class="results-section" style="display: none;">
+        <div class="results-header">
+            <h3><i class="fas fa-table text-success me-2"></i>Hasil Pencarian</h3>
+            <span class="results-count" id="resultsCount">0 data ditemukan</span>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Foto</th>
+                        <th style="width: 180px;">NIP</th>
+                        <th>Pangkat/Golongan Ruang</th>
+                        <th>Unit Kerja</th>
+                        <th>Jabatan Awal</th>
+                        <th>Jabatan Sekarang</th>
+                        <th style="width: 150px;">Download Dokumen</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mt-3 text-muted small" id="resultsInfo"></div>
+    </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="app-footer">
+    <p>&copy; 2026 Timker SDM Kesehatan | Dinas Kesehatan Kabupaten Kutai Kartanegara</p>
+    <p class="mt-1">Powered by Google Apps Script</p>
+</footer>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script>
+// ============================================
+// CONFIGURATION
+// ============================================
+
+/**
+ * Web App URL akan otomatis terisi saat di-deploy
+ * Tidak perlu hardcode URL di sini
+ */
+const WEB_APP_URL = window.location.href.split('?')[0];
+
+// ============================================
+// SEARCH FUNCTIONS
+// ============================================
+
+/**
+ * handleKeyPress() - Handle Enter key press
+ */
+function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+        searchByNip();
+    }
+}
+
+/**
+ * searchByNip() - Main search function
+ */
+async function searchByNip() {
+    const nipInput = document.getElementById('searchNipInput');
+    const nip = nipInput.value.trim();
+    
+    // Validation
+    if (!nip) {
+        showError('Masukkan NIP terlebih dahulu!');
+        return;
+    }
+    
+    if (nip.length < 10) {
+        showError('NIP minimal 10 digit! Silakan masukkan NIP yang lengkap.');
+        return;
+    }
+    
+    // Show loading state
+    showLoading();
+    
+    try {
+        // Call Google Apps Script Web App
+        const response = await fetch(WEB_APP_URL + '?action=searchByNip&nip=' + encodeURIComponent(nip));
+        
+        if (!response.ok) {
+            throw new Error('Gagal terhubung ke server. Status: ' + response.status);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success && result.data && result.data.length > 0) {
+            // Display results
+            displayResults(result.data, nip);
+        } else {
+            // No results
+            showEmpty();
+        }
+        
+    } catch (error) {
+        console.error('Search error:', error);
+        showError('Error: ' + error.message + '. Pastikan Web App sudah di-deploy dengan benar.');
+    }
+}
+
+/**
+ * displayResults() - Render search results to table
+ */
+function displayResults(data, queryNip) {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    
+    data.forEach((item, index) => {
+        const row = document.createElement('tr');
+        
+        // Build photo HTML
+        let fotoHtml = '';
+        if (item.foto) {
+            fotoHtml = `<img src="${escapeHtml(item.foto)}" alt="Foto ${escapeHtml(item.nama || 'Pegawai')}" 
+                         class="foto-pegawai" 
+                         onerror="this.outerHTML='<div class=\\'foto-placeholder\\'><i class=\\'fas fa-user\\'></i></div>'">`;
+        } else {
+            fotoHtml = `<div class="foto-placeholder"><i class="fas fa-user"></i></div>`;
+        }
+        
+        // Pangkat badge
+        const pangkatBadge = item.pangkat ? 
+            `<span class="pangkat-badge">${escapeHtml(item.pangkat)}</span>` : '<span class="text-muted">-</span>';
+        
+        // Download link
+        const downloadLink = item.driveLink ? 
+            `<a href="${escapeHtml(item.driveLink)}" target="_blank" class="btn-download-sk">
+                <i class="fas fa-download"></i> Download
+             </a>` : 
+             '<span class="no-link"><i class="fas fa-link-slash"></i> Tidak tersedia</span>';
+        
+        row.innerHTML = `
+            <td><div class="foto-container">${fotoHtml}</div></td>
+            <td><span class="nip-text">${escapeHtml(item.nip || '-')}</span></td>
+            <td>${pangkatBadge}</td>
+            <td><span class="unit-kerja"><i class="fas fa-building"></i>${escapeHtml(item.unitKerja || '-')}</span></td>
+            <td>
+                <div class="jabatan-label">Jabatan Awal</div>
+                <div class="jabatan-value">${escapeHtml(item.jabatanAwal || '-')}</div>
+            </td>
+            <td>
+                <div class="jabatan-label">Jabatan Sekarang</div>
+                <div class="jabatan-value">${escapeHtml(item.jabatanSekarang || '-')}</div>
+            </td>
+            <td style="text-align: center;">${downloadLink}</td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+    
+    // Update count and info
+    document.getElementById('resultsCount').textContent = data.length + ' data ditemukan';
+    document.getElementById('resultsInfo').innerHTML = `
+        <i class="fas fa-check-circle text-success"></i> 
+        Pencarian untuk NIP: <strong>${escapeHtml(queryNip)}</strong> | 
+        Waktu: ${new Date().toLocaleString('id-ID')}
+    `;
+    
+    // Show results section
+    hideAllStates();
+    document.getElementById('resultsSection').style.display = 'block';
+}
+
+/**
+ * clearSearch() - Reset search form and results
+ */
+function clearSearch() {
+    document.getElementById('searchNipInput').value = '';
+    hideAllStates();
+    document.getElementById('initialState').style.display = 'block';
+    document.getElementById('tableBody').innerHTML = '';
+}
+
+// ============================================
+// STATE MANAGEMENT FUNCTIONS
+// ============================================
+
+function showLoading() {
+    hideAllStates();
+    document.getElementById('loadingState').style.display = 'block';
+}
+
+function showError(message) {
+    hideAllStates();
+    document.getElementById('errorMessage').textContent = message;
+    document.getElementById('errorState').style.display = 'block';
+}
+
+function showEmpty() {
+    hideAllStates();
+    document.getElementById('emptyState').style.display = 'block';
+}
+
+function hideAllStates() {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('initialState').style.display = 'none';
+    document.getElementById('resultsSection').style.display = 'none';
+}
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+/**
+ * escapeHtml() - Prevent XSS attacks
+ */
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+
+// Focus on input when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('searchNipInput').focus();
+});
+</script>
+
+</body>
+</html>
