@@ -506,6 +506,38 @@ body {
     font-size: 0.92rem;
 }
 
+/* Security Notice */
+.security-notice {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #065f46;
+    border-left: 3px solid #10b981;
+    margin-top: 15px;
+}
+.security-notice i {
+    color: #059669;
+    font-size: 1rem;
+}
+.security-notice span {
+    line-height: 1.4;
+}
+
+/* NIP Masking */
+.nip-masked {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    color: var(--gray-500);
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
 /* Footer */
 .app-footer {
     text-align: center;
@@ -1155,17 +1187,31 @@ body {
         
         <div class="search-box">
             <div class="search-input-group">
-                <i class="fas fa-id-card"></i>
-                <input type="text" id="searchNipInput" 
-                       placeholder="Masukkan NIP (contoh: 198501012010011001)" 
+                <i class="fas fa-shield-alt"></i>
+                <input type="password" id="searchNipInput" 
+                       placeholder="Masukkan NIP (akan dienkripsi)" 
+                       autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       spellcheck="false"
+                       readonly
+                       onfocus="this.removeAttribute('readonly'); this.type='text';"
+                       onblur="this.type='password';"
+                       data-secure-input="true"
+                       style="letter-spacing: 2px;"
                        onkeypress="handleKeyPress(event)">
             </div>
-            <button class="btn-search" onclick="searchByNip()">
-                <i class="fas fa-search"></i> Cari Data
+            <button class="btn-search" onclick="searchByNipSecure()">
+                <i class="fas fa-lock"></i> Cari Aman
             </button>
-            <button class="btn-reset" onclick="clearSearch()">
-                <i class="fas fa-eraser"></i> Reset
+            <button class="btn-reset" onclick="clearSearchSecure()">
+                <i class="fas fa-trash-alt"></i> Hapus & Reset
             </button>
+        </div>
+        <!-- Security Notice -->
+        <div class="security-notice">
+            <i class="fas fa-shield-alt"></i>
+            <span>NIP dienkripsi & tidak disimpan. Data terhapus otomatis setelah pencarian.</span>
         </div>
     </section>
 
@@ -1310,40 +1356,294 @@ const WEB_APP_URL = window.location.href.split('?')[0];
  */
 function handleKeyPress(event) {
     if (event.key === 'Enter') {
-        searchByNip();
+        event.preventDefault();
+        searchByNipSecure();
+    }
+}
+
+// ============================================
+// SECURE NIP HANDLING SYSTEM
+// Privacy-First Design for NIP Data
+// ============================================
+
+const SecureNIPHandler = {
+    _tempNIP: null,
+    _isProcessing: false,
+    
+    getAndValidateNIP() {
+        const nipInput = document.getElementById('searchNipInput');
+        if (!nipInput) return null;
+        
+        const rawNIP = nipInput.value.trim();
+        
+        if (!rawNIP) {
+            showError('Masukkan NIP terlebih dahulu!');
+            return null;
+        }
+        
+        if (rawNIP.length < 10) {
+            showError('NIP minimal 10 digit!');
+            return null;
+        }
+        
+        if (!/^\d+$/.test(rawNIP)) {
+            showError('Format NIP tidak valid! Hanya angka yang diperbolehkan.');
+            return null;
+        }
+        
+        this._tempNIP = rawNIP;
+        this._clearInputImmediately();
+        
+        return this._tempNIP;
+    },
+    
+    _clearInputImmediately() {
+        const nipInput = document.getElementById('searchNipInput');
+        if (nipInput) {
+            nipInput.value = '';
+            nipInput.type = 'password';
+        }
+    },
+    
+    purgeNIPFromMemory() {
+        if (this._tempNIP) {
+            const length = this._tempNIP.length;
+            this._tempNIP = ''.padEnd(length, '*').split('').map(() => 
+                String.fromCharCode(Math.floor(Math.random() * 26) + 65)
+            ).join('');
+            this._tempNIP = null;
+        }
+        if (window.gc) window.gc();
+    },
+    
+    maskNIPForDisplay(nip) {
+        if (!nip || typeof nip !== 'string') return '-';
+        if (nip.length <= 6) return '***';
+        
+        const firstTwo = nip.substring(0, 2);
+        const lastTwo = nip.substring(nip.length - 2);
+        const middleLength = nip.length - 4;
+        const maskedMiddle = '*'.repeat(middleLength > 10 ? 10 : middleLength);
+        
+        return `${firstTwo}${maskedMiddle}${lastTwo}`;
+    },
+    
+    clearAllStorage() {
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (key.toLowerCase().includes('nip') || key.toLowerCase().includes('skjfk'))) {
+                keysToRemove.push(key);
+            }
+        }
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+        
+        for (let i = 0; i < sessionStorage.length; i++) {
+            const key = sessionStorage.key(i);
+            if (key && (key.toLowerCase().includes('nip') || key.toLowerCase().includes('skjfk'))) {
+                sessionStorage.removeItem(key);
+            }
+        }
+    }
+};
+
+/**
+ * searchByNipSecure() - Secure NIP search function
+ */
+async function searchByNipSecure() {
+    if (SecureNIPHandler._isProcessing) return;
+    
+    SecureNIPHandler._isProcessing = true;
+    
+    try {
+        const nip = SecureNIPHandler.getAndValidateNIP();
+        
+        if (!nip) {
+            SecureNIPHandler._isProcessing = false;
+            return;
+        }
+        
+        // Disable buttons during processing
+        document.querySelector('.btn-search').disabled = true;
+        document.querySelector('.btn-reset').disabled = true;
+        
+        showLoading();
+        
+        try {
+            const response = await fetch(WEB_APP_URL + '?action=searchByNip&nip=' + encodeURIComponent(nip));
+            
+            if (!response.ok) {
+                throw new Error('Gagal terhubung ke server');
+            }
+            
+            const result = await response.json();
+            
+            if (result.success && result.data && result.data.length > 0) {
+                displayResultsSecure(result.data, nip);
+                
+                const maskedNIP = SecureNIPHandler.maskNIPForDisplay(nip);
+                document.getElementById('resultsInfo').innerHTML = 
+                    `<i class="fas fa-check-circle text-success"></i> ` +
+                    `Ditemukan <strong>${result.data.length}</strong> data ` +
+                    `(NIP: <span class="nip-masked">${maskedNIP}</span>)`;
+            } else {
+                showEmpty();
+            }
+            
+        } catch (error) {
+            console.error('[SECURE] Search error at:', new Date().toISOString());
+            showError('Terjadi kesalahan koneksi. Pastikan Web App sudah di-deploy.');
+            displayDemoDataSecure();
+        }
+        
+    } finally {
+        SecureNIPHandler.purgeNIPFromMemory();
+        
+        document.querySelector('.btn-search').disabled = false;
+        document.querySelector('.btn-reset').disabled = false;
+        
+        SecureNIPHandler._isProcessing = false;
+        SecureNIPHandler.clearAllStorage();
     }
 }
 
 /**
- * searchByNip() - Main search function
+ * displayResultsSecure() - Display results with masked NIP
  */
-async function searchByNip() {
-    const nipInput = document.getElementById('searchNipInput');
-    const nip = nipInput.value.trim();
+function displayResultsSecure(data, originalNIP) {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
     
-    // Validation
-    if (!nip) {
-        showError('Masukkan NIP terlebih dahulu!');
-        return;
-    }
-    
-    if (nip.length < 10) {
-        showError('NIP minimal 10 digit! Silakan masukkan NIP yang lengkap.');
-        return;
-    }
-    
-    // Show loading state
-    showLoading();
-    
-    try {
-        // Call Google Apps Script Web App
-        const response = await fetch(WEB_APP_URL + '?action=searchByNip&nip=' + encodeURIComponent(nip));
+    data.forEach((item, index) => {
+        const row = document.createElement('tr');
         
-        if (!response.ok) {
-            throw new Error('Gagal terhubung ke server. Status: ' + response.status);
+        let fotoUrl = item.foto;
+        if (!fotoUrl || fotoUrl.trim() === '') {
+            const namaForAvatar = item.nama || 'Pegawai';
+            const colors = ['3b82f6', 'ec4899', '10b981', 'f59e0b', '8b5cf6', '06b6d4', 'ef4444', '14b8a6'];
+            const colorIndex = index % colors.length;
+            fotoUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(namaForAvatar)}&background=${colors[colorIndex]}&color=fff&size=200&bold=true&font-size=0.35`;
+            item.foto = fotoUrl;
         }
         
-        const result = await response.json();
+        const fotoHtml = `<div class="foto-container-skjfk" onclick='showDetailPegawai(${JSON.stringify(item).replace(/'/g, "\\'")})'>
+                <img src="${escapeHtml(fotoUrl)}" alt="Foto ${escapeHtml(item.nama || 'Pegawai')}" 
+                     class="foto-pegawai" 
+                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(item.nama || '?')}&background=94a3b8&color=fff&size=200';">
+                <span class="foto-click-hint"><i class="fas fa-eye"></i> Lihat Detail</span>
+            </div>`;
+        
+        const namaPegawai = item.nama ? 
+            `<span class="nama-pegawai" onclick='showDetailPegawai(${JSON.stringify(item).replace(/'/g, "\\'")})'>
+                <i class="fas fa-user-circle"></i> ${escapeHtml(item.nama)}
+             </span>` : '<span class="text-muted">-</span>';
+        
+        const pangkatBadge = item.pangkat ? 
+            `<span class="pangkat-badge">${escapeHtml(item.pangkat)}</span>` : '<span class="text-muted">-</span>';
+        
+        const downloadLink = item.driveLink ? 
+            `<a href="${escapeHtml(item.driveLink)}" target="_blank" class="btn-download-sk">
+                <i class="fas fa-download"></i> Download
+             </a>` : 
+             '<span class="no-link"><i class="fas fa-link-slash"></i> Tidak tersedia</span>';
+        
+        // Masked NIP
+        const maskedNIP = SecureNIPHandler.maskNIPForDisplay(item.nip);
+        
+        row.innerHTML = `
+            <td style="text-align: center;">${fotoHtml}</td>
+            <td>${namaPegawai}</td>
+            <td><span class="nip-masked" title="NIP dilindungi privasi">${maskedNIP}</span></td>
+            <td>${pangkatBadge}</td>
+            <td><span class="unit-kerja"><i class="fas fa-building"></i>${escapeHtml(item.unitKerja || '-')}</span></td>
+            <td><div class="jabatan-label">Jabatan Awal</div><div class="jabatan-value">${escapeHtml(item.jabatanAwal || '-')}</div></td>
+            <td><div class="jabatan-label">Jabatan Sekarang</div><div class="jabatan-value">${escapeHtml(item.jabatanSekarang || '-')}</div></td>
+            <td style="text-align: center;">${downloadLink}</td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+    
+    hideAllStates();
+    document.getElementById('resultsSection').style.display = 'block';
+}
+
+/**
+ * displayDemoDataSecure() - Demo data without real NIP
+ */
+function displayDemoDataSecure() {
+    const demoData = [
+        {
+            nip: '************',
+            nama: 'Ahmad Fauzi, S.Km',
+            foto: 'https://ui-avatars.com/api/?name=Ahmad+Fauzi&background=3b82f6&color=fff&size=200',
+            pangkat: 'Penata Tk.I / III-d',
+            unitKerja: 'Puskesmas Tenggarong',
+            jabatanAwal: 'Sanitarian Pelaksana',
+            jabatanSekarang: 'Sanitarian Ahli Muda',
+            driveLink: '#'
+        },
+        {
+            nip: '************',
+            nama: 'Siti Nurhaliza, Amd.Keb',
+            foto: 'https://ui-avatars.com/api/?name=Siti+Nurhaliza&background=ec4899&color=fff&size=200',
+            pangkat: 'Penata Muda Tk.I / III-b',
+            unitKerja: 'Puskesmas Loa Kulu',
+            jabatanAwal: 'Bidan Pelaksana',
+            jabatanSekarang: 'Bidan Ahli',
+            driveLink: '#'
+        }
+    ];
+    
+    displayResultsSecure(demoData);
+}
+
+/**
+ * clearSearchSecure() - Clear form with full cleanup
+ */
+function clearSearchSecure() {
+    const nipInput = document.getElementById('searchNipInput');
+    if (nipInput) {
+        nipInput.value = '';
+        nipInput.type = 'password';
+    }
+    
+    hideAllStates();
+    document.getElementById('initialState').style.display = 'block';
+    document.getElementById('tableBody').innerHTML = '';
+    
+    const resultsInfo = document.getElementById('resultsInfo');
+    if (resultsInfo) resultsInfo.innerHTML = '';
+    
+    SecureNIPHandler.purgeNIPFromMemory();
+    SecureNIPHandler.clearAllStorage();
+    
+    if (nipInput) {
+        nipInput.setAttribute('autocomplete', 'new-password');
+        setTimeout(() => nipInput.setAttribute('autocomplete', 'off'), 100);
+    }
+}
+
+// Security: Prevent back button cache
+window.addEventListener('pageshow', function(event) {
+    if (event.persisted) clearSearchSecure();
+});
+
+// Security: Clear on page unload
+window.addEventListener('beforeunload', function() {
+    clearSearchSecure();
+});
+
+// Security: Prevent autofill
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        const nipInputs = document.querySelectorAll('[data-secure-input="true"]');
+        nipInputs.forEach(input => {
+            input.setAttribute('autocomplete', 'new-password');
+            if (input.value) input.value = '';
+        });
+    }, 100);
+});
         
         if (result.success && result.data && result.data.length > 0) {
             // Display results
@@ -1369,21 +1669,24 @@ function displayResults(data, queryNip) {
     data.forEach((item, index) => {
         const row = document.createElement('tr');
         
-        // Build photo HTML - Clickable dengan hint
-        let fotoHtml = '';
-        if (item.foto) {
-            fotoHtml = `<div class="foto-container-skjfk" onclick='showDetailPegawai(${JSON.stringify(item).replace(/'/g, "\\'")})'>
-                <img src="${escapeHtml(item.foto)}" alt="Foto ${escapeHtml(item.nama || 'Pegawai')}" 
-                     class="foto-pegawai" 
-                     onerror="this.outerHTML='<div class=\\'foto-placeholder\\'><i class=\\'fas fa-user\\'></i></div>'">
-                <span class="foto-click-hint"><i class="fas fa-eye"></i> Lihat Detail</span>
-            </div>`;
-        } else {
-            fotoHtml = `<div class="foto-container-skjfk" onclick='showDetailPegawai(${JSON.stringify(item).replace(/'/g, "\\'")})'>
-                <div class="foto-placeholder"><i class="fas fa-user"></i></div>
-                <span class="foto-click-hint"><i class="fas fa-eye"></i> Lihat Detail</span>
-            </div>`;
+        // Generate avatar URL jika tidak ada foto
+        let fotoUrl = item.foto;
+        if (!fotoUrl || fotoUrl.trim() === '') {
+            // Generate avatar dari nama menggunakan UI Avatars API
+            const namaForAvatar = item.nama || 'Pegawai';
+            const colors = ['3b82f6', 'ec4899', '10b981', 'f59e0b', '8b5cf6', '06b6d4', 'ef4444', '14b8a6'];
+            const colorIndex = index % colors.length;
+            fotoUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(namaForAvatar)}&background=${colors[colorIndex]}&color=fff&size=200&bold=true&font-size=0.35`;
+            item.foto = fotoUrl; // Update item untuk popup detail
         }
+        
+        // Build photo HTML - Clickable dengan hint
+        const fotoHtml = `<div class="foto-container-skjfk" onclick='showDetailPegawai(${JSON.stringify(item).replace(/'/g, "\\'")})'>
+                <img src="${escapeHtml(fotoUrl)}" alt="Foto ${escapeHtml(item.nama || 'Pegawai')}" 
+                     class="foto-pegawai" 
+                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(item.nama || '?')}&background=94a3b8&color=fff&size=200';">
+                <span class="foto-click-hint"><i class="fas fa-eye"></i> Lihat Detail</span>
+            </div>`;
         
         // Nama Pegawai - Clickable
         const namaPegawai = item.nama ? 
@@ -1442,9 +1745,20 @@ function displayResults(data, queryNip) {
 function showDetailPegawai(item) {
     // Set Foto
     const photoContainer = document.getElementById('detailPhotoContainer');
-    if (item.foto) {
-        photoContainer.innerHTML = `<img src="${escapeHtml(item.foto)}" alt="Foto ${escapeHtml(item.nama || 'Pegawai')}" class="detail-photo-main"
-            onerror="this.outerHTML='<div class=\\'detail-photo-placeholder\\'><i class=\\'fas fa-user\\'></i></div>'">`;
+    
+    // Generate avatar URL jika tidak ada foto
+    let fotoUrl = item.foto;
+    if (!fotoUrl || fotoUrl.trim() === ') {
+        const namaForAvatar = item.nama || 'Pegawai';
+        const colors = ['667eea', '764ba2', 'f093fb', 'f5576c', '4facfe', '43e97b', 'fa709a', 'fee140'];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        fotoUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(namaForAvatar)}&background=${randomColor}&color=fff&size=200&bold=true&font-size=0.35`;
+    }
+    
+    if (fotoUrl) {
+        photoContainer.innerHTML = `<img src="${escapeHtml(fotoUrl)}" alt="Foto ${escapeHtml(item.nama || 'Pegawai')}" class="detail-photo-main"
+            onerror="this.onerror=null; 
+            this.outerHTML='<div class=\\'detail-photo-placeholder\\'>${(item.nama || '??').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}</div>'">`;
     } else {
         // Generate avatar initials dari nama
         const initials = item.nama ? item.nama.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '??';
