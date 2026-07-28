@@ -3450,6 +3450,7 @@ body {
             <li><a href="#" onclick="openPopup('popupVideo')"><i class="fas fa-video"></i> Video</a></li>
             <li><a href="#" onclick="openPopup('popupPeraturan')"><i class="fas fa-gavel"></i> Peraturan</a></li>
             <li><a href="#" onclick="openPopup('popupSertifikat')"><i class="fas fa-certificate"></i> Sertifikat</a></li>
+            <li><a href="#" onclick="openPopup('popupSkJfkNew')"><i class="fas fa-file-signature"></i> SK JFK New</a></li>
         </ul>
     </div>
     
@@ -5771,6 +5772,179 @@ body {
     </div>
 </div>
 
+<!-- SK JFK NEW - PENCARIAN BERDASARKAN NIP -->
+<div class="modal-popup-overlay gallery-modal" id="popupSkJfkNew">
+    <div class="modal-box" style="max-width: 95%; width: 1200px;">
+        <div class="modal-top">
+            <h3><i class="fas fa-file-signature"></i> SK JFK (Surat Keputusan Jenjang Karier) - Pencarian NIP</h3>
+            <button class="close-modal-btn" onclick="closePopup('popupSkJfkNew')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body-content" style="max-height: 75vh; overflow-y: auto; padding: 20px;">
+            
+            <p style="color: var(--gray-500); margin-bottom: 20px; font-size: 14px;">
+                <i class="fas fa-info-circle" style="color: var(--green);"></i> 
+                Pencarian data Surat Keputusan Jenjang Karier (SK JFK) berdasarkan Nomor Induk Pegawai (NIP). Masukkan NIP untuk mencari data pegawai.
+            </p>
+
+            <!-- Search Box -->
+            <div class="search-box-skjfk" style="margin-bottom: 25px;">
+                <div class="input-group">
+                    <span class="input-group-text" style="background: var(--green); color: white; border: none;">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <input type="text" id="searchNipInput" class="form-control" 
+                           placeholder="Masukkan NIP (contoh: 198501012010011001)" 
+                           style="border-left: none; padding: 12px 15px; font-size: 15px;"
+                           onkeypress="if(event.key === 'Enter') searchByNip()">
+                    <button class="btn btn-primary" onclick="searchByNip()" 
+                            style="background: var(--green); border: none; padding: 10px 25px; font-weight: 600;">
+                        <i class="fas fa-search"></i> Cari
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="clearSearchSkJfk()" 
+                            style="padding: 10px 20px; margin-left: 5px;">
+                        <i class="fas fa-eraser"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="skJfkLoading" class="text-center" style="display: none; padding: 30px;">
+                <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3" style="color: var(--gray-500);">Mencari data...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="skJfkError" class="alert alert-danger" style="display: none;"></div>
+
+            <!-- Results Table -->
+            <div id="skJfkResults" style="display: none;">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered" style="font-size: 14px;">
+                        <thead style="background: var(--green); color: white;">
+                            <tr>
+                                <th style="width: 80px;">Foto</th>
+                                <th style="width: 180px;">NIP</th>
+                                <th>Pangkat/Golongan Ruang</th>
+                                <th>Unit Kerja</th>
+                                <th>Jabatan Awal</th>
+                                <th>Jabatan Sekarang</th>
+                                <th style="width: 150px;">Download Dokumen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="skJfkTableBody">
+                            <!-- Data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Results Info -->
+                <div id="skJfkResultsInfo" class="mt-3" style="color: var(--gray-500); font-size: 13px;"></div>
+            </div>
+
+            <!-- No Results Message -->
+            <div id="skJfkNoResults" class="text-center" style="display: none; padding: 40px;">
+                <i class="fas fa-user-slash" style="font-size: 48px; color: var(--gray-200);"></i>
+                <h5 class="mt-3" style="color: var(--gray-500);">Data Tidak Ditemukan</h5>
+                <p style="color: var(--gray-500);">Tidak ditemukan data SK JFK untuk NIP yang dicari.</p>
+            </div>
+
+            <!-- Initial State -->
+            <div id="skJfkInitial" class="text-center" style="padding: 40px;">
+                <i class="fas fa-file-signature" style="font-size: 48px; color: var(--green-pale);"></i>
+                <h5 class="mt-3" style="color: var(--gray-500);">Pencarian Data SK JFK</h5>
+                <p style="color: var(--gray-500);">Masukkan NIP pada kolom pencarian di atas untuk menampilkan data SK JFK.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Style untuk SK JFK Popup -->
+<style>
+.search-box-skjfk .input-group {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 8px;
+    overflow: hidden;
+}
+.search-box-skjfk .form-control:focus {
+    box-shadow: none;
+    border-color: var(--green-light);
+}
+#skJfkTableBody td {
+    vertical-align: middle;
+    padding: 12px 10px;
+}
+#skJfkTableBody tr:hover {
+    background-color: var(--green-pale) !important;
+}
+.foto-pegawai {
+    width: 50px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 2px solid var(--green-light);
+    background: var(--gray-100);
+}
+.foto-placeholder {
+    width: 50px;
+    height: 60px;
+    background: var(--green-pale);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--green-dark);
+    font-size: 18px;
+}
+.btn-download-sk {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    background: var(--blue);
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+.btn-download-sk:hover {
+    background: #2563eb;
+    color: white;
+    transform: translateY(-1px);
+}
+.nip-text {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: var(--green-dark);
+    font-size: 13px;
+}
+.pangkat-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--gold-light);
+    color: #92400e;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.jabatan-label {
+    font-size: 12px;
+    color: var(--gray-500);
+    margin-bottom: 2px;
+}
+.jabatan-value {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+.unit-kerja {
+    font-size: 13px;
+    color: var(--text-dark);
+}
+</style>
+
 <!-- ===== SCRIPTS ===== -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
@@ -6905,6 +7079,157 @@ async function testConnection() {
         console.error('❌ Koneksi gagal:', error);
         return false;
     }
+}
+
+// ==================== SK JFK SEARCH FUNCTIONS ====================
+
+/**
+ * Konfigurasi URL Web App untuk SK JFK
+ * Ganti dengan URL Google Apps Script Web App Anda
+ */
+const SK_JFK_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyU4s8Pn1j-xF-Wdx2NCB5kACalEbZp6564QrJbLPOk2jqi2CueC1D7R-RMrexgCazG/exec';
+
+/**
+ * searchByNip() - Mencari data SK JFK berdasarkan NIP
+ */
+async function searchByNip() {
+    const nipInput = document.getElementById('searchNipInput');
+    const nip = nipInput.value.trim();
+    
+    // Validasi input
+    if (!nip) {
+        showNotification('warning', 'Perhatian', 'Masukkan NIP terlebih dahulu!');
+        return;
+    }
+    
+    if (nip.length < 10) {
+        showNotification('warning', 'Perhatian', 'NIP minimal 10 digit!');
+        return;
+    }
+    
+    // Tampilkan loading, sembunyikan yang lain
+    document.getElementById('skJfkLoading').style.display = 'block';
+    document.getElementById('skJfkResults').style.display = 'none';
+    document.getElementById('skJfkNoResults').style.display = 'none';
+    document.getElementById('skJfkError').style.display = 'none';
+    document.getElementById('skJfkInitial').style.display = 'none';
+    
+    try {
+        // Panggil Google Apps Script Web App
+        const response = await fetch(SK_JFK_WEB_APP_URL + '?action=searchByNip&nip=' + encodeURIComponent(nip));
+        
+        if (!response.ok) {
+            throw new Error('Gagal terhubung ke server');
+        }
+        
+        const result = await response.json();
+        
+        // Sembunyikan loading
+        document.getElementById('skJfkLoading').style.display = 'none';
+        
+        if (result.success && result.data && result.data.length > 0) {
+            // Tampilkan hasil
+            displaySkJfkResults(result.data);
+            document.getElementById('skJfkResultsInfo').innerHTML = `<i class="fas fa-check-circle" style="color: var(--green);"></i> Ditemukan ${result.data.length} data untuk NIP: <strong>${nip}</strong>`;
+        } else {
+            // Tidak ada hasil
+            document.getElementById('skJfkNoResults').style.display = 'block';
+        }
+        
+    } catch (error) {
+        console.error('Error searching NIP:', error);
+        document.getElementById('skJfkLoading').style.display = 'none';
+        document.getElementById('skJfkError').style.display = 'block';
+        document.getElementById('skJfkError').innerHTML = `<i class="fas fa-exclamation-triangle"></i> Error: ${error.message}. Pastikan URL Web App sudah dikonfigurasi dengan benar.`;
+        
+        // Tampilkan demo data jika koneksi gagal (untuk testing)
+        displayDemoData(nip);
+    }
+}
+
+/**
+ * displaySkJfkResults() - Menampilkan hasil pencarian ke tabel
+ */
+function displaySkJfkResults(data) {
+    const tbody = document.getElementById('skJfkTableBody');
+    tbody.innerHTML = '';
+    
+    data.forEach((item, index) => {
+        const row = document.createElement('tr');
+        
+        // Foto column
+        let fotoHtml = '';
+        if (item.foto) {
+            fotoHtml = `<img src="${item.foto}" alt="Foto ${item.nama || 'Pegawai'}" class="foto-pegawai" onerror="this.outerHTML='<div class=\\'foto-placeholder\\'><i class=\\'fas fa-user\\'></i></div>'">`;
+        } else {
+            fotoHtml = `<div class="foto-placeholder"><i class="fas fa-user"></i></div>`;
+        }
+        
+        // Pangkat badge
+        const pangkatBadge = item.pangkat ? 
+            `<span class="pangkat-badge">${item.pangkat}</span>` : '-';
+        
+        // Download link
+        const downloadLink = item.driveLink ? 
+            `<a href="${item.driveLink}" target="_blank" class="btn-download-sk">
+                <i class="fas fa-download"></i> Download
+             </a>` : 
+             '<span style="color: var(--gray-500); font-size: 12px;"><i class="fas fa-link-slash"></i> Tidak tersedia</span>';
+        
+        row.innerHTML = `
+            <td style="text-align: center;">${fotoHtml}</td>
+            <td><span class="nip-text">${item.nip || '-'}</span></td>
+            <td>${pangkatBadge}</td>
+            <td class="unit-kerja">${item.unitKerja || '-'}</td>
+            <td>
+                <div class="jabatan-label">Jabatan Awal:</div>
+                <div class="jabatan-value">${item.jabatanAwal || '-'}</div>
+            </td>
+            <td>
+                <div class="jabatan-label">Jabatan Sekarang:</div>
+                <div class="jabatan-value">${item.jabatanSekarang || '-'}</div>
+            </td>
+            <td style="text-align: center;">${downloadLink}</td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+    
+    document.getElementById('skJfkResults').style.display = 'block';
+}
+
+/**
+ * displayDemoData() - Menampilkan data demo untuk testing
+ */
+function displayDemoData(nip) {
+    const demoData = [
+        {
+            nip: nip,
+            nama: 'Ahmad Fauzi, S.Km',
+            foto: '',
+            pangkat: 'Penata Tk.I / III-d',
+            unitKerja: 'Puskesmas Tenggarong',
+            jabatanAwal: 'Sanitarian Pelaksana',
+            jabatanSekarang: 'Sanitarian Ahli Muda',
+            driveLink: 'https://drive.google.com/file/d/EXAMPLE_SK_001/view'
+        }
+    ];
+    
+    displaySkJfkResults(demoData);
+    document.getElementById('skJfkResultsInfo').innerHTML = `<i class="fas fa-info-circle" style="color: var(--gold);"></i> Menampilkan data demo. Ganti dengan URL Web App yang valid untuk data asli.`;
+}
+
+/**
+ * clearSearchSkJfk() - Reset form pencarian SK JFK
+ */
+function clearSearchSkJfk() {
+    document.getElementById('searchNipInput').value = '';
+    document.getElementById('skJfkResults').style.display = 'none';
+    document.getElementById('skJfkNoResults').style.display = 'none';
+    document.getElementById('skJfkError').style.display = 'none';
+    document.getElementById('skJfkLoading').style.display = 'none';
+    document.getElementById('skJfkInitial').style.display = 'block';
+    document.getElementById('skJfkTableBody').innerHTML = '';
 }
 </script>
 
