@@ -1341,11 +1341,13 @@ body {
 // CONFIGURATION
 // ============================================
 
-/**
- * Web App URL akan otomatis terisi saat di-deploy
- * Tidak perlu hardcode URL di sini
- */
-const WEB_APP_URL = window.location.href.split('?')[0];
+// ============================================
+// KONFIGURASI URL WEB APP SK JFK
+// Untuk standalone: URL otomatis dari lokasi saat di-deploy via GAS
+// Untuk embedded: Ganti dengan URL Web App manual jika diperlukan
+// ============================================
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxU7iC8QbHXOj47i0gb44sDP3cY4FQZnK6UWqsrPjbqqsI_-Lv42FymuONN21VrkE0/exec'; // URL Web App Anda
+// Alternative: const WEB_APP_URL = window.location.href.split('?')[0]; // Auto-detect saat deploy GAS
 
 // ============================================
 // SEARCH FUNCTIONS
@@ -1644,20 +1646,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, 100);
 });
-        
-        if (result.success && result.data && result.data.length > 0) {
-            // Display results
-            displayResults(result.data, nip);
-        } else {
-            // No results
-            showEmpty();
-        }
-        
-    } catch (error) {
-        console.error('Search error:', error);
-        showError('Error: ' + error.message + '. Pastikan Web App sudah di-deploy dengan benar.');
-    }
-}
 
 /**
  * displayResults() - Render search results to table
@@ -1748,7 +1736,7 @@ function showDetailPegawai(item) {
     
     // Generate avatar URL jika tidak ada foto
     let fotoUrl = item.foto;
-    if (!fotoUrl || fotoUrl.trim() === ') {
+    if (!fotoUrl || fotoUrl.trim() === '') {
         const namaForAvatar = item.nama || 'Pegawai';
         const colors = ['667eea', '764ba2', 'f093fb', 'f5576c', '4facfe', '43e97b', 'fa709a', 'fee140'];
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
