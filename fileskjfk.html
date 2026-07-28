@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SK JFK - Sistem Informasi Surat Keputusan Jabatan Fungsional Kesehatan</title>
+  <title>SK JFK - Sistem Informasi Surat Keputusan Jenjang Karier</title>
   
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -246,30 +246,80 @@ body {
 }
 
 /* Photo Styles */
-.foto-container {
-    width: 55px;
-    height: 65px;
+.foto-container-skjfk {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
 }
-
 .foto-pegawai {
-    width: 55px;
-    height: 65px;
+    width: 65px;
+    height: 75px;
     object-fit: cover;
-    border-radius: 8px;
-    border: 2px solid var(--green-light);
+    border-radius: 10px;
+    border: 3px solid var(--green-light);
     background: var(--gray-100);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
-
+.foto-pegawai:hover {
+    transform: scale(1.08);
+    border-color: var(--green);
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+}
 .foto-placeholder {
-    width: 55px;
-    height: 65px;
+    width: 65px;
+    height: 75px;
     background: linear-gradient(135deg, var(--green-pale) 0%, var(--green-light) 100%);
-    border-radius: 8px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--green-dark);
-    font-size: 20px;
+    font-size: 24px;
+    border: 3px solid var(--green-light);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.foto-placeholder:hover {
+    transform: scale(1.08);
+    border-color: var(--green);
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+}
+.foto-click-hint {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--green-dark);
+    color: white;
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+    pointer-events: none;
+}
+.foto-container-skjfk:hover .foto-click-hint {
+    opacity: 1;
+}
+.nama-pegawai {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+.nama-pegawai:hover {
+    color: var(--green);
+}
+.nama-pegawai i {
+    color: var(--green);
+    font-size: 12px;
 }
 
 /* NIP Style */
@@ -500,6 +550,575 @@ body {
         align-items: flex-start;
     }
 }
+
+/* ============================================ */
+/* POPUP DETAIL PEGAWAI - SUPER COLORFUL & KEREN */
+/* ============================================ */
+
+/* Overlay with animated gradient background */
+.modal-detail-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, 
+        rgba(139, 92, 246, 0.4) 0%, 
+        rgba(59, 130, 246, 0.4) 25%,
+        rgba(34, 197, 94, 0.4) 50%,
+        rgba(245, 158, 11, 0.4) 75%,
+        rgba(239, 68, 68, 0.4) 100%);
+    z-index: 10000;
+    backdrop-filter: blur(8px);
+    animation: fadeInOverlay 0.4s ease;
+}
+.modal-detail-overlay.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Main Modal Box - Glassmorphism + Gradient Border */
+.modal-detail-box {
+    background: linear-gradient(135deg, 
+        rgba(255,255,255,0.95) 0%, 
+        rgba(255,255,255,0.98) 100%);
+    border-radius: 28px;
+    max-width: 720px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUpModal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 
+        0 30px 80px rgba(0,0,0,0.35),
+        0 0 0 1px rgba(255,255,255,0.8),
+        inset 0 1px 0 rgba(255,255,255,1);
+    position: relative;
+}
+.modal-detail-box::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(45deg, 
+        #ff6b6b, #feca57, #48dbfb, #ff9ff3, 
+        #54a0ff, #5f27cd, #00d2d3, #ff9f43,
+        #ff6b6b);
+    background-size: 400% 400%;
+    border-radius: 30px;
+    z-index: -1;
+    animation: gradientBorder 8s ease infinite;
+    opacity: 0.8;
+}
+@keyframes gradientBorder {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+@keyframes slideUpModal {
+    from { 
+        transform: translateY(60px) scale(0.95);
+        opacity: 0;
+    }
+    to { 
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Decorative Blobs */
+.modal-detail-box::after {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* Header - Rainbow Gradient with Animated Background */
+.modal-detail-header {
+    background: linear-gradient(135deg, 
+        #667eea 0%, 
+        #764ba2 25%,
+        #f093fb 50%,
+        #f5576c 75%,
+        #4facfe 100%);
+    background-size: 200% 200%;
+    color: white;
+    padding: 32px 30px;
+    border-radius: 28px 28px 0 0;
+    position: relative;
+    overflow: hidden;
+    animation: headerGradient 10s ease infinite;
+}
+.modal-detail-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+}
+@keyframes headerGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.modal-detail-header h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    letter-spacing: 0.5px;
+}
+.modal-detail-header h3 i {
+    font-size: 1.6rem;
+    animation: iconPulse 2s ease-in-out infinite;
+}
+@keyframes iconPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+/* Close Button - Glowing Effect */
+.modal-detail-close {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.3);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.modal-detail-close:hover {
+    background: rgba(255,255,255,0.35);
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 6px 25px rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.5);
+}
+
+/* Body Section */
+.modal-detail-body {
+    padding: 35px 30px 30px;
+    background: linear-gradient(180deg, 
+        rgba(255,255,255,0.98) 0%, 
+        rgba(250,253,249,0.98) 100%);
+}
+
+/* Photo Section - Enhanced with Glow Ring */
+.detail-photo-section {
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+.detail-photo-main {
+    width: 160px;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 20px;
+    border: 5px solid transparent;
+    background: linear-gradient(white, white) padding-box,
+                linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c) border-box;
+    box-shadow: 
+        0 15px 40px rgba(102, 126, 234, 0.35),
+        0 5px 15px rgba(0,0,0,0.1);
+    margin-bottom: 18px;
+    transition: all 0.4s ease;
+    animation: photoFloat 3s ease-in-out infinite;
+}
+.detail-photo-main:hover {
+    transform: scale(1.05) rotate(-2deg);
+    box-shadow: 
+        0 20px 50px rgba(102, 126, 234, 0.45),
+        0 8px 25px rgba(0,0,0,0.15);
+}
+@keyframes photoFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* Photo Placeholder - Colorful Avatar */
+.detail-photo-placeholder {
+    width: 160px;
+    height: 190px;
+    background: linear-gradient(135deg, 
+        #667eea 0%, 
+        #764ba2 25%,
+        #f093fb 50%,
+        #f5576c 75%,
+        #4facfe 100%);
+    background-size: 300% 300%;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px;
+    font-size: 65px;
+    color: white;
+    border: 5px solid transparent;
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    box-shadow: 
+        0 15px 40px rgba(118, 75, 162, 0.35),
+        0 5px 15px rgba(0,0,0,0.1);
+    animation: placeholderGradient 5s ease infinite, photoFloat 3s ease-in-out infinite;
+    text-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    font-weight: 600;
+}
+@keyframes placeholderGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Name - Gradient Text Effect */
+.detail-nama {
+    font-size: 1.65rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: textShine 3s linear infinite;
+    line-height: 1.3;
+}
+@keyframes textShine {
+    to { background-position: 200% center; }
+}
+
+/* NIP Badge - Neon Style */
+.detail-nip-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    color: #667eea;
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    box-shadow: 
+        0 4px 15px rgba(102, 126, 234, 0.2),
+        inset 0 1px 0 rgba(255,255,255,0.5);
+    transition: all 0.3s ease;
+}
+.detail-nip-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 8px 25px rgba(102, 126, 234, 0.3),
+        inset 0 1px 0 rgba(255,255,255,0.5);
+}
+.detail-nip-badge i {
+    color: #f5576c;
+}
+
+/* Detail Grid - Modern Card Layout */
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin-top: 28px;
+}
+
+/* Individual Detail Cards - Colorful Variations */
+.detail-item {
+    background: linear-gradient(135deg, 
+        rgba(255,255,255,0.9) 0%, 
+        rgba(248,250,252,0.9) 100%);
+    padding: 20px;
+    border-radius: 16px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+.detail-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    transition: width 0.3s ease;
+}
+.detail-item:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+/* Color Variations for Each Card Type */
+.detail-item:nth-child(1)::before { /* Pangkat - Gold/Orange */
+    background: linear-gradient(180deg, #f59e0b, #f97316);
+}
+.detail-item:nth-child(1):hover {
+    background: linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(249,115,22,0.08) 100%);
+    border-color: rgba(245,158,11,0.3);
+}
+
+.detail-item:nth-child(2)::before { /* Unit Kerja - Blue */
+    background: linear-gradient(180deg, #3b82f6, #2563eb);
+}
+.detail-item:nth-child(2):hover {
+    background: linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(37,99,235,0.08) 100%);
+    border-color: rgba(59,130,246,0.3);
+}
+
+.detail-item:nth-child(3)::before { /* Jabatan Awal - Purple */
+    background: linear-gradient(180deg, #8b5cf6, #7c3aed);
+}
+.detail-item:nth-child(3):hover {
+    background: linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(124,58,237,0.08) 100%);
+    border-color: rgba(139,92,246,0.3);
+}
+
+.detail-item:nth-child(4)::before { /* Jabatan Sekarang - Green */
+    background: linear-gradient(180deg, #22c55e, #16a34a);
+}
+.detail-item:nth-child(4):hover {
+    background: linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(22,163,74,0.08) 100%);
+    border-color: rgba(34,197,94,0.3);
+}
+
+.detail-item.full-width::before { /* NIP Full - Pink/Red */
+    background: linear-gradient(180deg, #ec4899, #db2777);
+}
+.detail-item.full-width:hover {
+    background: linear-gradient(135deg, rgba(236,72,153,0.08) 0%, rgba(219,39,119,0.08) 100%);
+    border-color: rgba(236,72,153,0.3);
+}
+
+.detail-item.full-width {
+    grid-column: span 2;
+}
+
+/* Label Styling - Colored Icons */
+.detail-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gray-500);
+    margin-bottom: 8px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.detail-label i {
+    font-size: 14px;
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+.detail-item:nth-child(1) .detail-label i { /* Pangkat */
+    color: #f59e0b;
+    background: rgba(245,158,11,0.15);
+}
+.detail-item:nth-child(2) .detail-label i { /* Unit Kerja */
+    color: #3b82f6;
+    background: rgba(59,130,246,0.15);
+}
+.detail-item:nth-child(3) .detail-label i { /* Jabatan Awal */
+    color: #8b5cf6;
+    background: rgba(139,92,246,0.15);
+}
+.detail-item:nth-child(4) .detail-label i { /* Jabatan Sekarang */
+    color: #22c55e;
+    background: rgba(34,197,94,0.15);
+}
+.detail-item.full-width .detail-label i { /* NIP */
+    color: #ec4899;
+    background: rgba(236,72,153,0.15);
+}
+.detail-item:hover .detail-label i {
+    transform: scale(1.2) rotate(5deg);
+}
+
+/* Value Styling */
+.detail-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1.5;
+}
+
+/* Pangkat Badge - Golden Shimmer */
+.detail-value.pangkat-value {
+    display: inline-block;
+    background: linear-gradient(135deg, 
+        #fbbf24 0%, 
+        #f59e0b 25%,
+        #d97706 50%,
+        #f59e0b 75%,
+        #fbbf24 100%);
+    background-size: 200% auto;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 25px;
+    font-size: 13px;
+    font-weight: 800;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: 
+        0 4px 15px rgba(245,158,11,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+    animation: goldShimmer 3s linear infinite;
+    letter-spacing: 0.5px;
+}
+@keyframes goldShimmer {
+    to { background-position: 200% center; }
+}
+
+/* Actions Section - Download Button */
+.detail-actions {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 2px dashed rgba(102, 126, 234, 0.2);
+    text-align: center;
+    position: relative;
+}
+.detail-actions::before {
+    content: '✨';
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(250,253,249,0.98) 100%);
+    padding: 0 12px;
+}
+
+/* Download Button - Electric Blue with Glow */
+.btn-download-large {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 40px;
+    background: linear-gradient(135deg, 
+        #4facfe 0%, 
+        #00f2fe 50%,
+        #4facfe 100%);
+    background-size: 200% auto;
+    color: white;
+    border-radius: 16px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 16px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 
+        0 8px 25px rgba(79,172,254,0.45),
+        0 4px 12px rgba(79,172,254,0.3);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    position: relative;
+    overflow: hidden;
+    animation: buttonGlow 3s ease-in-out infinite;
+}
+.btn-download-large::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,0.4),
+        transparent
+    );
+    transition: left 0.5s ease;
+}
+.btn-download-large:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 
+        0 15px 40px rgba(79,172,254,0.55),
+        0 8px 20px rgba(79,172,254,0.4);
+    animation: none;
+}
+.btn-download-large:hover::before {
+    left: 100%;
+}
+@keyframes buttonGlow {
+    0%, 100% { box-shadow: 0 8px 25px rgba(79,172,254,0.45), 0 4px 12px rgba(79,172,254,0.3); }
+    50% { box-shadow: 0 12px 35px rgba(79,172,254,0.6), 0 6px 18px rgba(79,172,254,0.45); }
+}
+.btn-download-large i {
+    font-size: 20px;
+    animation: downloadBounce 2s ease-in-out infinite;
+}
+@keyframes downloadBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+.detail-actions p {
+    margin-top: 14px;
+    color: var(--gray-500);
+    font-size: 12px;
+    font-weight: 500;
+}
+.detail-actions p i {
+    color: #f093fb;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+    .detail-item.full-width {
+        grid-column: span 1;
+    }
+    .modal-detail-body {
+        padding: 25px 20px 20px;
+    }
+    .modal-detail-header {
+        padding: 25px 20px;
+    }
+    .modal-detail-header h3 {
+        font-size: 1.2rem;
+    }
+    .detail-nama {
+        font-size: 1.4rem;
+    }
+    .detail-photo-main,
+    .detail-photo-placeholder {
+        width: 140px;
+        height: 165px;
+    }
+}
 </style>
 </head>
 <body>
@@ -510,7 +1129,7 @@ body {
         <div class="d-flex align-items-center justify-content-between flex-wrap">
             <div>
                 <h1><i class="fas fa-file-signature me-2"></i>SK JFK - Pencarian Data Pegawai</h1>
-                <p>Sistem Informasi Surat Keputusan Jabatan Fungsional Kesehatan | Dinas Kesehatan Kutai Kartanegara</p>
+                <p>Sistem Informasi Surat Keputusan Jenjang Karier | Dinas Kesehatan Kutai Kartanegara</p>
             </div>
             <div class="d-none d-md-block">
                 <span class="badge bg-white text-success px-3 py-2 fs-6">
@@ -527,7 +1146,7 @@ body {
     <!-- Search Section -->
     <section class="search-section">
         <h2><i class="fas fa-search text-success me-2"></i>Pencarian Data SK JFK</h2>
-        <p class="subtitle">Masukkan Nomor Induk Pegawai (NIP) untuk mencari data Surat Keputusan Jabatan Fungsional Kesehatan</p>
+        <p class="subtitle">Masukkan Nomor Induk Pegawai (NIP) untuk mencari data Surat Keputusan Jenjang Karier</p>
         
         <div class="info-box">
             <i class="fas fa-info-circle"></i>
@@ -576,7 +1195,7 @@ body {
     <div id="initialState" class="results-section initial-state">
         <i class="fas fa-file-signature"></i>
         <h3>Siap Mencari Data</h3>
-        <p>Masukkan NIP pada kolom pencarian di atas untuk menampilkan data Surat Keputusan Jabatan Fungsional Kesehatan PNS.</p>
+        <p>Masukkan NIP pada kolom pencarian di atas untuk menampilkan data Surat Keputusan Jenjang Karier pegawai.</p>
     </div>
 
     <!-- Results Table -->
@@ -590,8 +1209,9 @@ body {
             <table class="table">
                 <thead>
                     <tr>
-                        <th style="width: 80px;">Foto</th>
-                        <th style="width: 180px;">NIP</th>
+                        <th style="width: 90px;">Foto</th>
+                        <th style="width: 200px;">Nama Lengkap</th>
+                        <th style="width: 170px;">NIP</th>
                         <th>Pangkat/Golongan Ruang</th>
                         <th>Unit Kerja</th>
                         <th>Jabatan Awal</th>
@@ -609,6 +1229,57 @@ body {
     </div>
 
 </main>
+
+<!-- POPUP MODAL DETAIL PEGAWAI -->
+<div class="modal-detail-overlay" id="popupDetailPegawai" onclick="closeDetailPopup(event)">
+    <div class="modal-detail-box" onclick="event.stopPropagation()">
+        <div class="modal-detail-header">
+            <h3 style="margin: 0; font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-user-circle"></i> Detail Data Pegawai
+            </h3>
+            <button class="modal-detail-close" onclick="closeDetailPopup()" title="Tutup">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-detail-body">
+            <div class="detail-photo-section">
+                <div id="detailPhotoContainer"></div>
+                <div class="detail-nama" id="detailNama">Nama Pegawai</div>
+                <span class="detail-nip-badge" id="detailNip"><i class="fas fa-id-card"></i> NIP</span>
+            </div>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="detail-label"><i class="fas fa-star"></i> Pangkat / Golongan Ruang</div>
+                    <div class="detail-value pangkat-value" id="detailPangkat">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label"><i class="fas fa-building"></i> Unit Kerja</div>
+                    <div class="detail-value" id="detailUnitKerja">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label"><i class="fas fa-arrow-right"></i> Jabatan Awal</div>
+                    <div class="detail-value" id="detailJabatanAwal">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label"><i class="fas fa-check-circle"></i> Jabatan Sekarang</div>
+                    <div class="detail-value" id="detailJabatanSekarang">-</div>
+                </div>
+                <div class="detail-item full-width">
+                    <div class="detail-label"><i class="fas fa-id-card"></i> Nomor Induk Pegawai (NIP)</div>
+                    <div class="detail-value" style="font-family: 'Courier New', monospace; color: var(--green-dark);" id="detailNipFull">-</div>
+                </div>
+            </div>
+            <div class="detail-actions">
+                <a href="#" id="detailDownloadLink" target="_blank" class="btn-download-large">
+                    <i class="fas fa-download"></i> Download Dokumen SK JFK
+                </a>
+                <p style="margin-top: 12px; color: var(--gray-500); font-size: 12px;">
+                    <i class="fas fa-info-circle"></i> Dokumen akan terbuka di tab baru
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Footer -->
 <footer class="app-footer">
@@ -698,15 +1369,27 @@ function displayResults(data, queryNip) {
     data.forEach((item, index) => {
         const row = document.createElement('tr');
         
-        // Build photo HTML
+        // Build photo HTML - Clickable dengan hint
         let fotoHtml = '';
         if (item.foto) {
-            fotoHtml = `<img src="${escapeHtml(item.foto)}" alt="Foto ${escapeHtml(item.nama || 'Pegawai')}" 
-                         class="foto-pegawai" 
-                         onerror="this.outerHTML='<div class=\\'foto-placeholder\\'><i class=\\'fas fa-user\\'></i></div>'">`;
+            fotoHtml = `<div class="foto-container-skjfk" onclick='showDetailPegawai(${JSON.stringify(item).replace(/'/g, "\\'")})'>
+                <img src="${escapeHtml(item.foto)}" alt="Foto ${escapeHtml(item.nama || 'Pegawai')}" 
+                     class="foto-pegawai" 
+                     onerror="this.outerHTML='<div class=\\'foto-placeholder\\'><i class=\\'fas fa-user\\'></i></div>'">
+                <span class="foto-click-hint"><i class="fas fa-eye"></i> Lihat Detail</span>
+            </div>`;
         } else {
-            fotoHtml = `<div class="foto-placeholder"><i class="fas fa-user"></i></div>`;
+            fotoHtml = `<div class="foto-container-skjfk" onclick='showDetailPegawai(${JSON.stringify(item).replace(/'/g, "\\'")})'>
+                <div class="foto-placeholder"><i class="fas fa-user"></i></div>
+                <span class="foto-click-hint"><i class="fas fa-eye"></i> Lihat Detail</span>
+            </div>`;
         }
+        
+        // Nama Pegawai - Clickable
+        const namaPegawai = item.nama ? 
+            `<span class="nama-pegawai" onclick='showDetailPegawai(${JSON.stringify(item).replace(/'/g, "\\'")})'>
+                <i class="fas fa-user-circle"></i> ${escapeHtml(item.nama)}
+             </span>` : '<span class="text-muted">-</span>';
         
         // Pangkat badge
         const pangkatBadge = item.pangkat ? 
@@ -720,7 +1403,8 @@ function displayResults(data, queryNip) {
              '<span class="no-link"><i class="fas fa-link-slash"></i> Tidak tersedia</span>';
         
         row.innerHTML = `
-            <td><div class="foto-container">${fotoHtml}</div></td>
+            <td style="text-align: center;">${fotoHtml}</td>
+            <td>${namaPegawai}</td>
             <td><span class="nip-text">${escapeHtml(item.nip || '-')}</span></td>
             <td>${pangkatBadge}</td>
             <td><span class="unit-kerja"><i class="fas fa-building"></i>${escapeHtml(item.unitKerja || '-')}</span></td>
@@ -750,6 +1434,78 @@ function displayResults(data, queryNip) {
     hideAllStates();
     document.getElementById('resultsSection').style.display = 'block';
 }
+
+/**
+ * showDetailPegawai() - Menampilkan popup detail lengkap pegawai
+ * @param {Object} item - Data pegawai
+ */
+function showDetailPegawai(item) {
+    // Set Foto
+    const photoContainer = document.getElementById('detailPhotoContainer');
+    if (item.foto) {
+        photoContainer.innerHTML = `<img src="${escapeHtml(item.foto)}" alt="Foto ${escapeHtml(item.nama || 'Pegawai')}" class="detail-photo-main"
+            onerror="this.outerHTML='<div class=\\'detail-photo-placeholder\\'><i class=\\'fas fa-user\\'></i></div>'">`;
+    } else {
+        // Generate avatar initials dari nama
+        const initials = item.nama ? item.nama.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '??';
+        photoContainer.innerHTML = `<div class="detail-photo-placeholder">${initials}</div>`;
+    }
+    
+    // Set Nama
+    document.getElementById('detailNama').textContent = item.nama || 'Tidak tersedia';
+    
+    // Set NIP (badge & full)
+    document.getElementById('detailNip').textContent = item.nip || '-';
+    document.getElementById('detailNipFull').textContent = item.nip || '-';
+    
+    // Set Pangkat
+    document.getElementById('detailPangkat').textContent = item.pangkat || 'Tidak tersedia';
+    
+    // Set Unit Kerja
+    document.getElementById('detailUnitKerja').textContent = item.unitKerja || 'Tidak tersedia';
+    
+    // Set Jabatan Awal
+    document.getElementById('detailJabatanAwal').textContent = item.jabatanAwal || 'Tidak tersedia';
+    
+    // Set Jabatan Sekarang
+    document.getElementById('detailJabatanSekarang').textContent = item.jabatanSekarang || 'Tidak tersedia';
+    
+    // Set Download Link
+    const downloadLink = document.getElementById('detailDownloadLink');
+    if (item.driveLink) {
+        downloadLink.href = item.driveLink;
+        downloadLink.style.display = 'inline-flex';
+        downloadLink.nextElementSibling.style.display = 'block';
+    } else {
+        downloadLink.style.display = 'none';
+        downloadLink.nextElementSibling.innerHTML = '<i class="fas fa-exclamation-circle"></i> Dokumen SK JFK tidak tersedia untuk pegawai ini';
+    }
+    
+    // Show modal with animation
+    const modal = document.getElementById('popupDetailPegawai');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevent background scroll
+}
+
+/**
+ * closeDetailPopup() - Menutup popup detail pegawai
+ * @param {Event} event - Optional click event
+ */
+function closeDetailPopup(event) {
+    // If event exists and clicked outside the box, or if called without event from close button
+    if (!event || event.target === event.currentTarget) {
+        const modal = document.getElementById('popupDetailPegawai');
+        modal.classList.remove('active');
+        document.body.style.overflow = ''; // Restore scroll
+    }
+}
+
+// Close detail popup on Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeDetailPopup();
+    }
+});
 
 /**
  * clearSearch() - Reset search form and results
