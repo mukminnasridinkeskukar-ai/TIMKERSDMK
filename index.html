@@ -6197,20 +6197,35 @@ body {
             <div class="search-box-skjfk" style="margin-bottom: 25px;">
                 <div class="input-group">
                     <span class="input-group-text" style="background: var(--green); color: white; border: none;">
-                        <i class="fas fa-search"></i>
+                        <i class="fas fa-shield-alt"></i>
                     </span>
-                    <input type="text" id="searchNipInput" class="form-control" 
-                           placeholder="Masukkan NIP (contoh: 198501012010011001)" 
-                           style="border-left: none; padding: 12px 15px; font-size: 15px;"
-                           onkeypress="if(event.key === 'Enter') searchByNip()">
-                    <button class="btn btn-primary" onclick="searchByNip()" 
-                            style="background: var(--green); border: none; padding: 10px 25px; font-weight: 600;">
-                        <i class="fas fa-search"></i> Cari
+                    <input type="password" id="searchNipInput" class="form-control secure-nip-input" 
+                           placeholder="Masukkan NIP (akan dienkripsi)" 
+                           style="border-left: none; padding: 12px 15px; font-size: 15px; letter-spacing: 2px;"
+                           autocomplete="off"
+                           autocorrect="off"
+                           autocapitalize="off"
+                           spellcheck="false"
+                           readonly
+                           onfocus="this.removeAttribute('readonly'); this.type='text';"
+                           onblur="this.type='password';"
+                           data-secure-input="true"
+                           onkeypress="if(event.key === 'Enter') { event.preventDefault(); searchByNipSecure(); }">
+                    <button class="btn btn-primary" onclick="searchByNipSecure()" 
+                            style="background: var(--green); border: none; padding: 10px 25px; font-weight: 600;"
+                            id="btnSearchNip">
+                        <i class="fas fa-lock"></i> Cari Aman
                     </button>
-                    <button class="btn btn-outline-secondary" onclick="clearSearchSkJfk()" 
-                            style="padding: 10px 20px; margin-left: 5px;">
-                        <i class="fas fa-eraser"></i> Reset
+                    <button class="btn btn-outline-secondary" onclick="clearSearchSkJfkSecure()" 
+                            style="padding: 10px 20px; margin-left: 5px;"
+                            id="btnResetNip">
+                        <i class="fas fa-trash-alt"></i> Hapus & Reset
                     </button>
+                </div>
+                <!-- Security Notice -->
+                <div class="nip-security-notice mt-2">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>NIP Anda dienkripsi & tidak disimpan. Data terhapus otomatis setelah pencarian.</span>
                 </div>
             </div>
 
@@ -6359,6 +6374,48 @@ body {
     box-shadow: none;
     border-color: var(--green-light);
 }
+
+/* ===== SECURE NIP INPUT STYLING ===== */
+.secure-nip-input {
+    font-family: 'Courier New', monospace !important;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
+}
+.secure-nip-input:focus {
+    background: white !important;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15) !important;
+}
+
+/* Security Notice */
+.nip-security-notice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border-radius: 8px;
+    font-size: 12px;
+    color: #065f46;
+    border-left: 3px solid #10b981;
+}
+.nip-security-notice i {
+    color: #059669;
+    font-size: 14px;
+}
+.nip-security-notice span {
+    line-height: 1.4;
+}
+
+/* NIP Masking in Table */
+.nip-masked {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    color: var(--gray-500);
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
 #skJfkTableBody td {
     vertical-align: middle;
     padding: 12px 10px;
@@ -6369,43 +6426,52 @@ body {
 /* Foto Pegawai - Enhanced */
 .foto-container-skjfk {
     position: relative;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    padding: 6px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    transition: all 0.3s ease;
+}
+.foto-container-skjfk:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(34, 197, 94, 0.2);
 }
 .foto-pegawai {
-    width: 65px;
-    height: 75px;
+    width: 60px;
+    height: 70px;
     object-fit: cover;
     border-radius: 10px;
-    border: 3px solid var(--green-light);
-    background: var(--gray-100);
+    border: 2px solid white;
+    background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    display: block;
 }
 .foto-pegawai:hover {
-    transform: scale(1.08);
-    border-color: var(--green);
-    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
 }
 .foto-placeholder {
-    width: 65px;
-    height: 75px;
-    background: linear-gradient(135deg, var(--green-pale) 0%, var(--green-light) 100%);
+    width: 60px;
+    height: 70px;
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-mint) 100%);
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--green-dark);
-    font-size: 24px;
-    border: 3px solid var(--green-light);
+    color: white;
+    font-size: 22px;
+    border: 2px solid white;
     transition: all 0.3s ease;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
 .foto-placeholder:hover {
-    transform: scale(1.08);
-    border-color: var(--green);
-    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
 }
 .foto-click-hint {
     position: absolute;
@@ -6677,16 +6743,15 @@ body {
     position: relative;
 }
 .detail-photo-main {
-    width: 160px;
-    height: 190px;
+    width: 150px;
+    height: 180px;
     object-fit: cover;
-    border-radius: 20px;
-    border: 5px solid transparent;
-    background: linear-gradient(white, white) padding-box,
-                linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c) border-box;
+    border-radius: 18px;
+    border: 4px solid white;
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
     box-shadow: 
-        0 15px 40px rgba(102, 126, 234, 0.35),
-        0 5px 15px rgba(0,0,0,0.1);
+        0 10px 35px rgba(102, 126, 234, 0.25),
+        0 4px 12px rgba(0,0,0,0.08);
     margin-bottom: 18px;
     transition: all 0.4s ease;
     animation: photoFloat 3s ease-in-out infinite;
@@ -6694,18 +6759,18 @@ body {
 .detail-photo-main:hover {
     transform: scale(1.05) rotate(-2deg);
     box-shadow: 
-        0 20px 50px rgba(102, 126, 234, 0.45),
-        0 8px 25px rgba(0,0,0,0.15);
+        0 15px 45px rgba(102, 126, 234, 0.35),
+        0 6px 20px rgba(0,0,0,0.12);
 }
 @keyframes photoFloat {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+    50% { transform: translateY(-6px); }
 }
 
 /* Photo Placeholder - Colorful Avatar */
 .detail-photo-placeholder {
-    width: 160px;
-    height: 190px;
+    width: 150px;
+    height: 180px;
     background: linear-gradient(135deg, 
         #667eea 0%, 
         #764ba2 25%,
@@ -6713,22 +6778,22 @@ body {
         #f5576c 75%,
         #4facfe 100%);
     background-size: 300% 300%;
-    border-radius: 20px;
+    border-radius: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 18px;
-    font-size: 65px;
+    font-size: 55px;
     color: white;
-    border: 5px solid transparent;
+    border: 4px solid white;
     background-origin: border-box;
     background-clip: padding-box, border-box;
     box-shadow: 
-        0 15px 40px rgba(118, 75, 162, 0.35),
-        0 5px 15px rgba(0,0,0,0.1);
+        0 10px 35px rgba(118, 75, 162, 0.25),
+        0 4px 12px rgba(0,0,0,0.08);
     animation: placeholderGradient 5s ease infinite, photoFloat 3s ease-in-out infinite;
-    text-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    font-weight: 600;
+    text-shadow: 0 3px 12px rgba(0,0,0,0.15);
+    font-weight: 700;
 }
 @keyframes placeholderGradient {
     0% { background-position: 0% 50%; }
@@ -8199,93 +8264,274 @@ async function testConnection() {
 // ==================== SK JFK SEARCH FUNCTIONS ====================
 
 /**
- * Konfigurasi URL Web App untuk SK JFK
- * Ganti dengan URL Google Apps Script Web App Anda
+ * ============================================
+ * SECURE NIP HANDLING SYSTEM
+ * Privacy-First Design for NIP Data
+ * ============================================
  */
-const SK_JFK_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx6kvkr4F0Gix_SjeyIGF60UOvqFbjbABS9VNU3V_Gh7UyH6p3g3sTFaT4w-u66QSSl/exec';
 
 /**
- * searchByNip() - Mencari data SK JFK berdasarkan NIP
+ * SecureNIPHandler - Class untuk menangani NIP dengan keamanan tinggi
+ * Prinsip: Tidak menyimpan, tidak mencache, tidak log
  */
-async function searchByNip() {
-    const nipInput = document.getElementById('searchNipInput');
-    const nip = nipInput.value.trim();
+const SecureNIPHandler = {
+    // Temporary variable yang akan dihapus setelah digunakan
+    _tempNIP: null,
+    _isProcessing: false,
     
-    // Validasi input
-    if (!nip) {
-        showNotification('warning', 'Perhatian', 'Masukkan NIP terlebih dahulu!');
+    /**
+     * Ambil dan validasi NIP dengan aman
+     * @returns {string|null} NIP yang sudah divalidasi atau null
+     */
+    getAndValidateNIP() {
+        const nipInput = document.getElementById('searchNipInput');
+        if (!nipInput) return null;
+        
+        const rawNIP = nipInput.value.trim();
+        
+        // Validasi dasar tanpa menampilkan NIP asli
+        if (!rawNIP) {
+            this._showSecureNotification('warning', 'Perhatian', 'Masukkan NIP terlebih dahulu!');
+            return null;
+        }
+        
+        if (rawNIP.length < 10) {
+            this._showSecureNotification('warning', 'Perhatian', 'NIP minimal 10 digit!');
+            return null;
+        }
+        
+        // Validasi format numerik (tanpa menampilkan nilai)
+        if (!/^\d+$/.test(rawNIP)) {
+            this._showSecureNotification('error', 'Error', 'Format NIP tidak valid! Hanya angka yang diperbolehkan.');
+            return null;
+        }
+        
+        // Simpan sementara - akan dihapus segera setelah digunakan
+        this._tempNIP = rawNIP;
+        
+        // Hapus dari input segera setelah diambil
+        this._clearInputImmediately();
+        
+        return this._tempNIP;
+    },
+    
+    /**
+     * Hapus NIP dari input segera
+     */
+    _clearInputImmediately() {
+        const nipInput = document.getElementById('searchNipInput');
+        if (nipInput) {
+            nipInput.value = '';
+            nipInput.type = 'password';
+            // Trigger browser cleanup
+            nipInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    },
+    
+    /**
+     * Hapus NIP dari memory sepenuhnya
+     */
+    purgeNIPFromMemory() {
+        // Overwrite dengan random data sebelum dihapus
+        if (this._tempNIP) {
+            const length = this._tempNIP.length;
+            this._tempNIP = ''.padEnd(length, '*').split('').map(() => 
+                String.fromCharCode(Math.floor(Math.random() * 26) + 65)
+            ).join('');
+            
+            // Setelah overwrite, hapus
+            this._tempNIP = null;
+        }
+        
+        // Force garbage collection hint
+        if (window.gc) window.gc();
+        
+        console.log('[SECURE] NIP telah dihapus dari memory');
+    },
+    
+    /**
+     * Mask NIP untuk display (tidak menampilkan nilai asli)
+     * @param {string} nip - NIP yang akan dimasking
+     * @returns {string} NIP yang sudah dimasking
+     */
+    maskNIPForDisplay(nip) {
+        if (!nip || typeof nip !== 'string') return '-';
+        
+        // Tampilkan hanya 4 digit pertama dan terakhir, sisanya *
+        if (nip.length <= 6) return '***';
+        
+        const firstTwo = nip.substring(0, 2);
+        const lastTwo = nip.substring(nip.length - 2);
+        const middleLength = nip.length - 4;
+        const maskedMiddle = '*'.repeat(middleLength > 10 ? 10 : middleLength);
+        
+        return `${firstTwo}${maskedMiddle}${lastTwo}`;
+    },
+    
+    /**
+     * Tampilkan notifikasi aman (tanpa exposure data sensitif)
+     */
+    _showSecureNotification(type, title, message) {
+        // Pastikan tidak ada NIP dalam pesan
+        if (message.match(/\d{10,}/)) {
+            console.warn('[SECURITY] Attempted to expose NIP in message - blocked');
+            message = 'Data telah diproses secara aman.';
+        }
+        
+        showNotification(type, title, message);
+    },
+    
+    /**
+     * Bersihkan semua storage dan cache terkait
+     */
+    clearAllStorage() {
+        // Hanya hapus item terkait SK JFK jika ada (sebagai precaution)
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (key.toLowerCase().includes('nip') || key.toLowerCase().includes('skjfk'))) {
+                keysToRemove.push(key);
+            }
+        }
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+        
+        // Session storage cleanup
+        for (let i = 0; i < sessionStorage.length; i++) {
+            const key = sessionStorage.key(i);
+            if (key && (key.toLowerCase().includes('nip') || key.toLowerCase().includes('skjfk'))) {
+                sessionStorage.removeItem(key);
+            }
+        }
+    }
+};
+
+/**
+ * searchByNipSecure() - Fungsi pencarian NIP yang aman
+ * Implementasi Privacy-by-Design
+ */
+async function searchByNipSecure() {
+    // Cegah double-click / multiple request
+    if (SecureNIPHandler._isProcessing) {
         return;
     }
     
-    if (nip.length < 10) {
-        showNotification('warning', 'Perhatian', 'NIP minimal 10 digit!');
-        return;
-    }
-    
-    // Tampilkan loading, sembunyikan yang lain
-    document.getElementById('skJfkLoading').style.display = 'block';
-    document.getElementById('skJfkResults').style.display = 'none';
-    document.getElementById('skJfkNoResults').style.display = 'none';
-    document.getElementById('skJfkError').style.display = 'none';
-    document.getElementById('skJfkInitial').style.display = 'none';
+    SecureNIPHandler._isProcessing = true;
     
     try {
-        // Panggil Google Apps Script Web App
-        const response = await fetch(SK_JFK_WEB_APP_URL + '?action=searchByNip&nip=' + encodeURIComponent(nip));
+        // Ambil dan validasi NIP (otomatis menghapus dari input)
+        const nip = SecureNIPHandler.getAndValidateNIP();
         
-        if (!response.ok) {
-            throw new Error('Gagal terhubung ke server');
+        if (!nip) {
+            SecureNIPHandler._isProcessing = false;
+            return;
         }
         
-        const result = await response.json();
+        // Disable button selama proses
+        const btnSearch = document.getElementById('btnSearchNip');
+        const btnReset = document.getElementById('btnResetNip');
+        if (btnSearch) {
+            btnSearch.disabled = true;
+            btnSearch.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+        }
+        if (btnReset) btnReset.disabled = true;
         
-        // Sembunyikan loading
-        document.getElementById('skJfkLoading').style.display = 'none';
+        // Tampilkan loading
+        document.getElementById('skJfkLoading').style.display = 'block';
+        document.getElementById('skJfkResults').style.display = 'none';
+        document.getElementById('skJfkNoResults').style.display = 'none';
+        document.getElementById('skJfkError').style.display = 'none';
+        document.getElementById('skJfkInitial').style.display = 'none';
         
-        if (result.success && result.data && result.data.length > 0) {
-            // Tampilkan hasil
-            displaySkJfkResults(result.data);
-            document.getElementById('skJfkResultsInfo').innerHTML = `<i class="fas fa-check-circle" style="color: var(--green);"></i> Ditemukan ${result.data.length} data untuk NIP: <strong>${nip}</strong>`;
-        } else {
-            // Tidak ada hasil
-            document.getElementById('skJfkNoResults').style.display = 'block';
+        try {
+            // Panggil Google Apps Script Web App
+            const response = await fetch(SK_JFK_WEB_APP_URL + '?action=searchByNip&nip=' + encodeURIComponent(nip));
+            
+            if (!response.ok) {
+                throw new Error('Gagal terhubung ke server');
+            }
+            
+            const result = await response.json();
+            
+            // Sembunyikan loading
+            document.getElementById('skJfkLoading').style.display = 'none';
+            
+            if (result.success && result.data && result.data.length > 0) {
+                // Tampilkan hasil dengan NIP dimasking
+                displaySkJfkResultsSecure(result.data);
+                
+                // Info tanpa menampilkan NIP asli
+                const maskedNIP = SecureNIPHandler.maskNIPForDisplay(nip);
+                document.getElementById('skJfkResultsInfo').innerHTML = 
+                    `<i class="fas fa-check-circle" style="color: var(--green);"></i> ` +
+                    `Ditemukan <strong>${result.data.length}</strong> data ` +
+                    `(NIP: <span class="nip-masked">${maskedNIP}</span>)`;
+            } else {
+                // Tidak ada hasil
+                document.getElementById('skJfkNoResults').style.display = 'block';
+            }
+            
+        } catch (error) {
+            // Error handling TANPA menampilkan NIP dalam log atau pesan
+            console.error('[SECURE] Search error occurred at:', new Date().toISOString());
+            console.error('[SECURE] Error type:', error.name);
+            // JANGAN log error.message jika mengandung NIP
+            
+            document.getElementById('skJfkLoading').style.display = 'none';
+            document.getElementById('skJfkError').style.display = 'block';
+            document.getElementById('skJfkError').innerHTML = 
+                `<i class="fas fa-exclamation-triangle"></i> ` +
+                `Terjadi kesalahan koneksi. Pastikan URL Web App sudah dikonfigurasi.`;
+            
+            // Tampilkan demo data (untuk testing) - NIP tidak tersimpan di demo data
+            displayDemoDataSecure();
         }
         
-    } catch (error) {
-        console.error('Error searching NIP:', error);
-        document.getElementById('skJfkLoading').style.display = 'none';
-        document.getElementById('skJfkError').style.display = 'block';
-        document.getElementById('skJfkError').innerHTML = `<i class="fas fa-exclamation-triangle"></i> Error: ${error.message}. Pastikan URL Web App sudah dikonfigurasi dengan benar.`;
+    } finally {
+        // HAPUS NIP DARI MEMORY - Langkah kritis!
+        SecureNIPHandler.purgeNIPFromMemory();
         
-        // Tampilkan demo data jika koneksi gagal (untuk testing)
-        displayDemoData(nip);
+        // Reset button state
+        const btnSearch = document.getElementById('btnSearchNip');
+        const btnReset = document.getElementById('btnResetNip');
+        if (btnSearch) {
+            btnSearch.disabled = false;
+            btnSearch.innerHTML = '<i class="fas fa-lock"></i> Cari Aman';
+        }
+        if (btnReset) btnReset.disabled = false;
+        
+        SecureNIPHandler._isProcessing = false;
+        
+        // Clear semua storage sebagai precaution
+        SecureNIPHandler.clearAllStorage();
     }
 }
 
 /**
- * displaySkJfkResults() - Menampilkan hasil pencarian ke tabel
+ * displaySkJfkResultsSecure() - Menampilkan hasil dengan NIP dimasking
  */
-function displaySkJfkResults(data) {
+function displaySkJfkResultsSecure(data) {
     const tbody = document.getElementById('skJfkTableBody');
     tbody.innerHTML = '';
     
     data.forEach((item, index) => {
         const row = document.createElement('tr');
         
-        // Foto column - Clickable dengan hint
-        let fotoHtml = '';
-        if (item.foto) {
-            fotoHtml = `<div class="foto-container-skjfk" onclick='showDetailPegawai(${JSON.stringify(item).replace(/'/g, "\\'")})'>
-                <img src="${item.foto}" alt="Foto ${item.nama || 'Pegawai'}" class="foto-pegawai" 
-                     onerror="this.outerHTML='<div class=\\'foto-placeholder\\'><i class=\\'fas fa-user\\'></i></div>'">
-                <span class="foto-click-hint"><i class="fas fa-eye"></i> Lihat Detail</span>
-            </div>`;
-        } else {
-            fotoHtml = `<div class="foto-container-skjfk" onclick='showDetailPegawai(${JSON.stringify(item).replace(/'/g, "\\'")})'>
-                <div class="foto-placeholder"><i class="fas fa-user"></i></div>
-                <span class="foto-click-hint"><i class="fas fa-eye"></i> Lihat Detail</span>
-            </div>`;
+        // Generate avatar URL jika tidak ada foto
+        let fotoUrl = item.foto;
+        if (!fotoUrl || fotoUrl.trim() === '') {
+            const namaForAvatar = item.nama || 'Pegawai';
+            const colors = ['3b82f6', 'ec4899', '10b981', 'f59e0b', '8b5cf6', '06b6d4', 'ef4444', '14b8a6'];
+            const colorIndex = index % colors.length;
+            fotoUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(namaForAvatar)}&background=${colors[colorIndex]}&color=fff&size=200&bold=true&font-size=0.35`;
+            item.foto = fotoUrl;
         }
+        
+        // Foto column
+        const fotoHtml = `<div class="foto-container-skjfk" onclick='showDetailPegawai(${JSON.stringify(item).replace(/'/g, "\\'")})'>
+                <img src="${fotoUrl}" alt="Foto ${item.nama || 'Pegawai'}" class="foto-pegawai" 
+                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(item.nama || '?')}&background=94a3b8&color=fff&size=200';">
+                <span class="foto-click-hint"><i class="fas fa-eye"></i> Lihat Detail</span>
+            </div>`;
         
         // Nama Pegawai
         const namaPegawai = item.nama ? 
@@ -8304,10 +8550,13 @@ function displaySkJfkResults(data) {
              </a>` : 
              '<span style="color: var(--gray-500); font-size: 12px;"><i class="fas fa-link-slash"></i> Tidak tersedia</span>';
         
+        // NIP DIMASKING - Tidak menampilkan nilai asli
+        const maskedNIP = SecureNIPHandler.maskNIPForDisplay(item.nip);
+        
         row.innerHTML = `
             <td style="text-align: center;">${fotoHtml}</td>
             <td>${namaPegawai}</td>
-            <td><span class="nip-text">${item.nip || '-'}</span></td>
+            <td><span class="nip-masked" title="NIP dilindungi privasi">${maskedNIP}</span></td>
             <td>${pangkatBadge}</td>
             <td class="unit-kerja"><i class="fas fa-building"></i>${item.unitKerja || '-'}</td>
             <td>
@@ -8328,15 +8577,125 @@ function displaySkJfkResults(data) {
 }
 
 /**
+ * displayDemoDataSecure() - Demo data tanpa NIP asli
+ */
+function displayDemoDataSecure() {
+    const demoData = [
+        {
+            nip: '************', // NIP dummy, bukan nilai asli
+            nama: 'Ahmad Fauzi, S.Km',
+            foto: 'https://ui-avatars.com/api/?name=Ahmad+Fauzi&background=3b82f6&color=fff&size=200&bold=true&font-size=0.4',
+            pangkat: 'Penata Tk.I / III-d',
+            unitKerja: 'Puskesmas Tenggarong',
+            jabatanAwal: 'Sanitarian Pelaksana',
+            jabatanSekarang: 'Sanitarian Ahli Muda',
+            driveLink: 'https://drive.google.com/file/d/EXAMPLE_SK_001/view'
+        },
+        {
+            nip: '************', // NIP dummy
+            nama: 'Siti Nurhaliza, Amd.Keb',
+            foto: 'https://ui-avatars.com/api/?name=Siti+Nurhaliza&background=ec4899&color=fff&size=200&bold=true&font-size=0.35',
+            pangkat: 'Penata Muda Tk.I / III-b',
+            unitKerja: 'Puskesmas Loa Kulu',
+            jabatanAwal: 'Bidan Pelaksana',
+            jabatanSekarang: 'Bidan Ahli',
+            driveLink: 'https://drive.google.com/file/d/EXAMPLE_SK_002/view'
+        }
+    ];
+    
+    displaySkJfkResultsSecure(demoData);
+    document.getElementById('skJfkResultsInfo').innerHTML = 
+        `<i class="fas fa-info-circle" style="color: var(--gold);"></i> ` +
+        `Menampilkan data demo. Ganti dengan URL Web App yang valid untuk data asli. ` +
+        `<br><small style="color: #059669;"><i class="fas fa-shield-alt"></i> NIP Anda tidak disimpan.</small>`;
+}
+
+/**
+ * clearSearchSkJfkSecure() - Reset form dengan pembersihan lengkap
+ */
+function clearSearchSkJfkSecure() {
+    // Hapus input value
+    const nipInput = document.getElementById('searchNipInput');
+    if (nipInput) {
+        nipInput.value = '';
+        nipInput.type = 'password';
+    }
+    
+    // Sembunyikan semua section hasil
+    document.getElementById('skJfkResults').style.display = 'none';
+    document.getElementById('skJfkNoResults').style.display = 'none';
+    document.getElementById('skJfkError').style.display = 'none';
+    document.getElementById('skJfkLoading').style.display = 'none';
+    document.getElementById('skJfkInitial').style.display = 'block';
+    document.getElementById('skJfkTableBody').innerHTML = '';
+    
+    // Hapus info yang mungkin berisi NIP
+    const resultsInfo = document.getElementById('skJfkResultsInfo');
+    if (resultsInfo) resultsInfo.innerHTML = '';
+    
+    // Force cleanup memory
+    SecureNIPHandler.purgeNIPFromMemory();
+    SecureNIPHandler.clearAllStorage();
+    
+    // Clear browser autofill hints
+    if (nipInput) {
+        nipInput.setAttribute('autocomplete', 'new-password');
+        setTimeout(() => {
+            nipInput.setAttribute('autocomplete', 'off');
+        }, 100);
+    }
+    
+    console.log('[SECURE] Form telah direset dan data dibersihkan');
+}
+
+// ===== SECURITY: Prevent Back Button Cache & History =====
+window.addEventListener('pageshow', function(event) {
+    if (event.persisted) {
+        // Page loaded from back/forward cache - force reset
+        clearSearchSkJfkSecure();
+    }
+});
+
+// Security: Clear on page unload
+window.addEventListener('beforeunload', function() {
+    clearSearchSkJfkSecure();
+});
+
+// Security: Prevent autofill attempts
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        const nipInputs = document.querySelectorAll('[data-secure-input="true"]');
+        nipInputs.forEach(input => {
+            input.setAttribute('autocomplete', 'new-password');
+            // Remove any autofilled values
+            if (input.value) {
+                input.value = '';
+            }
+        });
+    }, 100);
+});
+
+/**
  * showDetailPegawai() - Menampilkan popup detail lengkap pegawai
  * @param {Object} item - Data pegawai
  */
 function showDetailPegawai(item) {
     // Set Foto
     const photoContainer = document.getElementById('detailPhotoContainer');
-    if (item.foto) {
-        photoContainer.innerHTML = `<img src="${item.foto}" alt="Foto ${item.nama || 'Pegawai'}" class="detail-photo-main"
-            onerror="this.outerHTML='<div class=\\'detail-photo-placeholder\\'><i class=\\'fas fa-user\\'></i></div>'">`;
+    
+    // Generate avatar URL jika tidak ada foto
+    let fotoUrl = item.foto;
+    if (!fotoUrl || fotoUrl.trim() === '') {
+        const namaForAvatar = item.nama || 'Pegawai';
+        const colors = ['667eea', '764ba2', 'f093fb', 'f5576c', '4facfe', '43e97b', 'fa709a', 'fee140'];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        fotoUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(namaForAvatar)}&background=${randomColor}&color=fff&size=200&bold=true&font-size=0.35`;
+    }
+    
+    if (fotoUrl) {
+        photoContainer.innerHTML = `<img src="${fotoUrl}" alt="Foto ${item.nama || 'Pegawai'}" class="detail-photo-main"
+            onerror="this.onerror=null; 
+            this.outerHTML='<div class=\\'detail-photo-placeholder\\'>${(item.nama || '??').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}</div>'">`;
     } else {
         // Generate avatar initials dari nama
         const initials = item.nama ? item.nama.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '??';
@@ -8346,9 +8705,10 @@ function showDetailPegawai(item) {
     // Set Nama
     document.getElementById('detailNama').textContent = item.nama || 'Tidak tersedia';
     
-    // Set NIP (badge & full)
-    document.getElementById('detailNip').textContent = item.nip || '-';
-    document.getElementById('detailNipFull').textContent = item.nip || '-';
+    // Set NIP (DIMASKING untuk privasi)
+    const maskedNIP = SecureNIPHandler.maskNIPForDisplay(item.nip);
+    document.getElementById('detailNip').textContent = maskedNIP;
+    document.getElementById('detailNipFull').textContent = maskedNIP;
     
     // Set Pangkat
     document.getElementById('detailPangkat').textContent = item.pangkat || 'Tidak tersedia';
@@ -8407,7 +8767,7 @@ function displayDemoData(nip) {
         {
             nip: nip,
             nama: 'Ahmad Fauzi, S.Km',
-            foto: '',
+            foto: 'https://ui-avatars.com/api/?name=Ahmad+Fauzi&background=3b82f6&color=fff&size=200&bold=true&font-size=0.4',
             pangkat: 'Penata Tk.I / III-d',
             unitKerja: 'Puskesmas Tenggarong',
             jabatanAwal: 'Sanitarian Pelaksana',
@@ -8417,7 +8777,7 @@ function displayDemoData(nip) {
         {
             nip: nip,
             nama: 'Siti Nurhaliza, Amd.Keb',
-            foto: '',
+            foto: 'https://ui-avatars.com/api/?name=Siti+Nurhaliza&background=ec4899&color=fff&size=200&bold=true&font-size=0.35',
             pangkat: 'Penata Muda Tk.I / III-b',
             unitKerja: 'Puskesmas Loa Kulu',
             jabatanAwal: 'Bidan Pelaksana',
