@@ -4829,10 +4829,10 @@ body {
             <div id="photoStatsBar" style="display: none; margin-top: 18px; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-radius: 12px; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border: 1px solid #bbf7d0;">
                 <div style="display: flex; gap: 24px; flex-wrap: wrap;">
                     <span style="font-size: 13px; color: #059669; font-weight: 600;"><i class="fas fa-images" style="margin-right: 5px;"></i><strong id="totalPhotosCount">0</strong> Foto</span>
-                    <span style="font-size: 13px; color: #059669; font-weight: 600;"><i class="fas fa-folder" style="margin-right: 5px;"></i><strong id="totalEventsCount">0</strong> Kegiatan</span>
-                    <span style="font-size: 13px; color: #059669; font-weight: 600;"><i class="fas fa-map-marker-alt" style="margin-right: 5px;"></i><strong id="totalLocationsCount">0</strong> Lokasi</span>
+                    <span style="font-size: 13px; color: #059669; font-weight: 600;"><i class="fas fa-folder-open" style="margin-right: 5px;"></i><strong id="totalEventsCount">0</strong> Folder</span>
+                    <span style="font-size: 13px; color: #059669; font-weight: 600;"><i class="fas fa-tags" style="margin-right: 5px;"></i><strong id="totalLocationsCount">0</strong> Kegiatan</span>
                 </div>
-                <span style="font-size: 11px; color: #64748b;"><i class="fas fa-clock" style="margin-right: 4px;"></i>Last sync: <strong id="lastSyncTime">-</strong></span>
+                <span style="font-size: 11px; color: #64748b;"><i class="fas fa-sync-alt" style="margin-right: 4px;"></i>Terakhir update: <strong id="lastSyncTime">-</strong></span>
             </div>
 
         </div>
@@ -7477,7 +7477,7 @@ const DRIVE_FOLDER_ID = '1rxvJ0z5PxQ1WAms8udLA462sIIcBUOeB';
 
 // Ganti dengan URL Apps Script Anda setelah deploy
 // Format: https://script.google.com/macros/s/XXXXX/exec
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyA6PSuOnPtLsboH3NDaqCKpD_V0dyll01ceb0XUZV-fo6VUkoHARnyVYWScBe81DxXUg/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyeMEJxbHIfTpuAbs8mOBa6kO5XoSN0jCtJvMav67OK23ZMkEI-ikZk0ZoBTvHy9QEcOQ/exec';
 
 /**
  * Global variable untuk menyimpan data foto dari Google Drive
@@ -7739,7 +7739,7 @@ function getDriveImageUrl(fileId) {
 
 /**
  * MAIN FUNCTION: Load gallery photos dari Google Drive (VIA APPS SCRIPT)
- * Hanya mengambil foto asli dari Drive, TANPA sample data
+ * Auto-load dengan retry mechanism
  */
 async function loadGalleryPhotos() {
     if (galleryLoadInProgress) return;
@@ -7750,68 +7750,126 @@ async function loadGalleryPhotos() {
     showDriveStatus('info', '⏳ Menghubungkan ke Google Drive...');
     document.getElementById('loadingProgressText').textContent = 'Mengakses Google Apps Script...';
     
-    try {
-        let photos = null;
-        
-        // Cek apakah Apps Script URL sudah dikonfigurasi
-        if (APPS_SCRIPT_URL.includes('YOUR_SCRIPT_ID')) {
-            throw new Error('Apps Script belum di-deploy. Silakan ikuti instruksi di console browser.');
-        }
-        
-        // Fetch via Apps Script Proxy (SATU-SATUNYA METODE)
-        document.getElementById('loadingProgressText').textContent = 'Memuat foto dari folder Drive...';
-        photos = await fetchViaAppsScriptProxy();
-        
-        // Render hasil
-        if (photos && photos.length > 0) {
-            googleDrivePhotos = photos;
-            renderPhotoGallery(photos);
-            updateStatsBar(photos);
-            showPhotoState('data');
-            showDriveStatus('success', `✅ ${photos.length} foto berhasil dimuat dari Google Drive`);
+    // Retry configuration
+    const MAX_RETRIES = 2;
+    let lastError = null;
+    
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+            // Cek apakah Apps Script URL sudah dikonfigurasi
+            if (APPS_SCRIPT_URL.includes('YOUR_SCRIPT_ID')) {
+                throw new Error('NOT_DEPLOYED');
+            }
             
-            // Update timestamp
-            const now = new Date();
-            document.getElementById('lastSyncTime').textContent = now.toLocaleString('id-ID', {
-                day: '2-digit', month: 'short', year: 'numeric', 
-                hour: '2-digit', minute: '2-digit'
-            });
-            document.getElementById('photoStatsBar').style.display = 'flex';
+            // Update progress text
+            document.getElementById('loadingProgressText').textContent = 
+                attempt > 1 ? `Mencoba lagi (${attempt}/${MAX_RETRIES})...` : 'Memuat foto dari folder Drive...';
             
-            galleryHasLoaded = true;
-        } else {
-            showPhotoState('empty');
-            showDriveStatus('warning', '⚠️ Folder kosong atau tidak ada file gambar');
+            // Fetch via Apps Script Proxy
+            const photos = await fetchViaAppsScriptProxy();
+            
+            // Render hasil
+            if (photos && photos.length > 0) {
+                googleDrivePhotos = photos;
+                renderPhotoGallery(photos);
+                updateStatsBar(photos);
+                showPhotoState('data');
+                showDriveStatus('success', `✅ ${photos.length} foto berhasil dimuat dari ${countUniqueFolders(photos)} folder`);
+                
+                // Update timestamp
+                const now = new Date();
+                document.getElementById('lastSyncTime').textContent = now.toLocaleString('id-ID', {
+                    day: '2-digit', month: 'short', year: 'numeric', 
+                    hour: '2-digit', minute: '2-digit'
+                });
+                document.getElementById('photoStatsBar').style.display = 'flex';
+                
+                galleryHasLoaded = true;
+                return; // Success!
+            } else {
+                showPhotoState('empty');
+                showDriveStatus('warning', '⚠️ Folder kosong atau tidak ada file gambar');
+                return;
+            }
+            
+        } catch (error) {
+            console.error(`Attempt ${attempt} failed:`, error);
+            lastError = error;
+            
+            // Jika belum deployed, jangan retry
+            if (error.message === 'NOT_DEPLOYED') {
+                throw error;
+            }
+            
+            // Wait sebelum retry
+            if (attempt < MAX_RETRIES) {
+                await new Promise(resolve => setTimeout(resolve, 1500));
+            }
         }
-        
-    } catch (error) {
-        console.error('Gallery load error:', error);
-        showPhotoState('error');
-        
-        // Pesan error yang informatif
-        let errorMsg = error.message;
-        if (errorMsg.includes('Apps Script belum')) {
-            errorMsg = '📋 INSTRUKSI DEPLOY:\n\n1. Buka https://script.google.com\n2. Buat project baru\n3. Copy isi file DriveProxy.gs\n4. Deploy > New deployment > Web app\n5. Set "Execute as: Me" & "Who has access: Anyone"\n6. Copy URL deploy, paste ke variabel APPS_SCRIPT_URL di HTML';
-        }
-        document.getElementById('errorMessage').innerHTML = errorMsg.replace(/\n/g, '<br>');
-        showDriveStatus('error', '❌ Gagal memuat foto dari Drive');
-    } finally {
-        galleryLoadInProgress = false;
-        updateRefreshButton(false);
     }
+    
+    // All retries failed
+    showPhotoState('error');
+    let errorMsg = lastError?.message || 'Unknown error';
+    
+    if (errorMsg.includes('NOT_DEPLOYED')) {
+        errorMsg = getDeployInstructions();
+    } else if (errorMsg.includes('Server error') || errorMsg.includes('Failed to fetch')) {
+        errorMsg = `Gagal terhubung ke server.<br><br>Kemungkinan penyebab:<br>• Apps Script URL salah<br>• Belum di-deploy<br>• Network issue<br><br>${getDeployInstructionsShort()}`;
+    }
+    
+    document.getElementById('errorMessage').innerHTML = errorMsg;
+    showDriveStatus('error', '❌ Gagal memuat foto dari Drive');
+    
+    galleryLoadInProgress = false;
+    updateRefreshButton(false);
+}
+
+/**
+ * Count unique folders from photo data
+ */
+function countUniqueFolders(photos) {
+    const folders = new Set(photos.map(p => p.folderName || p.tema).filter(Boolean));
+    return folders.size;
+}
+
+/**
+ * Get deploy instructions HTML
+ */
+function getDeployInstructions() {
+    return `📋 <strong>INSTRUKSI DEPLOY GOOGLE APPS SCRIPT</strong><br><br>
+        Galeri foto memerlukan Google Apps Script sebagai backend proxy untuk mengakses Google Drive.<br><br>
+        <strong>Langkah-langkah:</strong><br>
+        <ol style="text-align:left; display:inline-block; margin-top:10px;">
+            <li>Buka <a href="https://script.google.com" target="blank" style="color:#3b82f6">script.google.com</a></li>
+            <li>Klik <strong>New Project</strong></li>
+            <li>Copy SELURUH isi file <code>DriveProxy.gs</code></li>
+            <li>Paste ke editor, lalu Save (Ctrl+S)</li>
+            <li>Klik <strong>Deploy > New deployment</strong></li>
+            <li>Pilih type: <strong>Web app</strong></li>
+            <li>Set: Execute as=<strong>Me</strong>, Who has access=<strong>Anyone</strong></li>
+            <li>Klik <strong>Deploy</strong></li>
+            <li><strong>Copy URL</strong> yang muncul</li>
+            <li>Paste URL ke variabel <code>APPS_SCRIPT_URL</code> di file HTML (baris ~7480)</li>
+        </ol>`;
+}
+
+function getDeployInstructionsShort() {
+    return `<small style="color:#94a3b8">Pastikan Apps Script sudah di-deploy dan URL sudah benar.</small>`;
 }
 
 /**
  * Fetch via Google Apps Script Proxy (METODE UTAMA)
- * SATU-SATUNYA cara mengambil foto dari Google Drive tanpa API Key
+ * Mengambil data dari Apps Script dengan support sub-folder rekursif
  */
 async function fetchViaAppsScriptProxy() {
     try {
-        const url = `${APPS_SCRIPT_URL}?folderId=${DRIVE_FOLDER_ID}&maxFiles=100&t=${Date.now()}`;
+        const url = `${APPS_SCRIPT_URL}?folderId=${DRIVE_FOLDER_ID}&maxFiles=200&t=${Date.now()}`;
         
         const response = await fetch(url, {
             method: 'GET',
-            mode: 'cors'
+            mode: 'cors',
+            headers: { 'Accept': 'application/json' }
         });
         
         if (!response.ok) {
@@ -7828,18 +7886,34 @@ async function fetchViaAppsScriptProxy() {
             return [];
         }
         
-        // Transform data dari Apps Script format
+        // Transform data - gunakan folderName sebagai tema utama
         return data.files.map((file, index) => {
+            // Parse nama file untuk info tambahan
             const parsed = parseFileName(file.name);
+            
+            // Gunakan folderName sebagai tema (lebih reliable)
+            const tema = file.folderName || parsed.tema || 'Kegiatan';
+            
             return {
                 id: file.id,
                 name: file.name,
-                thumbnailUrl: file.altThumbnail || getDriveThumbnailUrl(file.id),
-                fullImageUrl: file.viewUrl || getDriveImageUrl(file.id),
-                createdTime: file.createdTime,
+                thumbnailUrl: file.altThumbnail || file.thumbnailLink || getDriveThumbnailUrl(file.id),
+                fullImageUrl: file.fullSizeUrl || file.viewUrl || getDriveImageUrl(file.id),
+                createdTime: file.createdTime || file.lastUpdated,
                 size: file.size,
                 mimeType: file.mimeType,
-                ...parsed,
+                
+                // Info folder (PENTING!)
+                folderName: file.folderName || '',
+                folderPath: file.folderPath || '',
+                parentId: file.parentId || '',
+                
+                // Tema & kategori (dari folder name atau filename parsing)
+                tema: tema,
+                tanggal: parsed.tanggal,
+                tempat: file.folderName || parsed.tempat,
+                kategori: detectKategori(tema),
+                
                 index: index,
                 isFromProxy: true
             };
@@ -7853,33 +7927,40 @@ async function fetchViaAppsScriptProxy() {
 
 /**
  * Render photo gallery to DOM
+ * Grouping berdasarkan FOLDER ASAL (folderName)
  */
 function renderPhotoGallery(photos) {
     const container = document.getElementById('photoGridOutput');
     
-    // Group photos by event (tema + tanggal combination)
-    const groupedPhotos = groupPhotosByEvent(photos);
+    // Group photos by FOLDER NAME (lebih reliable untuk struktur folder)
+    const groupedPhotos = groupPhotosByFolder(photos);
     
     let html = '';
+    let eventIndex = 0;
     
-    Object.keys(groupedPhotos).forEach((eventKey, eventIndex) => {
-        const event = groupedPhotos[eventKey];
+    Object.keys(groupedPhotos).forEach((folderName) => {
+        const event = groupedPhotos[folderName];
         const categoryClass = event[0].kategori || 'acara';
+        const firstPhoto = event[0];
+        
+        // Format nama folder (capitalize, replace underscore/hyphen dengan space)
+        const displayName = formatFolderName(folderName);
         
         html += `
             <div class="photo-folder" data-category="${categoryClass}" style="margin-top: ${eventIndex > 0 ? '28px' : '0'};">
                 <div class="folder-label">
                     <i class="fas ${getCategoryIcon(categoryClass)}"></i> 
-                    ${event[0].tema}
-                    ${event[0].tanggal ? `<span style="font-size: 12px; color: #94a3b8; font-weight: 400; margin-left: 8px;">📅 ${event[0].tanggal}</span>` : ''}
-                    ${event[0].tempat ? `<span style="font-size: 12px; color: #94a3b8; font-weight: 400; margin-left: 8px;">📍 ${event[0].tempat}</span>` : ''}
-                    <span style="background: #dcfce7; color: #059669; padding: 2px 10px; border-radius: 20px; font-size: 11px; margin-left: auto;">${event.length} foto</span>
+                    <span class="folder-title-text">${displayName}</span>
+                    ${firstPhoto.tanggal ? `<span style="font-size: 12px; color: #94a3b8; font-weight: 400; margin-left: 8px;">📅 ${firstPhoto.tanggal}</span>` : ''}
+                    <span style="background: linear-gradient(135deg, #059669, #22c55e); color: white; padding: 3px 12px; border-radius: 15px; font-size: 11px; font-weight: 600; margin-left: auto;">
+                        <i class="fas fa-images" style="margin-right: 4px;"></i>${event.length} foto
+                    </span>
                 </div>
                 <div class="photo-grid">
         `;
         
-        event.forEach((photo, photoIndex) => {
-            const titleCaption = `${photo.tema}${photo.tanggal ? ' | 📅 ' + photo.tanggal : ''}${photo.tempat ? ' | 📍 ' + photo.tempat : ''}`;
+        event.forEach((photo) => {
+            const titleCaption = `${displayName}${photo.tanggal ? ' | 📅 ' + photo.tanggal : ''}`;
             
             html += `
                 <div class="photo-card" onclick="openLightbox(this)" 
@@ -7889,13 +7970,12 @@ function renderPhotoGallery(photos) {
                     <img src="${photo.thumbnailUrl}" 
                          alt="${photo.name}" 
                          loading="lazy"
-                         onerror="this.src='https://picsum.photos/seed/error/300/300'">
+                         onerror="this.onerror=null; this.src='https://via.placeholder.com/300x300?text=Error'">
                     <div class="photo-overlay">
                         <p>
-                            <strong>${photo.tema}</strong><br>
+                            <strong>${displayName}</strong><br>
                             <small>
-                                ${photo.tanggal ? '📅 ' + photo.tanggal : ''}
-                                ${photo.tempat ? ' | 📍 ' + photo.tempat : ''}
+                                <i class="fas fa-image"></i> ${photo.name}
                             </small>
                         </p>
                     </div>
@@ -7904,23 +7984,43 @@ function renderPhotoGallery(photos) {
         });
         
         html += '</div></div>';
+        eventIndex++;
     });
     
     container.innerHTML = html;
 }
 
 /**
- * Group photos by event (same tema + tanggal = same event)
+ * Format folder name untuk display
+ * Contoh: "rapat_koordinasi_januari" → "Rapat Koordinasi Januari"
  */
-function groupPhotosByEvent(photos) {
+function formatFolderName(name) {
+    if (!name) return 'Kegiatan';
+    
+    return name
+        .replace(/[_\-]/g, ' ')       // Replace _ dan - dengan space
+        .replace(/\s+/g, ' ')          // Remove multiple spaces
+        .replace(/(\w)(\w*)/g, (match, first, rest) => {  // Capitalize each word
+            return first.toUpperCase() + rest.toLowerCase();
+        })
+        .trim();
+}
+
+/**
+ * Group photos by FOLDER NAME (struktur utama)
+ * Setiap folder di Drive menjadi satu grup foto
+ */
+function groupPhotosByFolder(photos) {
     const groups = {};
     
     photos.forEach(photo => {
-        const eventKey = `${photo.tema}_${photo.tanggal || 'unknown'}`;
-        if (!groups[eventKey]) {
-            groups[eventKey] = [];
+        // Gunakan folderName sebagai key (prioritas tinggi)
+        const folderKey = photo.folderName || photo.tema || 'Kegiatan';
+        
+        if (!groups[folderKey]) {
+            groups[folderKey] = [];
         }
-        groups[eventKey].push(photo);
+        groups[folderKey].push(photo);
     });
     
     return groups;
@@ -8003,16 +8103,16 @@ function updateRefreshButton(isLoading) {
 }
 
 /**
- * Update stats bar
+ * Update stats bar - dengan info folder
  */
 function updateStatsBar(photos) {
     const totalPhotos = photos.length;
-    const events = new Set(photos.map(p => `${p.tema}_${p.tanggal}`)).size;
-    const locations = new Set(photos.filter(p => p.tempat).map(p => p.tempat)).size;
+    const folders = new Set(photos.map(p => p.folderName).filter(Boolean)).size;
+    const events = new Set(photos.map(p => p.tema)).size;
     
     document.getElementById('totalPhotosCount').textContent = totalPhotos;
-    document.getElementById('totalEventsCount').textContent = events;
-    document.getElementById('totalLocationsCount').textContent = locations;
+    document.getElementById('totalEventsCount').textContent = folders; // Jumlah folder
+    document.getElementById('totalLocationsCount').textContent = events; // Jumlah tema unik
 }
 
 /**
@@ -8037,56 +8137,97 @@ function filterPhotosDynamic(category, btnElement) {
     
 }
 
-// Auto-load gallery when popup opens - MORE RELIABLE
+// Auto-load gallery when popup opens - SUPER RELIABLE
 function initGalleryAutoLoad() {
-    // Method 1: Observer untuk style changes
+    console.log('[Gallery] Initializing auto-load...');
+    
+    // Method 1: Observer untuk style changes (paling reliable)
     const popupObserver = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.type === 'attributes') {
                 const popup = document.getElementById('popupFoto');
-                if (popup && popup.style.display === 'block' && !galleryHasLoaded) {
-                    setTimeout(() => loadGalleryPhotos(), 500);
+                // Cek apakah popup visible (display:block atau ada class show)
+                const isVisible = popup && (
+                    popup.style.display === 'block' || 
+                    popup.style.visibility === 'visible' ||
+                    popup.classList.contains('show') ||
+                    getComputedStyle(popup).display !== 'none'
+                );
+                
+                if (isVisible && !galleryHasLoaded) {
+                    console.log('[Gallery] Popup detected as visible, loading photos...');
+                    setTimeout(() => loadGalleryPhotos(), 400);
                 }
             }
         });
     });
     
     // Method 2: Intercept openPopup function
-    const originalOpenPopup = window.openPopup;
-    if (typeof originalOpenPopup === 'function') {
+    if (typeof window.openPopup === 'function') {
+        const originalOpenPopup = window.openPopup;
         window.openPopup = function(popupId) {
             originalOpenPopup(popupId);
+            console.log(`[Gallery] openPopup called with: ${popupId}`);
             if (popupId === 'popupFoto' && !galleryHasLoaded) {
-                setTimeout(() => loadGalleryPhotos(), 600);
+                setTimeout(() => loadGalleryPhotos(), 500);
             }
         };
+        console.log('[Gallery] openPopup intercepted');
+    } else {
+        console.warn('[Gallery] openPopup not found, will use observer only');
     }
     
-    // Start observer
+    // Start observer on popupFoto element
     const popupFoto = document.getElementById('popupFoto');
     if (popupFoto) {
         popupObserver.observe(popupFoto, { 
             attributes: true, 
-            attributeFilter: ['style', 'class'] 
+            attributeFilter: ['style', 'class', 'visibility'] 
         });
+        console.log('[Gallery] Observer attached to popupFoto');
+    } else {
+        console.error('[Gallery] popupFoto element not found!');
     }
     
-    // Also try clicking on gallery trigger buttons
-    document.querySelectorAll('[onclick*="popupFoto"]').forEach(btn => {
-        btn.addEventListener('click', function() {
+    // Method 3: Click handlers for all buttons that trigger gallery
+    document.querySelectorAll('a[href*="popupFoto"], button[onclick*="popupFoto"], [data-popup="popupFoto"]').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            console.log('[Gallery] Gallery trigger clicked');
             if (!galleryHasLoaded) {
-                setTimeout(() => loadGalleryPhotos(), 700);
+                setTimeout(() => loadGalleryPhotos(), 600);
             }
         });
     });
+    
+    // Method 4: Also check periodically (backup)
+    let checkCount = 0;
+    const intervalCheck = setInterval(() => {
+        checkCount++;
+        if (checkCount > 30) { // Stop after ~30 seconds
+            clearInterval(intervalCheck);
+            return;
+        }
+        
+        const popup = document.getElementById('popupFoto');
+        if (popup && !galleryHasLoaded) {
+            const style = window.getComputedStyle(popup);
+            if (style.display !== 'none' && style.visibility !== 'hidden') {
+                console.log(`[Gallery] Periodic check #${checkCount}: Popup is visible, loading...`);
+                loadGalleryPhotos();
+            }
+        }
+    }, 1000);
 }
 
-// Initialize auto-load on DOM ready
+// Initialize auto-load on DOM ready (multiple times for safety)
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('[Gallery] DOMContentLoaded - initializing...');
     initGalleryAutoLoad();
-    
-    // Backup: Also initialize after a short delay
-    setTimeout(initGalleryAutoLoad, 1000);
+});
+
+// Backup initialization after page fully loaded
+window.addEventListener('load', function() {
+    setTimeout(initGalleryAutoLoad, 500);
 });
 
 // ===== GALLERY FUNCTIONS - GALERI VIDEO =====
