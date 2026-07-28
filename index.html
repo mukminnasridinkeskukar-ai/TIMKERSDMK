@@ -8245,7 +8245,7 @@ document.head.appendChild(styleSheet);
  * Jalankan dari console untuk testing
  */
 async function testConnection() {
-    if (WEB_APP_URL === 'https://script.google.com/macros/s/AKfycbxkwOl3ShYyYH1zSXjvo60KzzpEBs3Olr2eYHCvarXCY0C7wvxjOqNfYOMWWH3sA-xW/exec') {
+    if (WEB_APP_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
         console.warn('⚠️ Web App URL belum dikonfigurasi!');
         return false;
     }
@@ -8404,6 +8404,12 @@ const SecureNIPHandler = {
         }
     }
 };
+
+// ============================================
+// KONFIGURASI URL WEB APP SK JFK
+// Ganti dengan URL Web App Anda dari Google Apps Script
+// ============================================
+const SK_JFK_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzisw4uWSeTyk7deipFBzoA--3S_TG_x3_XCZM023D4PqdxPfV2uzMVEa8IaCT1eiav/exec';
 
 /**
  * searchByNipSecure() - Fungsi pencarian NIP yang aman
