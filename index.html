@@ -3043,6 +3043,595 @@ body {
 }
 
 /* ============================================ */
+/* ===== CERTIFICATE STYLES - SERTIFIKAT ===== */
+/* ============================================ */
+
+/* Certificate Modal Enhancement */
+#popupSertifikat .modal-box {
+    max-width: 1300px !important;
+}
+
+#popupSertifikat .modal-top {
+    background: linear-gradient(135deg, #b45309 0%, #d97706 30%, #f59e0b 60%, #fbbf24 100%) !important;
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.4);
+}
+
+#popupSertifikat .modal-body-content {
+    max-height: 82vh;
+    overflow-y: auto;
+    padding: 24px;
+    background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 50%, #ffffff 100%);
+}
+
+/* Certificate Header Stats */
+.cert-header-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.cert-stat-card {
+    background: linear-gradient(135deg, #fff 0%, #fffbeb 100%);
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+    border: 2px solid #fcd34d;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.12);
+    transition: all 0.3s ease;
+}
+
+.cert-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(245, 158, 11, 0.25);
+    border-color: #f59e0b;
+}
+
+.cert-stat-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    font-size: 20px;
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.cert-stat-number {
+    font-size: 26px;
+    font-weight: 900;
+    color: #b45309;
+    margin-bottom: 4px;
+}
+
+.cert-stat-label {
+    font-size: 12px;
+    color: #92400e;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Certificate Category Tabs */
+.cert-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: white;
+    border-radius: 14px;
+    border: 2px solid #fcd34d;
+}
+
+.cert-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border: 2px solid #fcd34d;
+    color: #92400e;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+}
+
+.cert-tab-btn:hover {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border-color: #f59e0b;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+}
+
+.cert-tab-btn.active {
+    background: linear-gradient(135deg, #b45309, #d97706);
+    color: white;
+    border-color: #b45309;
+    box-shadow: 0 6px 20px rgba(180, 83, 9, 0.35);
+}
+
+/* Certificate Group Section */
+.cert-group {
+    margin-bottom: 32px;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(180, 83, 9, 0.12);
+    border: 2px solid #fcd34d;
+    animation: certFadeIn 0.5s ease-out;
+}
+
+@keyframes certFadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.cert-group-header {
+    background: linear-gradient(135deg, #b45309 0%, #d97706 50%, #f59e0b 100%);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.cert-group-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.cert-group-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: white;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.3);
+}
+
+.cert-group-title h4 {
+    color: white;
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.cert-group-title span {
+    color: rgba(255,255,255,0.9);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.cert-group-badge {
+    background: rgba(255,255,255,0.25);
+    backdrop-filter: blur(10px);
+    padding: 8px 16px;
+    border-radius: 50px;
+    color: white;
+    font-weight: 700;
+    font-size: 13px;
+    border: 2px solid rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cert-group-content {
+    padding: 20px;
+}
+
+/* Certificate Grid Layout */
+.cert-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+/* Individual Certificate Card */
+.cert-card {
+    position: relative;
+    background: linear-gradient(145deg, #ffffff, #fffbeb);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 15px rgba(180, 83, 9, 0.1);
+    border: 2px solid #fcd34d;
+}
+
+.cert-card:hover {
+    transform: scale(1.03) translateY(-8px) rotateY(2deg);
+    box-shadow: 0 20px 40px rgba(180, 83, 9, 0.25);
+    border-color: #f59e0b;
+    z-index: 10;
+}
+
+.cert-card-image {
+    position: relative;
+    aspect-ratio: 4/3;
+    overflow: hidden;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+}
+
+.cert-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.cert-card:hover .cert-card-image img {
+    transform: scale(1.1);
+}
+
+.cert-card-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: linear-gradient(135deg, #b45309, #d97706);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(180, 83, 9, 0.4);
+    z-index: 2;
+}
+
+.cert-card-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(180, 83, 9, 0.9));
+    padding: 30px 14px 14px;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 2;
+}
+
+.cert-card:hover .cert-card-overlay {
+    opacity: 1;
+}
+
+.cert-card-overlay p {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.cert-card-info {
+    padding: 14px;
+    background: white;
+}
+
+.cert-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #78350f;
+    margin: 0 0 6px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.cert-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: #a16207;
+}
+
+.cert-card-meta i {
+    font-size: 10px;
+}
+
+/* Activity Photos Section within Certificate */
+.cert-activity-section {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 2px dashed #fcd34d;
+}
+
+.cert-activity-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    color: #92400e;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.cert-activity-title i {
+    color: #f59e0b;
+}
+
+.cert-activity-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+.cert-activity-photo {
+    aspect-ratio: 1;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid #fcd34d;
+    transition: all 0.3s ease;
+    background: #fef3c7;
+}
+
+.cert-activity-photo:hover {
+    transform: scale(1.08);
+    border-color: #f59e0b;
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+}
+
+.cert-activity-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Certificate Lightbox */
+.cert-lightbox-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.cert-lightbox-overlay.show {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+}
+
+.cert-lightbox-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 25px 80px rgba(180, 83, 9, 0.4);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+    border: 3px solid #f59e0b;
+}
+
+.cert-lightbox-overlay.show .cert-lightbox-content {
+    transform: scale(1);
+}
+
+.cert-lightbox-close {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    border-radius: 50%;
+    border: 3px solid white;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+    transition: all 0.3s ease;
+}
+
+.cert-lightbox-close:hover {
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5);
+}
+
+.cert-lightbox-image {
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+    display: block;
+}
+
+.cert-lightbox-caption {
+    background: linear-gradient(135deg, #b45309, #d97706);
+    padding: 16px 24px;
+    color: white;
+    text-align: center;
+}
+
+.cert-lightbox-caption h4 {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.cert-lightbox-caption p {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.95;
+}
+
+.cert-lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-radius: 50%;
+    border: 3px solid white;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+    transition: all 0.3s ease;
+}
+
+.cert-lightbox-nav:hover {
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+}
+
+.cert-lightbox-prev { left: -24px; }
+.cert-lightbox-next { right: -24px; }
+
+/* Loading State for Certificates */
+.cert-loading-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.cert-loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid #fcd34d;
+    border-top-color: #f59e0b;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 18px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.cert-loading-text {
+    color: #92400e;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.cert-loading-subtext {
+    color: #a16207;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+/* Empty State */
+.cert-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 20px;
+    border: 2px dashed #fcd34d;
+}
+
+.cert-empty-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+
+.cert-empty-state h4 {
+    color: #78350f;
+    margin: 0 0 8px;
+    font-size: 18px;
+}
+
+.cert-empty-state p {
+    color: #a16207;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Error State */
+.cert-error-state {
+    text-align: left;
+    padding: 30px;
+    background: #fef2f2;
+    border-radius: 16px;
+    border: 2px dashed #fecaca;
+    max-width: 650px;
+    margin: 0 auto;
+}
+
+.cert-error-state h4 {
+    color: #dc2626;
+    margin: 0 0 12px;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cert-error-state p {
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 0 0 16px;
+}
+
+/* Responsive Design for Certificates */
+@media (max-width: 1200px) {
+    .cert-grid { grid-template-columns: repeat(3, 1fr); }
+    .cert-activity-grid { grid-template-columns: repeat(4, 1fr); }
+    .cert-header-stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .cert-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .cert-activity-grid { grid-template-columns: repeat(3, 1fr); }
+    .cert-header-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .cert-stat-card { padding: 14px; }
+    .cert-stat-number { font-size: 22px; }
+    .cert-group-header { padding: 14px 16px; }
+    .cert-group-title h4 { font-size: 15px; }
+    .cert-tabs { padding: 12px; gap: 8px; }
+    .cert-tab-btn { padding: 8px 14px; font-size: 12px; }
+}
+
+@media (max-width: 480px) {
+    .cert-grid { grid-template-columns: 1fr; }
+    .cert-activity-grid { grid-template-columns: repeat(2, 1fr); }
+    .cert-header-stats { grid-template-columns: 1fr 1fr; }
+    #popupSertifikat .modal-body-content { padding: 16px; }
+    .cert-group-content { padding: 14px; }
+}
+
+/* ============================================ */
 /* ===== GALLERY STYLES - GALERI VIDEO ===== */
 /* ============================================ */
 
@@ -5226,17 +5815,100 @@ body {
 </div>
 
 <!-- Sertifikat -->
-<div class="modal-popup-overlay" id="popupSertifikat">
-    <div class="modal-box">
-        <div class="modal-top">
-            <h3><i class="fas fa-certificate"></i> Sertifikat & Prestasi</h3>
+<div class="modal-popup-overlay gallery-modal" id="popupSertifikat">
+    <div class="modal-box" style="max-width: 1300px;">
+        <div class="modal-top" style="background: linear-gradient(135deg, #b45309, #d97706, #f59e0b, #fbbf24);">
+            <h3><i class="fas fa-award"></i> Sertifikat & Prestasi Kegiatan</h3>
             <button class="close-modal-btn" onclick="closePopup('popupSertifikat')"><i class="fas fa-times"></i></button>
         </div>
-        <div class="modal-body-content">
-            <h4>Prestasi dan Penghargaan</h4>
-            <p>Pencapaian Timker SDM Kesehatan:</p>
-            <p>• Nominator Inovasi OPD Tingkat Kabupaten Kutai Kartanegara tahun 2025</p>
-           
+        <div class="modal-body-content" style="max-height: 82vh; overflow-y: auto; padding: 24px; background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 50%, #ffffff 100%);">
+            
+            <!-- Header Stats -->
+            <div class="cert-header-stats" id="certHeaderStats">
+                <div class="cert-stat-card">
+                    <div class="cert-stat-icon"><i class="fas fa-certificate"></i></div>
+                    <div class="cert-stat-number" id="totalCertsCount">0</div>
+                    <div class="cert-stat-label">Total Sertifikat</div>
+                </div>
+                <div class="cert-stat-card">
+                    <div class="cert-stat-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="cert-stat-number" id="totalAwardsCount">0</div>
+                    <div class="cert-stat-label">Penghargaan</div>
+                </div>
+                <div class="cert-stat-card">
+                    <div class="cert-stat-icon"><i class="fas fa-folder-open"></i></div>
+                    <div class="cert-stat-number" id="totalCertCategories">0</div>
+                    <div class="cert-stat-label">Kategori</div>
+                </div>
+                <div class="cert-stat-card">
+                    <div class="cert-stat-icon"><i class="fas fa-images"></i></div>
+                    <div class="cert-stat-number" id="totalActivityPhotos">0</div>
+                    <div class="cert-stat-label">Foto Kegiatan</div>
+                </div>
+            </div>
+
+            <!-- Category Tabs -->
+            <div class="cert-tabs" id="certTabsContainer">
+                <button class="cert-tab-btn active" onclick="filterCertificates('semua', this)">
+                    <i class="fas fa-th-large"></i> Semua
+                </button>
+                <button class="cert-tab-btn" onclick="filterCertificates('penghargaan', this)">
+                    <i class="fas fa-trophy"></i> Penghargaan
+                </button>
+                <button class="cert-tab-btn" onclick="filterCertificates('sertifikat', this)">
+                    <i class="fas fa-certificate"></i> Sertifikat
+                </button>
+                <button class="cert-tab-btn" onclick="filterCertificates('piagam', this)">
+                    <i class="fas fa-scroll"></i> Piagam
+                </button>
+                <button class="cert-tab-btn" onclick="filterCertificates('prestasi', this)">
+                    <i class="fas fa-medal"></i> Prestasi
+                </button>
+            </div>
+
+            <!-- Certificate Container -->
+            <div id="certGridContainer">
+                <!-- Loading State -->
+                <div id="certLoadingState" style="display: none;" class="cert-loading-state">
+                    <div class="cert-loading-spinner"></div>
+                    <p class="cert-loading-text"><i class="fas fa-cloud-download-alt" style="margin-right: 8px;"></i>Memuat data sertifikat...</p>
+                    <p class="cert-loading-subtext">Mengambil file dari Google Drive</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="certErrorState" style="display: none;" class="cert-error-state">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Gagal Memuat Data</h4>
+                    <p id="certErrorMessage">Terjadi kesalahan saat mengambil data sertifikat. Pastikan Google Apps Script sudah di-deploy dengan benar.</p>
+                    <button onclick="loadCertificateData()" style="width: 100%; padding: 12px; background: #dc2626; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                        <i class="fas fa-redo" style="margin-right: 8px;"></i> Coba Lagi
+                    </button>
+                </div>
+
+                <!-- Empty State -->
+                <div id="certEmptyState" style="display: none;" class="cert-empty-state">
+                    <div class="cert-empty-icon">🏆</div>
+                    <h4>Belum Ada Data Sertifikat</h4>
+                    <p>Folder sertifikat kosong atau belum ada file yang diunggah.</p>
+                </div>
+
+                <!-- Certificate Output Grid -->
+                <div id="certGridOutput"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Certificate Lightbox Overlay -->
+<div class="cert-lightbox-overlay" id="certLightboxOverlay" onclick="closeCertLightbox(event)">
+    <div class="cert-lightbox-content" onclick="event.stopPropagation()">
+        <button class="cert-lightbox-close" onclick="closeCertLightbox()"><i class="fas fa-times"></i></button>
+        <button class="cert-lightbox-nav cert-lightbox-prev" onclick="navigateCertLightbox(-1)"><i class="fas fa-chevron-left"></i></button>
+        <img id="certLightboxImage" src="" alt="Certificate Preview" class="cert-lightbox-image">
+        <button class="cert-lightbox-nav cert-lightbox-next" onclick="navigateCertLightbox(1)"><i class="fas fa-chevron-right"></i></button>
+        <div class="cert-lightbox-caption" id="certLightboxCaption">
+            <h4 id="certLbTitle">Judul Sertifikat</h4>
+            <p id="certLbMeta">Informasi tambahan</p>
         </div>
     </div>
 </div>
@@ -7464,6 +8136,531 @@ function filterPhotos(category, btnElement) {
 }
 
 // ============================================================
+// ===== CERTIFICATE & AWARD SYSTEM (SERTIFIKAT) ==============
+// ============================================================
+
+/**
+ * KONFIGURASI SERTIFIKAT - TERPISAH DARI FOTO
+ * 
+ * GANTI DUA VARIABEL DI BAWAH INI:
+ * 1. CERT_FOLDER_ID → ID folder Google Drive khusus Sertifikat
+ * 2. CERT_SCRIPT_URL → URL deploy CertProxy.gs (TERPISAH dari DriveProxy!)
+ */
+const CERT_FOLDER_ID = '1b3guXfh6hE-uVjB9AWy54g9wLGIqUP9W'; // Folder KHUSUS untuk sertifikat
+
+// URL Apps Script KHUSUS untuk Sertifikat (CertProxy.gs)
+// Format: https://script.google.com/macros/s/XXXXX/exec
+const CERT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytktpzj69edeTHJLSuTh3JYFl-PU2agpxb0bLgEKVPfrjGHbxF0s0a4GYWuO-cIJSEEA/exec';
+
+/**
+ * Global variables untuk sertifikat
+ */
+let certificateData = [];
+let certLightboxImages = [];
+let currentCertLightboxIndex = 0;
+let certLoadInProgress = false;
+let certHasLoaded = false;
+
+/**
+ * Icon mapping untuk kategori sertifikat
+ */
+const certCategoryIcons = {
+    'penghargaan': 'fa-trophy',
+    'sertifikat': 'fa-certificate',
+    'piagam': 'fa-scroll',
+    'prestasi': 'fa-medal',
+    'default': 'fa-award'
+};
+
+/**
+ * Color themes untuk setiap grup sertifikat
+ */
+const certGroupColors = [
+    { bg: 'linear-gradient(135deg, #b45309 0%, #d97706 50%, #f59e0b 100%)', accent: '#f59e0b' },
+    { bg: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #a78bfa 100%)', accent: '#8b5cf6' },
+    { bg: 'linear-gradient(135deg, #0369a1 0%, #0ea5e9 50%, #38bdf8 100%)', accent: '#0ea5e9' },
+    { bg: 'linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%)', accent: '#10b981' },
+    { bg: 'linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%)', accent: '#ef4444' },
+    { bg: 'linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #22d3ee 100%)', accent: '#06b6d4' }
+];
+
+/**
+ * Load certificate data dari Google Drive
+ */
+async function loadCertificateData() {
+    if (certLoadInProgress) return;
+    certLoadInProgress = true;
+    
+    showCertState('loading');
+    
+    try {
+        // Cek apakah Cert Script sudah di-deploy
+        if (CERT_SCRIPT_URL.includes('YOUR_CERT_SCRIPT_ID')) {
+            throw new Error('CertProxy.gs belum di-deploy. Silakan deploy CertProxy.gs terlebih dahulu.');
+        }
+        
+        // Cek apakah Folder ID sudah dikonfigurasi
+        if (CERT_FOLDER_ID === 'GANTI_DENGAN_FOLDER_ID_SERTIFIKAT') {
+            throw new Error('Folder ID Sertifikat belum dikonfigurasi. Set CERT_FOLDER_ID dengan folder Google Drive khusus sertifikat.');
+        }
+        
+        // Fetch data dari CertProxy (Apps Script KHUSUS untuk Sertifikat)
+        const response = await fetch(`${CERT_SCRIPT_URL}?folderId=${CERT_FOLDER_ID}&maxFiles=150&type=certificates&recursive=true&t=${Date.now()}`, {
+            method: 'GET',
+            mode: 'cors'
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error?.message || data.error || 'Gagal mengambil data dari server CertProxy');
+        }
+        
+        if (data.files && data.files.length > 0) {
+            // Process certificate files
+            certificateData = processCertificateFiles(data.files);
+            
+            if (certificateData.length > 0) {
+                renderCertificates(certificateData);
+                updateCertStats(certificateData);
+                
+                // Show additional statistics from server
+                if (data.statistics) {
+                    console.log('[Certificate] Server Stats:', data.statistics);
+                }
+                
+                showCertState('data');
+                certHasLoaded = true;
+            } else {
+                showCertState('empty');
+            }
+        } else {
+            showCertState('empty');
+        }
+        
+    } catch (error) {
+        console.error('[Certificate] Error:', error);
+        showCertState('error');
+        document.getElementById('certErrorMessage').innerHTML = `
+            <strong>${error.message}</strong>
+            <br><br>
+            <div style="background: white; padding: 16px; border-radius: 10px; margin-top: 12px;">
+                <h5 style="color: #b45309; margin: 0 0 12px;"><i class="fas fa-list-ol" style="margin-right: 6px;"></i>Langkah Setup CertProxy (Wajib):</h5>
+                <ol style="color: #475569; font-size: 12px; padding-left: 18px; margin: 0; line-height: 1.9;">
+                    <li>Buat <strong>Folder Google Drive Khusus</strong> untuk sertifikat</li>
+                    <li>Upload file JPEG/PNG sertifikat ke folder tersebut</li>
+                    <li>Buka <a href="https://script.google.com" target="_blank" style="color: #3b82f6;">script.google.com</a></li>
+                    <li>New Project → Copy isi file <code>CertProxy.gs</code></li>
+                    <li>Edit <strong>TARGET_CERT_FOLDER_ID</strong> dengan ID folder sertifikat</li>
+                    <li>Save (Ctrl+S)</li>
+                    <li><strong>Deploy > New deployment > Web app</strong></li>
+                    <li>Execute as: <strong>Me</strong> | Access: <strong>Anyone</strong></li>
+                    <li>Klik Deploy → Copy URL yang muncul</li>
+                    <li>Paste URL ke variabel <code>CERT_SCRIPT_URL</code> di HTML</li>
+                    <li>Set <code>CERT_FOLDER_ID</code> dengan ID folder sertifikat</li>
+                </ol>
+            </div>
+        `;
+    } finally {
+        certLoadInProgress = false;
+    }
+}
+
+/**
+ * Process raw files into structured certificate data
+ */
+function processCertificateFiles(files) {
+    const processed = [];
+    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    
+    files.forEach((file, index) => {
+        const fileName = file.name.toLowerCase();
+        const ext = fileName.split('.').pop();
+        
+        // Only process image files
+        if (imageExtensions.includes(ext)) {
+            const parsed = parseCertFileName(file.name);
+            processed.push({
+                id: file.id,
+                name: file.name,
+                thumbnailUrl: file.altThumbnail || getDriveThumbnailUrl(file.id),
+                fullImageUrl: file.viewUrl || getDriveImageUrl(file.id),
+                createdTime: file.createdTime,
+                ...parsed,
+                index: index
+            });
+        }
+    });
+    
+    return processed;
+}
+
+/**
+ * Parse certificate filename untuk ekstrak informasi
+ * Expected format: YYYY-MM-DD_JudulSertifikat_Kategori_001.jpg
+ */
+function parseCertFileName(fileName) {
+    const baseName = fileName.replace(/\.[^/.]+$/, ''); // Remove extension
+    const parts = baseName.split('_');
+    
+    let tanggal = '';
+    let judul = baseName;
+    let kategori = 'sertifikat';
+    let tahun = new Date().getFullYear();
+    
+    // Try to extract date from first part (YYYY-MM-DD format)
+    if (parts.length >= 1 && /^\d{4}-\d{2}-\d{2}$/.test(parts[0])) {
+        tanggal = parts[0];
+        tahun = parts[0].substring(0, 4);
+        judul = parts.slice(1).join('_').replace(/_/g, ' ');
+    } else if (parts.length >= 1) {
+        judul = baseName.replace(/_/g, ' ');
+    }
+    
+    // Detect category from keywords
+    const nameLower = fileName.toLowerCase();
+    if (nameLower.includes('penghargaan') || nameLower.includes('award') || nameLower.includes('trophy')) {
+        kategori = 'penghargaan';
+    } else if (nameLower.includes('piagam') || nameLower.includes('charter')) {
+        kategori = 'piagam';
+    } else if (nameLower.includes('prestasi') || nameLower.includes('achievement') || nameLower.includes('medal')) {
+        kategori = 'prestasi';
+    } else if (nameLower.includes('sertifikat') || nameLower.includes('certificate')) {
+        kategori = 'sertifikat';
+    }
+    
+    // Format date for display
+    let tanggalFormatted = '';
+    if (tanggal) {
+        const dateParts = tanggal.split('-');
+        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                       'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        tanggalFormatted = `${parseInt(dateParts[2])} ${months[parseInt(dateParts[1]) - 1]} ${dateParts[0]}`;
+    }
+    
+    return {
+        tanggal: tanggal,
+        tanggalFormatted: tanggalFormatted,
+        judul: judul,
+        kategori: kategori,
+        tahun: tahun
+    };
+}
+
+/**
+ * Render certificates grouped by title/category
+ */
+function renderCertificates(certs) {
+    const container = document.getElementById('certGridOutput');
+    
+    // Group certificates by judul (title)
+    const groupedCerts = {};
+    certs.forEach(cert => {
+        const key = cert.judul.substring(0, 40); // Group by first 40 chars of title
+        if (!groupedCerts[key]) {
+            groupedCerts[key] = {
+                title: cert.judul,
+                kategori: cert.kategori,
+                tahun: cert.tahun,
+                items: []
+            };
+        }
+        groupedCerts[key].items.push(cert);
+    });
+    
+    let html = '';
+    let groupIndex = 0;
+    
+    Object.keys(groupedCerts).forEach(groupKey => {
+        const group = groupedCerts[groupKey];
+        const colorTheme = certGroupColors[groupIndex % certGroupColors.length];
+        const iconClass = certCategoryIcons[group.kategori] || certCategoryIcons['default'];
+        
+        html += `
+            <div class="cert-group" data-category="${group.kategori}" data-title="${groupKey}">
+                <div class="cert-group-header" style="background: ${colorTheme.bg};">
+                    <div class="cert-group-title">
+                        <div class="cert-group-icon">
+                            <i class="fas ${iconClass}"></i>
+                        </div>
+                        <div>
+                            <h4>${escapeHtml(group.title)}</h4>
+                            <span>${group.tahun} • ${group.items.length} Dokumen</span>
+                        </div>
+                    </div>
+                    <div class="cert-group-badge">
+                        <i class="fas ${iconClass}"></i>
+                        ${capitalizeFirst(group.kategori)}
+                    </div>
+                </div>
+                <div class="cert-group-content">
+                    <div class="cert-grid">
+                        ${group.items.map((cert, idx) => `
+                            <div class="cert-card" onclick="openCertLightbox(this)" 
+                                 data-img="${cert.fullImageUrl}" 
+                                 data-title="${escapeHtml(cert.judul)}"
+                                 data-meta="${cert.tanggalFormatted ? escapeHtml(cert.tanggalFormatted) : ''}"
+                                 style="animation-delay: ${idx * 0.05}s;">
+                                <div class="cert-card-image">
+                                    <img src="${cert.thumbnailUrl}" alt="${escapeHtml(cert.judul)}" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22><rect fill=%22%23fef3c7%22 width=%22400%22 height=%22300%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2224%22 fill=%22%23b45309%22>🏆 Sertifikat</text></svg>';">
+                                    <span class="cert-card-badge">${capitalizeFirst(cert.kategori)}</span>
+                                    <div class="cert-card-overlay">
+                                        <p><i class="fas fa-search-plus"></i> Klik untuk memperbesar</p>
+                                    </div>
+                                </div>
+                                <div class="cert-card-info">
+                                    <div class="cert-card-title">${escapeHtml(cert.judul)}</div>
+                                    <div class="cert-card-meta">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <span>${cert.tanggalFormatted || 'Tidak ada tanggal'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <!-- Activity Photos Section (show related photos if available) -->
+                    <div class="cert-activity-section">
+                        <div class="cert-activity-title">
+                            <i class="fas fa-camera-retro"></i>
+                            Foto Dokumentasi Kegiatan
+                        </div>
+                        <div class="cert-activity-grid">
+                            ${generateActivityPhotos(group.title, Math.min(group.items.length, 5))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        groupIndex++;
+    });
+    
+    container.innerHTML = html;
+}
+
+/**
+ * Generate activity photo placeholders (can be replaced with real photos)
+ */
+function generateActivityPhotos(title, count) {
+    let photos = '';
+    const activityIcons = ['📸', '🎯', '🏆', '🎉', '👥', '📋', '🎓', '💼'];
+    
+    for (let i = 0; i < count; i++) {
+        const icon = activityIcons[i % activityIcons.length];
+        photos += `
+            <div class="cert-activity-photo" title="Foto kegiatan ${i + 1}">
+                <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23fef3c7' width='200' height='200'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='48'>${icon}</text></svg>" 
+                     alt="Foto kegiatan ${i + 1}"
+                     loading="lazy">
+            </div>
+        `;
+    }
+    
+    return photos;
+}
+
+/**
+ * Update statistics display
+ */
+function updateCertStats(certs) {
+    const totalCerts = certs.length;
+    const categories = [...new Set(certs.map(c => c.kategori))];
+    const awardsCount = certs.filter(c => c.kategori === 'penghargaan' || c.kategori === 'prestasi').length;
+    
+    animateNumber('totalCertsCount', totalCerts);
+    animateNumber('totalAwardsCount', awardsCount);
+    animateNumber('totalCertCategories', categories.length);
+    animateNumber('totalActivityPhotos', totalCerts); // Assuming 1 activity photo per cert
+}
+
+/**
+ * Animate number counting up
+ */
+function animateNumber(elementId, targetValue) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    const duration = 800;
+    const start = 0;
+    const startTime = performance.now();
+    
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const currentValue = Math.round(start + (targetValue - start) * easeOut);
+        
+        element.textContent = currentValue;
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    
+    requestAnimationFrame(update);
+}
+
+/**
+ * Filter certificates by category
+ */
+function filterCertificates(category, btnElement) {
+    // Update active tab
+    document.querySelectorAll('#popupSertifikat .cert-tab-btn').forEach(btn => btn.classList.remove('active'));
+    btnElement.classList.add('active');
+    
+    // Show/hide certificate groups
+    const groups = document.querySelectorAll('#popupSertifikat .cert-group');
+    groups.forEach(group => {
+        if (category === 'semua' || group.getAttribute('data-category') === category) {
+            group.style.display = 'block';
+        } else {
+            group.style.display = 'none';
+        }
+    });
+}
+
+/**
+ * Show different states (loading/error/empty/data)
+ */
+function showCertState(state) {
+    const states = ['loading', 'error', 'empty'];
+    states.forEach(s => {
+        const el = document.getElementById(`cert${s.charAt(0).toUpperCase() + s.slice(1)}State`);
+        if (el) el.style.display = s === state ? 'block' : 'none';
+    });
+    
+    const outputEl = document.getElementById('certGridOutput');
+    if (outputEl) outputEl.style.display = state === 'data' ? 'block' : 'none';
+    
+    const statsEl = document.getElementById('certHeaderStats');
+    if (statsEl) statsEl.style.display = state === 'data' ? 'grid' : 'none';
+    
+    const tabsEl = document.getElementById('certTabsContainer');
+    if (tabsEl) tabsEl.style.display = state === 'data' ? 'flex' : 'none';
+}
+
+/**
+ * Open Certificate Lightbox
+ */
+function openCertLightbox(cardElement) {
+    const imgSrc = cardElement.getAttribute('data-img');
+    const title = cardElement.getAttribute('data-title');
+    const meta = cardElement.getAttribute('data-meta');
+    
+    // Collect all certificate images for navigation
+    certLightboxImages = Array.from(document.querySelectorAll('#popupSertifikat .cert-card'));
+    currentCertLightboxIndex = certLightboxImages.indexOf(cardElement);
+    
+    document.getElementById('certLightboxImage').src = imgSrc;
+    document.getElementById('certLbTitle').textContent = title;
+    document.getElementById('certLbMeta').textContent = meta ? meta : 'Dokumen Sertifikat';
+    
+    document.getElementById('certLightboxOverlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Close Certificate Lightbox
+ */
+function closeCertLightbox(event) {
+    if (event && event.target !== event.currentTarget && !event.target.classList.contains('cert-lightbox-close')) {
+        return;
+    }
+    
+    document.getElementById('certLightboxOverlay').classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+/**
+ * Navigate Certificate Lightbox
+ */
+function navigateCertLightbox(direction) {
+    currentCertLightboxIndex += direction;
+    
+    if (currentCertLightboxIndex < 0) currentCertLightboxIndex = certLightboxImages.length - 1;
+    if (currentCertLightboxIndex >= certLightboxImages.length) currentCertLightboxIndex = 0;
+    
+    const card = certLightboxImages[currentCertLightboxIndex];
+    const imgSrc = card.getAttribute('data-img');
+    const title = card.getAttribute('data-title');
+    const meta = card.getAttribute('data-meta');
+    
+    document.getElementById('certLightboxImage').src = imgSrc;
+    document.getElementById('certLbTitle').textContent = title;
+    document.getElementById('certLbMeta').textContent = meta ? meta : 'Dokumen Sertifikat';
+}
+
+/**
+ * Helper: Escape HTML to prevent XSS
+ */
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/**
+ * Helper: Capitalize first letter
+ */
+function capitalizeFirst(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
+ * Auto-load certificates when popup opens
+ */
+function initCertAutoLoad() {
+    console.log('[Certificate] Initializing auto-load...');
+    
+    // Method 1: MutationObserver on popup
+    const popupSertifikat = document.getElementById('popupSertifikat');
+    if (popupSertifikat) {
+        const certObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                    const isVisible = popupSertifikat.style.display !== 'none' && 
+                                     popupSertifikat.classList.contains('show');
+                    if (isVisible && !certHasLoaded && !certLoadInProgress) {
+                        console.log('[Certificate] Popup opened, loading data...');
+                        setTimeout(() => loadCertificateData(), 300);
+                    }
+                }
+            });
+        });
+        
+        certObserver.observe(popupSertifikat, { attributes: true });
+        console.log('[Certificate] Observer attached to popupSertifikat');
+    }
+    
+    // Method 2: Intercept openPopup function
+    const originalOpenPopup = window.openPopup;
+    if (typeof originalOpenPopup === 'function') {
+        window.openPopup = function(popupId) {
+            originalOpenPopup(popupId);
+            if (popupId === 'popupSertifikat' && !certHasLoaded && !certLoadInProgress) {
+                setTimeout(() => loadCertificateData(), 500);
+            }
+        };
+    }
+    
+    // Method 3: Direct event listeners
+    document.querySelectorAll('a[href*="popupSertifikat"], button[onclick*="popupSertifikat"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (!certHasLoaded && !certLoadInProgress) {
+                setTimeout(() => loadCertificateData(), 300);
+            }
+        });
+    });
+}
+
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', initCertAutoLoad);
+setTimeout(initCertAutoLoad, 1000);
+
+// ============================================================
 // ===== GOOGLE DRIVE PHOTO INTEGRATION SYSTEM (APPS SCRIPT PROXY) ====
 // ============================================================
 
@@ -7477,7 +8674,7 @@ const DRIVE_FOLDER_ID = '1rxvJ0z5PxQ1WAms8udLA462sIIcBUOeB';
 
 // Ganti dengan URL Apps Script Anda setelah deploy
 // Format: https://script.google.com/macros/s/XXXXX/exec
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyeMEJxbHIfTpuAbs8mOBa6kO5XoSN0jCtJvMav67OK23ZMkEI-ikZk0ZoBTvHy9QEcOQ/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
 
 /**
  * Global variable untuk menyimpan data foto dari Google Drive
