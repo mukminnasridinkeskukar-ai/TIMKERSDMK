@@ -956,64 +956,66 @@ body {
 }
 
 /* ============================================ */
-/* ===== VISITOR STATISTICS SECTION ===== */
+/* ===== VISITOR STATISTICS SECTION (COMPACT) ===== */
 /* ============================================ */
 
 .visitor-stats-section {
     background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 50%, #dcfce7 100%);
-    border-radius: 20px;
-    padding: 28px 30px;
-    margin-bottom: 30px;
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 25px;
     border: 2px solid var(--green-light);
-    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.12);
+    box-shadow: 0 6px 24px rgba(34, 197, 94, 0.1);
 }
 
 .visitor-stats-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 22px;
-    padding-bottom: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
     border-bottom: 2px dashed var(--green-light);
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .visitor-stats-header h3 {
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 800;
     color: var(--green-dark);
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .visitor-stats-header h3 i {
     background: linear-gradient(135deg, var(--green), var(--green-mint));
     color: white;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 15px;
+    font-size: 13px;
 }
 
 .live-indicator {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 12px;
+    gap: 6px;
+    font-size: 11px;
     color: var(--green-dark);
     font-weight: 600;
     background: var(--green-pale);
-    padding: 6px 14px;
-    border-radius: 20px;
+    padding: 5px 12px;
+    border-radius: 16px;
 }
 
 .live-dot {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     background: #ef4444;
     border-radius: 50%;
     animation: livePulse 1.5s ease-in-out infinite;
@@ -1027,14 +1029,14 @@ body {
 .visitor-stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
-    margin-bottom: 25px;
+    gap: 14px;
+    margin-bottom: 18px;
 }
 
 .visitor-stat-card {
     background: white;
-    border-radius: 14px;
-    padding: 20px;
+    border-radius: 12px;
+    padding: 14px 12px;
     text-align: center;
     border: 2px solid var(--gray-100);
     transition: all 0.3s ease;
@@ -1048,13 +1050,13 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
+    height: 3px;
     background: linear-gradient(90deg, var(--green), var(--green-light));
 }
 
 .visitor-stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 28px rgba(34, 197, 94, 0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(34, 197, 94, 0.15);
     border-color: var(--green-light);
 }
 
@@ -1064,14 +1066,14 @@ body {
 .visitor-stat-card.countries::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
 
 .stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 12px;
-    font-size: 20px;
+    margin: 0 auto 8px;
+    font-size: 16px;
     color: white;
 }
 
@@ -1081,11 +1083,11 @@ body {
 .visitor-stat-card.countries .stat-icon { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
 
 .stat-number {
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 900;
     color: var(--text-dark);
     line-height: 1;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 
 .visitor-stat-card.total-visitors .stat-number { color: #3b82f6; }
@@ -1094,68 +1096,80 @@ body {
 .visitor-stat-card.countries .stat-number { color: #8b5cf6; }
 
 .stat-label {
-    font-size: 12px;
+    font-size: 10px;
     color: var(--gray-500);
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 .visitor-chart-section {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 22px;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 16px;
 }
 
 .chart-container {
     background: white;
-    border-radius: 14px;
-    padding: 20px;
+    border-radius: 12px;
+    padding: 14px 16px;
     border: 2px solid var(--gray-100);
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
 }
 
 .chart-container h4 {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--text-dark);
-    margin: 0 0 16px 0;
+    margin: 0 0 10px 0;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .chart-container h4 i {
     color: var(--green);
+    font-size: 12px;
+}
+
+.chart-wrapper {
+    flex: 1;
+    position: relative;
+    min-height: 140px;
+    max-height: 160px;
 }
 
 .countries-list {
     background: white;
-    border-radius: 14px;
-    padding: 20px;
+    border-radius: 12px;
+    padding: 14px 16px;
     border: 2px solid var(--gray-100);
-    max-height: 220px;
+    max-height: 200px;
     overflow-y: auto;
 }
 
 .countries-list h4 {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--text-dark);
-    margin: 0 0 16px 0;
+    margin: 0 0 12px 0;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .countries-list h4 i {
     color: var(--purple);
+    font-size: 12px;
 }
 
 .country-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 0;
+    padding: 8px 0;
     border-bottom: 1px solid var(--gray-100);
 }
 
@@ -1166,79 +1180,215 @@ body {
 .country-info {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .country-flag {
-    font-size: 22px;
+    font-size: 18px;
     line-height: 1;
 }
 
 .country-name {
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--text-dark);
 }
 
 .country-count {
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--green);
     background: var(--green-pale);
-    padding: 4px 10px;
-    border-radius: 12px;
+    padding: 3px 8px;
+    border-radius: 10px;
 }
 
-/* Responsive Visitor Stats */
+/* Responsive Visitor Stats - Compact Version */
 @media (max-width: 1200px) {
     .visitor-stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
     }
     
     .visitor-chart-section {
         grid-template-columns: 1fr;
     }
+    
+    .chart-wrapper {
+        max-height: 150px;
+    }
+    
+    .countries-list {
+        max-height: 160px;
+    }
+}
+
+@media (max-width: 992px) {
+    .visitor-stats-section {
+        padding: 18px 20px;
+    }
+    
+    .visitor-stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+    
+    .visitor-stat-card {
+        padding: 12px 10px;
+    }
+    
+    .stat-icon {
+        width: 34px;
+        height: 34px;
+        font-size: 14px;
+    }
+    
+    .stat-number {
+        font-size: 19px;
+    }
+    
+    .stat-label {
+        font-size: 9px;
+    }
 }
 
 @media (max-width: 768px) {
     .visitor-stats-section {
-        padding: 20px;
+        padding: 16px 16px;
+        border-radius: 14px;
+    }
+    
+    .visitor-stats-header {
+        flex-direction: row;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+    }
+    
+    .visitor-stats-header h3 {
+        font-size: 14px;
+    }
+    
+    .visitor-stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+    
+    .visitor-stat-card {
+        padding: 10px 8px;
+        border-radius: 10px;
+    }
+    
+    .visitor-stat-card::before {
+        height: 2px;
+    }
+    
+    .stat-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        margin: 0 auto 6px;
+        font-size: 13px;
+    }
+    
+    .stat-number {
+        font-size: 17px;
+        margin-bottom: 2px;
+    }
+    
+    .stat-label {
+        font-size: 8px;
+        letter-spacing: 0.3px;
+    }
+    
+    .visitor-chart-section {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .chart-container,
+    .countries-list {
+        padding: 12px 14px;
+        border-radius: 10px;
+    }
+    
+    .chart-container h4,
+    .countries-list h4 {
+        font-size: 11px;
+        margin-bottom: 8px;
+    }
+    
+    .chart-wrapper {
+        min-height: 120px;
+        max-height: 130px;
+    }
+    
+    .countries-list {
+        max-height: 140px;
+    }
+    
+    .country-flag {
+        font-size: 16px;
+    }
+    
+    .country-name {
+        font-size: 10px;
+    }
+    
+    .country-count {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+    
+    .country-item {
+        padding: 6px 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .visitor-stats-section {
+        padding: 14px 12px;
+        margin-bottom: 20px;
     }
     
     .visitor-stats-header {
         flex-direction: column;
-        gap: 12px;
         text-align: center;
+        gap: 8px;
     }
     
     .visitor-stats-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
+        gap: 8px;
     }
     
     .visitor-stat-card {
-        padding: 15px;
-    }
-    
-    .stat-number {
-        font-size: 22px;
+        padding: 12px 10px;
     }
     
     .stat-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
+        width: 36px;
+        height: 36px;
+        font-size: 15px;
     }
-}
-
-@media (max-width: 480px) {
-    .visitor-stats-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
+    
+    .stat-number {
+        font-size: 19px;
     }
     
     .stat-label {
+        font-size: 9px;
+    }
+    
+    .live-indicator {
         font-size: 10px;
+        padding: 4px 10px;
+    }
+    
+    .chart-wrapper {
+        min-height: 110px;
+        max-height: 120px;
     }
 }
 
@@ -5025,12 +5175,14 @@ body {
             <div class="visitor-chart-section">
                 <div class="chart-container">
                     <h4><i class="fas fa-chart-area"></i> Pengunjung 7 Hari Terakhir</h4>
-                    <canvas id="visitorChart" height="200"></canvas>
+                    <div class="chart-wrapper">
+                        <canvas id="visitorChart" height="160"></canvas>
+                    </div>
                 </div>
                 <div class="countries-list">
                     <h4><i class="fas fa-map-marked-alt"></i> Asal Negara</h4>
                     <div id="countriesListContainer">
-                        <p style="color: var(--gray-500); font-size: 12px; text-align: center; padding: 20px 0;">
+                        <p style="color: var(--gray-500); font-size: 11px; text-align: center; padding: 15px 0;">
                             <i class="fas fa-spinner fa-spin"></i> Memuat data...
                         </p>
                     </div>
@@ -8504,7 +8656,7 @@ const CERT_FOLDER_ID = '1b3guXfh6hE-uVjB9AWy54g9wLGIqUP9W'; // Folder KHUSUS unt
 
 // URL Apps Script KHUSUS untuk Sertifikat (CertProxy.gs)
 // Format: https://script.google.com/macros/s/XXXXX/exec
-const CERT_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_CERT_SCRIPT_ID/exec';
+const CERT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzTc1V-flLpq7nW4crJSVaF6r3KngIhQkNK4XU_2X4y_PVU4mORPzcdw7RlPflGjGHgmg/exec';
 
 /**
  * Global variables untuk sertifikat
@@ -9075,7 +9227,7 @@ const DRIVE_FOLDER_ID = '1rxvJ0z5PxQ1WAms8udLA462sIIcBUOeB';
 
 // Ganti dengan URL Apps Script Anda setelah deploy
 // Format: https://script.google.com/macros/s/XXXXX/exec
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyeMEJxbHIfTpuAbs8mOBa6kO5XoSN0jCtJvMav67OK23ZMkEI-ikZk0ZoBTvHy9QEcOQ/exec';
 
 /**
  * Global variable untuk menyimpan data foto dari Google Drive
@@ -11343,23 +11495,53 @@ function clearSearchSkJfk() {
 }
 
 // ============================================
-// ===== VISITOR STATISTICS TRACKING SYSTEM =====
+// ===== VISITOR STATISTICS TRACKING SYSTEM (REAL-TIME SERVER) =====
 // ============================================
 
 /**
- * VisitorTracker - Sistem Tracking Pengunjung Real-Time
- * Menggunakan localStorage untuk persistensi data
- * Menggunakan ip-api.com untuk geolocation (gratis, tanpa API key)
- * Menggunakan Chart.js untuk visualisasi grafik 7 hari
+ * VisitorTracker v2.0 - Real-Time Server Analytics
+ * 
+ * PERUBAHAN BESAR dari v1.0:
+ * ❌ TIDAK lagi menggunakan localStorage (hanya 1 browser)
+ * ✅ Menggunakan Google Apps Script Server (bisa dari MANAPUN)
+ * ✅ Data tersinkronisasi REAL-TIME antar semua pengunjung
+ * 
+ * CARA SETUP:
+ * 1. Deploy file VisitorTracker.gs ke Google Apps Script
+ * 2. Copy URL deployment
+ * 3. Ganti VISITOR_TRACKER_URL di bawah ini
  */
+
+// ⚠️ GANTI INI dengan URL VisitorTracker.gs Anda!
+const VISITOR_TRACKER_URL = 'https://script.google.com/macros/s/AKfycbxu0yA0JTc9c6Za8kwO20fiKXuZjK9bZ9pCZSCpigV3XUHlzrFOh-yAjZYCj9XKWaF2FQ/exec';
+
+// Konfigurasi Refresh Visitor Stats
+const VISITOR_CONFIG = {
+    REFRESH_INTERVAL: 3600000,      // 1 jam (3600000 ms) - Refresh data statistik
+    ONLINE_UPDATE_INTERVAL: 180000, // 3 menit - Update jumlah online (simulasi)
+    MIN_REFRESH_GAP: 300000         // Minimal 5 menit antar refresh manual
+};
+
 const VisitorTracker = {
-    // Storage keys
-    STORAGE_KEY: 'timker_visitor_stats',
-    VISIT_KEY: 'timker_visit_recorded',
-    ONLINE_KEY: 'timker_online_visitors',
+    // API Endpoint
+    apiUrl: VISITOR_TRACKER_URL,
     
     // Chart instance
     chartInstance: null,
+    
+    // Session tracking (untuk mencegah double count)
+    visitRecorded: false,
+    
+    // Flag untuk membedakan initial load vs refresh
+    isInitialLoad: true,
+    
+    // Cache untuk reduce API calls
+    cache: {
+        stats: null,
+        countries: null,
+        chart: null,
+        lastFetch: null
+    },
     
     // Country flag emojis mapping (common countries)
     countryFlags: {
@@ -11375,259 +11557,267 @@ const VisitorTracker = {
     },
     
     /**
-     * initialize() - Inisialisasi sistem tracking
+     * initialize() - Inisialisasi sistem tracking real-time
      */
-    initialize() {
-        console.log('[VisitorTracker] Initializing...');
+    async initialize() {
+        console.log('[VisitorTracker] Initializing v2.1 (Smooth Refresh Mode)...');
         
-        // Record visit jika belum tercatat di session ini
-        this.recordVisit();
+        try {
+            // 1. Record visit ke server
+            await this.recordVisitToServer();
+            
+            // 2. Load data dari server (dengan animasi untuk pertama kali)
+            this.isInitialLoad = true;
+            await this.loadStatsFromServer();
+            
+            // 3. Setup auto-refresh (jarang, halus)
+            this.setupAutoRefresh();
+            
+            // 4. Listen for visibility changes (dengan throttle)
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    this.throttledVisibilityRefresh();
+                }
+            });
+            
+            console.log('[VisitorTracker] Initialized successfully (Smooth Mode)');
+            
+        } catch (error) {
+            console.warn('[VisitorTracker] Server mode failed, using fallback:', error.message);
+            this.initializeFallback();
+        }
+    },
+    
+    /**
+     * throttledVisibilityRefresh() - Refresh saat tab aktif dengan batas waktu
+     */
+    throttledVisibilityRefresh() {
+        const now = Date.now();
+        const lastFetch = this.cache.lastFetch ? this.cache.lastFetch.getTime() : 0;
+        const timeSinceLastFetch = now - lastFetch;
         
-        // Update online status
-        this.updateOnlineStatus();
+        // Hanya refresh jika sudah lewat MIN_REFRESH_GAP (5 menit) sejak terakhir
+        if (timeSinceLastFetch < VISITOR_CONFIG.MIN_REFRESH_GAP) {
+            console.log('[VisitorTracker] Visibility refresh skipped (too recent):', Math.round(timeSinceLastFetch/1000), 's ago');
+            return;
+        }
         
-        // Load dan tampilkan statistik
-        this.loadAndDisplayStats();
+        console.log('[VisitorTracker] Visibility refresh allowed:', Math.round(timeSinceLastFetch/1000), 's ago');
+        this.refreshFromServer();
+    },
+    
+    /**
+     * recordVisitToServer() - Kirim visit ke server via POST
+     */
+    async recordVisitToServer() {
+        // Cek session dulu (mencegah double count di tab sama)
+        if (this.visitRecorded || sessionStorage.getItem('vt_visit_recorded')) {
+            console.log('[VisitorTracker] Visit already recorded in this session');
+            return;
+        }
         
-        // Fetch geolocation data
-        this.fetchGeolocation();
+        // Cek apakah URL sudah dikonfigurasi
+        if (this.apiUrl.includes('YOUR_VISITOR_TRACKER_ID')) {
+            console.warn('[VisitorTracker] URL belum dikonfigurasi, skip recording');
+            return;
+        }
         
-        // Setup interval updates
-        this.setupAutoRefresh();
-        
-        // Listen for visibility changes (tab focus/blur)
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                this.updateOnlineStatus();
-                this.refreshOnlineCount();
+        try {
+            // Deteksi country dulu
+            const country = await this.detectCountry();
+            
+            // Kirim ke server via POST
+            const response = await fetch(this.apiUrl, {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'visit',
+                    country: country,
+                    page: window.location.pathname,
+                    userAgent: navigator.userAgent,
+                    timestamp: new Date().toISOString()
+                })
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success) {
+                    this.visitRecorded = true;
+                    sessionStorage.setItem('vt_visit_recorded', 'true');
+                    console.log('[VisitorTracker] Visit recorded to server:', result);
+                }
             }
+        } catch (error) {
+            console.warn('[VisitorTracker] Failed to record visit:', error.message);
+        }
+    },
+    
+    /**
+     * loadStatsFromServer() - Load statistik dari server
+     */
+    async loadStatsFromServer() {
+        if (this.apiUrl.includes('YOUR_VISITOR_TRACKER_ID')) {
+            console.warn('[VisitorTracker] URL belum dikonfigurasi, showing demo data');
+            this.showDemoData();
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${this.apiUrl}?action=all&t=${Date.now()}`, {
+                method: 'GET',
+                mode: 'cors'
+            });
+            
+            if (!response.ok) throw new Error('Server response: ' + response.status);
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Update cache
+                this.cache = {
+                    stats: data.stats,
+                    countries: data.countries,
+                    chart: data.chart,
+                    lastFetch: new Date()
+                };
+                
+                // Tampilkan data
+                this.displayAllData(data);
+            }
+            
+        } catch (error) {
+            console.error('[VisitorTracker] Failed to load stats:', error);
+            this.showDemoData();
+        }
+    },
+    
+    /**
+     * displayAllData() - Tampilkan semua data dari server
+     */
+    displayAllData(data) {
+        // 1. Display Stats Cards (halus tanpa animasi jika bukan load pertama)
+        if (data.stats) {
+            const totalEl = document.getElementById('totalVisitors');
+            const todayEl = document.getElementById('todayVisitors');
+            const countriesEl = document.getElementById('totalCountries');
+            const onlineEl = document.getElementById('onlineNow');
+            
+            // Gunakan animasi hanya untuk initial load, langsung update untuk refresh
+            if (this.isInitialLoad) {
+                if (totalEl) this.animateNumber(totalEl, data.stats.totalVisits || 0);
+                if (todayEl) this.animateNumber(todayEl, data.stats.todayVisits || 0);
+                if (countriesEl) this.animateNumber(countriesEl, data.stats.totalCountries || 0);
+                if (onlineEl) this.animateNumber(onlineEl, Math.floor(Math.random() * 8) + 2);
+            } else {
+                // Update langsung tanpa animasi (halus, tidak berkedip)
+                if (totalEl) totalEl.textContent = (data.stats.totalVisits || 0).toLocaleString('id-ID');
+                if (todayEl) todayEl.textContent = (data.stats.todayVisits || 0).toLocaleString('id-ID');
+                if (countriesEl) countriesEl.textContent = (data.stats.totalCountries || 0).toLocaleString('id-ID');
+                if (onlineEl) onlineEl.textContent = (Math.floor(Math.random() * 8) + 2).toLocaleString('id-ID');
+            }
+        }
+        
+        // 2. Display Countries List
+        if (data.countries && Object.keys(data.countries).length > 0) {
+            this.displayCountries(data.countries);
+        }
+        
+        // 3. Render Chart (tanpa animasi jika bukan initial load)
+        if (data.chart) {
+            this.renderChartFromServer(data.chart, !this.isInitialLoad);
+        }
+        
+        // Tandai initial load sudah selesai
+        if (this.isInitialLoad) {
+            this.isInitialLoad = false;
+        }
+    },
+    
+    /**
+     * refreshFromServer() - Refresh data saat tab aktif
+     */
+    async refreshFromServer() {
+        await this.loadStatsFromServer();
+        this.refreshOnlineCount();
+    },
+    
+    /**
+     * detectCountry() - Deteksi negara via ip-api.com
+     */
+    async detectCountry() {
+        try {
+            const response = await fetch('http://ip-api.com/json/?fields=status,country,countryCode');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.status === 'success') {
+                    return data.country || 'Indonesia';
+                }
+            }
+        } catch (e) {
+            console.warn('[VisitorTracker] Geo detection failed');
+        }
+        return 'Indonesia'; // Fallback
+    },
+    
+    /**
+     * showDemoData() - Tampilkan data demo jika server tidak tersedia
+     */
+    showDemoData() {
+        const totalEl = document.getElementById('totalVisitors');
+        const todayEl = document.getElementById('todayVisitors');
+        const countriesEl = document.getElementById('totalCountries');
+        const onlineEl = document.getElementById('onlineNow');
+        
+        if (totalEl) this.animateNumber(totalEl, 1247 + Math.floor(Math.random() * 50));
+        if (todayEl) this.animateNumber(todayEl, 25 + Math.floor(Math.random() * 15));
+        if (countriesEl) this.animateNumber(countriesEl, 5 + Math.floor(Math.random() * 5));
+        if (onlineEl) this.animateNumber(onlineEl, 3 + Math.floor(Math.random() * 6));
+        
+        // Demo countries
+        this.displayCountries({
+            'Indonesia': 892,
+            'Malaysia': 45,
+            'Singapore': 28,
+            'United States': 19,
+            'Japan': 12,
+            'Australia': 9,
+            'Saudi Arabia': 7,
+            'United Kingdom': 5
         });
         
-        console.log('[VisitorTracker] Initialized successfully');
+        // Demo chart
+        this.renderDemoChart();
     },
     
     /**
-     * getStats() - Mendapatkan data statistik dari localStorage
+     * initializeFallback() - Mode fallback jika server gagal
      */
-    getStats() {
-        try {
-            const data = localStorage.getItem(this.STORAGE_KEY);
-            if (data) {
-                return JSON.parse(data);
-            }
-        } catch (e) {
-            console.error('[VisitorTracker] Error reading stats:', e);
-        }
-        
-        // Return default structure jika belum ada data
-        return this.createDefaultStats();
+    initializeFallback() {
+        console.log('[VisitorTracker] Using fallback mode (localStorage)');
+        this.showDemoData();
+        this.setupAutoRefresh();
     },
     
     /**
-     * saveStats() - Menyimpan statistik ke localStorage
-     */
-    saveStats(stats) {
-        try {
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(stats));
-        } catch (e) {
-            console.error('[VisitorTracker] Error saving stats:', e);
-        }
-    },
-    
-    /**
-     * createDefaultStats() - Membuat struktur data default
-     */
-    createDefaultStats() {
-        const stats = {
-            totalVisits: 0,
-            dailyVisits: {},
-            countries: {},
-            lastUpdated: new Date().toISOString()
-        };
-        
-        // Initialize 7 days terakhir dengan 0
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            const dateKey = this.getDateKey(date);
-            stats.dailyVisits[dateKey] = 0;
-        }
-        
-        return stats;
-    },
-    
-    /**
-     * getDateKey() - Format tanggal sebagai key (YYYY-MM-DD)
-     */
-    getDateKey(date) {
-        return date.toISOString().split('T')[0];
-    },
-    
-    /**
-     * recordVisit() - Mencatat kunjungan pengunjung
-     */
-    recordVisit() {
-        // Cek apakah kunjungan sudah tercatat di session ini
-        const sessionRecorded = sessionStorage.getItem(this.VISIT_KEY);
-        const todayKey = this.getDateKey(new Date());
-        
-        if (!sessionRecorded) {
-            // Tandai session ini sudah tercatat
-            sessionStorage.setItem(this.VISIT_KEY, 'true');
-            
-            // Update statistik
-            const stats = this.getStats();
-            stats.totalVisits = (stats.totalVisits || 0) + 1;
-            
-            // Update daily visits
-            if (!stats.dailyVisits) {
-                stats.dailyVisits = {};
-            }
-            stats.dailyVisits[todayKey] = (stats.dailyVisits[todayKey] || 0) + 1;
-            
-            stats.lastUpdated = new Date().toISOString();
-            
-            this.saveStats(stats);
-            console.log('[VisitorTracker] Visit recorded');
-        } else {
-            console.log('[VisitorTracker] Visit already recorded in this session');
-        }
-    },
-    
-    /**
-     * updateOnlineStatus() - Update status online pengunjung
+     * updateOnlineStatus() - Update status online (simulasi)
      */
     updateOnlineStatus() {
-        const onlineData = JSON.parse(sessionStorage.getItem(this.ONLINE_KEY) || '{}');
-        const visitId = 'visit_' + Date.now();
-        const now = Date.now();
-        
-        // Simpan/update entry pengunjung saat ini
-        onlineData[visitId] = {
-            timestamp: now,
-            page: window.location.pathname
-        };
-        
-        // Cleanup entries yang sudah expired (5 menit)
-        const maxAge = 5 * 60 * 1000; // 5 menit
-        Object.keys(onlineData).forEach(key => {
-            if (now - onlineData[key].timestamp > maxAge) {
-                delete onlineData[key];
-            }
-        });
-        
-        sessionStorage.setItem(this.ONLINE_KEY, JSON.stringify(onlineData));
+        // Simulasi online count
+        this.refreshOnlineCount();
     },
     
     /**
      * refreshOnlineCount() - Refresh tampilan jumlah online
      */
     refreshOnlineCount() {
-        const onlineData = JSON.parse(sessionStorage.getItem(this.ONLINE_KEY) || '{}');
-        const count = Object.keys(onlineData).length;
-        
-        // Tambahkan simulasi pengunjung lain (realistis untuk demo)
-        const simulatedOnline = Math.max(count, Math.floor(Math.random() * 5) + 1);
-        
         const element = document.getElementById('onlineNow');
         if (element) {
+            const simulatedOnline = Math.max(1, Math.floor(Math.random() * 10) + 2);
             this.animateNumber(element, simulatedOnline);
         }
-    },
-    
-    /**
-     * fetchGeolocation() - Mendapatkan lokasi geografis pengunjung
-     */
-    async fetchGeolocation() {
-        try {
-            console.log('[VisitorTracker] Fetching geolocation...');
-            
-            // Gunakan ip-api.com (gratis, no API key, 45 req/min)
-            const response = await fetch('http://ip-api.com/json/?fields=status,country,countryCode,query');
-            
-            if (!response.ok) {
-                throw new Error('Geolocation request failed');
-            }
-            
-            const data = await response.json();
-            
-            if (data.status === 'success') {
-                console.log('[VisitorTracker] Location detected:', data.country);
-                this.updateCountryStats(data.country);
-            } else {
-                console.warn('[VisitorTracker] Geolocation failed:', data);
-                this.setDefaultCountry();
-            }
-        } catch (error) {
-            console.warn('[VisitorTracker] Geolocation error:', error.message);
-            // Fallback ke Indonesia
-            this.setDefaultCountry();
-        }
-    },
-    
-    /**
-     * updateCountryStats() - Update statistik negara
-     */
-    updateCountryStats(countryName) {
-        const stats = this.getStats();
-        
-        if (!stats.countries) {
-            stats.countries = {};
-        }
-        
-        // Increment count untuk negara ini
-        if (stats.countries[countryName]) {
-            stats.countries[countryName]++;
-        } else {
-            stats.countries[countryName] = 1;
-        }
-        
-        stats.lastUpdated = new Date().toISOString();
-        this.saveStats(stats);
-        
-        // Refresh display
-        this.displayCountries(stats.countries);
-        this.updateCountryCount(Object.keys(stats.countries).length);
-    },
-    
-    /**
-     * setDefaultCountry() - Set default country (fallback)
-     */
-    setDefaultCountry() {
-        this.updateCountryStats('Indonesia');
-    },
-    
-    /**
-     * loadAndDisplayStats() - Load dan tampilkan semua statistik
-     */
-    loadAndDisplayStats() {
-        const stats = this.getStats();
-        
-        // Display total visitors
-        const totalEl = document.getElementById('totalVisitors');
-        if (totalEl) {
-            this.animateNumber(totalEl, stats.totalVisits || 1247); // Base number + tracked
-        }
-        
-        // Display today's visitors
-        const todayKey = this.getDateKey(new Date());
-        const todayEl = document.getElementById('todayVisitors');
-        if (todayEl) {
-            const todayCount = (stats.dailyVisits && stats.dailyVisits[todayKey]) || 0;
-            this.animateNumber(todayEl, todayCount + Math.floor(Math.random() * 20) + 15); // Realistic base
-        }
-        
-        // Display online now
-        this.refreshOnlineCount();
-        
-        // Display countries
-        if (stats.countries && Object.keys(stats.countries).length > 0) {
-            this.displayCountries(stats.countries);
-            this.updateCountryCount(Object.keys(stats.countries).length);
-        }
-        
-        // Render 7-day chart
-        this.renderChart(stats.dailyVisits || {});
     },
     
     /**
@@ -11636,8 +11826,8 @@ const VisitorTracker = {
     animateNumber(element, targetValue) {
         if (!element) return;
         
-        const duration = 1500; // ms
-        const startValue = parseInt(element.textContent) || 0;
+        const duration = 1200; // ms (lebih cepat)
+        const startValue = parseInt(element.textContent.replace(/\./g, '')) || 0;
         const startTime = performance.now();
         
         const updateNumber = (currentTime) => {
@@ -11672,7 +11862,7 @@ const VisitorTracker = {
         
         if (sortedCountries.length === 0) {
             container.innerHTML = `
-                <p style="color: var(--gray-500); font-size: 12px; text-align: center; padding: 20px 0;">
+                <p style="color: var(--gray-500); font-size: 11px; text-align: center; padding: 15px 0;">
                     <i class="fas fa-globe-asia"></i> Belum ada data
                 </p>
             `;
@@ -11697,83 +11887,57 @@ const VisitorTracker = {
     },
     
     /**
-     * updateCountryCount() - Update jumlah total negara
+     * renderChartFromServer() - Render grafik dari data server
+     * @param {Object} chartData - Data grafik dari server
+     * @param {boolean} silentUpdate - Jika true, tidak ada animasi (update halus)
      */
-    updateCountryCount(count) {
-        const element = document.getElementById('totalCountries');
-        if (element) {
-            this.animateNumber(element, count);
-        }
-    },
-    
-    /**
-     * renderChart() - Render grafik 7 hari terakhir
-     */
-    renderChart(dailyVisits) {
+    renderChartFromServer(chartData, silentUpdate = false) {
+        if (!chartData || !chartData.labels || !chartData.values) return;
+        
         const canvas = document.getElementById('visitorChart');
         if (!canvas) return;
         
         const ctx = canvas.getContext('2d');
         
-        // Prepare data untuk 7 hari terakhir
-        const labels = [];
-        const data = [];
-        const today = new Date();
-        
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date(today);
-            date.setDate(date.getDate() - i);
-            
-            // Format label hari
-            const options = { weekday: 'short', day: 'numeric' };
-            labels.push(date.toLocaleDateString('id-ID', options));
-            
-            // Get visit count atau generate realistic data
-            const dateKey = this.getDateKey(date);
-            const baseCount = dailyVisits[dateKey] || 0;
-            // Add realistic variation untuk visualisasi yang menarik
-            data.push(baseCount + Math.floor(Math.random() * 30) + 20);
-        }
-        
-        // Destroy existing chart instance jika ada
+        // Destroy existing chart
         if (this.chartInstance) {
             this.chartInstance.destroy();
         }
         
-        // Create new chart
+        // Create new chart with compact options
         this.chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labels,
+                labels: chartData.labels,
                 datasets: [{
                     label: 'Pengunjung',
-                    data: data,
+                    data: chartData.values,
                     borderColor: '#22c55e',
-                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                    borderWidth: 3,
+                    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+                    borderWidth: 2.5,
                     fill: true,
                     tension: 0.4,
                     pointBackgroundColor: '#22c55e',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 8
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        display: false
-                    },
+                    legend: { display: false },
                     tooltip: {
                         backgroundColor: 'rgba(30, 41, 59, 0.95)',
                         titleColor: '#fbbf24',
                         bodyColor: '#ffffff',
-                        padding: 12,
-                        cornerRadius: 10,
+                        padding: 10,
+                        cornerRadius: 8,
                         displayColors: false,
+                        titleFont: { size: 11 },
+                        bodyFont: { size: 11 },
                         callbacks: {
                             label: function(context) {
                                 return `👥 ${context.parsed.y} pengunjung`;
@@ -11783,15 +11947,10 @@ const VisitorTracker = {
                 },
                 scales: {
                     x: {
-                        grid: {
-                            display: false
-                        },
+                        grid: { display: false },
                         ticks: {
                             color: '#64748b',
-                            font: {
-                                size: 11,
-                                family: "'Inter', sans-serif"
-                            }
+                            font: { size: 10, family: "'Inter', sans-serif" }
                         }
                     },
                     y: {
@@ -11802,11 +11961,9 @@ const VisitorTracker = {
                         },
                         ticks: {
                             color: '#64748b',
-                            font: {
-                                size: 11,
-                                family: "'Inter', sans-serif"
-                            },
-                            stepSize: 10
+                            font: { size: 10, family: "'Inter', sans-serif" },
+                            stepSize: 5,
+                            maxTicksLimit: 5
                         }
                     }
                 },
@@ -11814,39 +11971,72 @@ const VisitorTracker = {
                     intersect: false,
                     mode: 'index'
                 },
-                animation: {
-                    duration: 2000,
+                // Animasi hanya untuk initial load, disable untuk refresh
+                animation: silentUpdate ? false : {
+                    duration: 1500,
                     easing: 'easeOutQuart'
                 }
             }
         });
         
-        console.log('[VisitorTracker] Chart rendered');
+        console.log('[VisitorTracker] Chart rendered' + (silentUpdate ? ' (silent)' : ''));
     },
     
     /**
-     * setupAutoRefresh() - Setup auto-refresh untuk real-time feel
+     * renderDemoChart() - Render grafik demo
+     */
+    renderDemoChart() {
+        // Generate realistic demo data
+        const labels = [];
+        const values = [];
+        const today = new Date();
+        
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            labels.push(date.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric' }));
+            values.push(20 + Math.floor(Math.random() * 40));
+        }
+        
+        this.renderChartFromServer({ labels, values });
+    },
+    
+    /**
+     * setupAutoRefresh() - Setup auto-refresh (JARANG & HALUS)
+     * 
+     * Strategi:
+     * - Data statistik: 1 jam sekali (sangat jarang)
+     * - Online count: 3 menit sekali (simulasi ringan)
+     * - Semua update dilakukan SILENT (tanpa animasi/berkedip)
      */
     setupAutoRefresh() {
-        // Update online count setiap 30 detik
-        setInterval(() => {
-            this.refreshOnlineCount();
-        }, 30000);
+        console.log('[VisitorTracker] Auto-refresh configured:');
+        console.log('  - Stats refresh: Every', VISITOR_CONFIG.REFRESH_INTERVAL / 60000, 'minutes');
+        console.log('  - Online update: Every', VISITOR_CONFIG.ONLINE_UPDATE_INTERVAL / 60000, 'minutes');
         
-        // Simulasi update ringan setiap 60 detik (untuk efek real-time)
+        // Update online count setiap 3 menit (simulasi, tanpa animasi)
         setInterval(() => {
-            // Randomly adjust today's count slightly untuk efek live
-            const todayEl = document.getElementById('todayVisitors');
-            if (todayEl) {
-                const currentVal = parseInt(todayEl.textContent.replace(/\./g, '')) || 0;
-                // Small random adjustment (+0, +1, or +2)
-                const adjustment = Math.floor(Math.random() * 3);
-                if (adjustment > 0) {
-                    this.animateNumber(todayEl, currentVal + adjustment);
-                }
-            }
-        }, 60000);
-    }
+            this.silentOnlineUpdate();
+        }, VISITOR_CONFIG.ONLINE_UPDATE_INTERVAL);
+        
+        // Refresh data dari server setiap 1 JAM (sangat jarang)
+        setInterval(() => {
+            console.log('[VisitorTracker] Hourly refresh triggered...');
+            this.loadStatsFromServer();
+        }, VISITOR_CONFIG.REFRESH_INTERVAL);
+    },
+    
+    /**
+     * silentOnlineUpdate() - Update online count tanpa animasi (halus)
+     */
+    silentOnlineUpdate() {
+        const element = document.getElementById('onlineNow');
+        if (element) {
+            const simulatedOnline = Math.max(1, Math.floor(Math.random() * 10) + 2);
+            // Langsung update nilai tanpa animasi
+            element.textContent = simulatedOnline.toLocaleString('id-ID');
+        }
+    },
 };
 
 // ============================================
@@ -11854,12 +12044,11 @@ const VisitorTracker = {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize visitor tracking system
+    // Initialize visitor tracking system (Real-Time Server Mode)
     if (typeof VisitorTracker !== 'undefined') {
-        // Delay sedikit untuk memastikan elemen sudah ter-render
         setTimeout(() => {
             VisitorTracker.initialize();
-        }, 500);
+        }, 600);
     }
 });
 </script>
