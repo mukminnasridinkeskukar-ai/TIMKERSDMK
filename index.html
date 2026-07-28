@@ -489,6 +489,51 @@ body {
     font-weight: 600;
 }
 
+/* ===== STAT CARD COLOR VARIATIONS ===== */
+.stat-card:nth-child(1) {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-color: #f59e0b;
+}
+.stat-card:nth-child(1) .stat-icon-box {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+}
+.stat-card:nth-child(1):hover { box-shadow: 0 15px 40px rgba(245, 158, 11, 0.25); }
+.stat-card:nth-child(1) .stat-number { color: #b45309; }
+
+.stat-card:nth-child(2) {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    border-color: #3b82f6;
+}
+.stat-card:nth-child(2) .stat-icon-box {
+    background: linear-gradient(135deg, #3b82f6, #60a5fa);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+.stat-card:nth-child(2):hover { box-shadow: 0 15px 40px rgba(59, 130, 246, 0.25); }
+.stat-card:nth-child(2) .stat-number { color: #1d4ed8; }
+
+.stat-card:nth-child(3) {
+    background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+    border-color: #ec4899;
+}
+.stat-card:nth-child(3) .stat-icon-box {
+    background: linear-gradient(135deg, #ec4899, #f472b6);
+    box-shadow: 0 8px 20px rgba(236, 72, 153, 0.3);
+}
+.stat-card:nth-child(3):hover { box-shadow: 0 15px 40px rgba(236, 72, 153, 0.25); }
+.stat-card:nth-child(3) .stat-number { color: #be185d; }
+
+.stat-card:nth-child(4) {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border-color: #10b981;
+}
+.stat-card:nth-child(4) .stat-icon-box {
+    background: linear-gradient(135deg, #10b981, #34d399);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+.stat-card:nth-child(4):hover { box-shadow: 0 15px 40px rgba(16, 185, 129, 0.25); }
+.stat-card:nth-child(4) .stat-number { color: #047857; }
+
 /* Services Area */
 .services-area {
     padding: 60px 40px;
@@ -596,6 +641,85 @@ body {
     gap: 14px;
 }
 
+/* ===== SERVICE CARD COLOR VARIATIONS ===== */
+.service-card:nth-child(1) {
+    border-color: #f59e0b;
+    background: linear-gradient(145deg, #fffbeb, #fef3c7);
+}
+.service-card:nth-child(1):hover {
+    border-color: #f59e0b;
+    box-shadow: 0 20px 50px rgba(245, 158, 11, 0.2);
+}
+.service-card:nth-child(1) .service-icon { color: #b45309; background: linear-gradient(135deg, #fde68a, #fcd34d); }
+.service-card:nth-child(1):hover .service-icon { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+.service-card:nth-child(1) h3 { color: #92400e; }
+.service-card:nth-child(1) .service-link { color: #d97706; }
+
+.service-card:nth-child(2) {
+    border-color: #3b82f6;
+    background: linear-gradient(145deg, #eff6ff, #dbeafe);
+}
+.service-card:nth-child(2):hover {
+    border-color: #3b82f6;
+    box-shadow: 0 20px 50px rgba(59, 130, 246, 0.2);
+}
+.service-card:nth-child(2) .service-icon { color: #1d4ed8; background: linear-gradient(135deg, #bfdbfe, #93c5fd); }
+.service-card:nth-child(2):hover .service-icon { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+.service-card:nth-child(2) h3 { color: #1e40af; }
+.service-card:nth-child(2) .service-link { color: #2563eb; }
+
+.service-card:nth-child(3) {
+    border-color: #8b5cf6;
+    background: linear-gradient(145deg, #f5f3ff, #ede9fe);
+}
+.service-card:nth-child(3):hover {
+    border-color: #8b5cf6;
+    box-shadow: 0 20px 50px rgba(139, 92, 246, 0.2);
+}
+.service-card:nth-child(3) .service-icon { color: #6d28d9; background: linear-gradient(135deg, #ddd6fe, #c4b5fd); }
+.service-card:nth-child(3):hover .service-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+.service-card:nth-child(3) h3 { color: #5b21b6; }
+.service-card:nth-child(3) .service-link { color: #7c3aed; }
+
+.service-card:nth-child(4) {
+    border-color: #ec4899;
+    background: linear-gradient(145deg, #fdf2f8, #fce7f3);
+}
+.service-card:nth-child(4):hover {
+    border-color: #ec4899;
+    box-shadow: 0 20px 50px rgba(236, 72, 153, 0.2);
+}
+.service-card:nth-child(4) .service-icon { color: #be185d; background: linear-gradient(135deg, #fbcfe8, #f9a8d4); }
+.service-card:nth-child(4):hover .service-icon { background: linear-gradient(135deg, #ec4899, #db2777); color: white; }
+.service-card:nth-child(4) h3 { color: #9d174d; }
+.service-card:nth-child(4) .service-link { color: #db2777; }
+
+.service-card:nth-child(5) {
+    border-color: #06b6d4;
+    background: linear-gradient(145deg, #ecfeff, #cffafe);
+}
+.service-card:nth-child(5):hover {
+    border-color: #06b6d4;
+    box-shadow: 0 20px 50px rgba(6, 182, 212, 0.2);
+}
+.service-card:nth-child(5) .service-icon { color: #0e7490; background: linear-gradient(135deg, #a5f3fc, #67e8f9); }
+.service-card:nth-child(5):hover .service-icon { background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; }
+.service-card:nth-child(5) h3 { color: #155e75; }
+.service-card:nth-child(5) .service-link { color: #0891b2; }
+
+.service-card:nth-child(6) {
+    border-color: #10b981;
+    background: linear-gradient(145deg, #ecfdf5, #d1fae5);
+}
+.service-card:nth-child(6):hover {
+    border-color: #10b981;
+    box-shadow: 0 20px 50px rgba(16, 185, 129, 0.2);
+}
+.service-card:nth-child(6) .service-icon { color: #047857; background: linear-gradient(135deg, #a7f3d0, #6ee7b7); }
+.service-card:nth-child(6):hover .service-icon { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+.service-card:nth-child(6) h3 { color: #065f46; }
+.service-card:nth-child(6) .service-link { color: #059669; }
+
 /* Platforms Area */
 .platforms-area {
     padding: 60px 40px;
@@ -648,6 +772,87 @@ body {
     font-size: 11px;
     color: var(--gray-500);
 }
+
+/* ===== PLATFORM CARD COLOR VARIATIONS ===== */
+.platform-card:nth-child(1) {
+    border-color: #ef4444;
+}
+.platform-card:nth-child(1):hover {
+    border-color: #ef4444;
+    box-shadow: 0 15px 45px rgba(239, 68, 68, 0.2);
+}
+.platform-card:nth-child(1) .platform-icon { background: linear-gradient(135deg, #ef4444, #f87171); }
+.platform-card:nth-child(1) h4 { color: #dc2626; }
+
+.platform-card:nth-child(2) {
+    border-color: #8b5cf6;
+}
+.platform-card:nth-child(2):hover {
+    border-color: #8b5cf6;
+    box-shadow: 0 15px 45px rgba(139, 92, 246, 0.2);
+}
+.platform-card:nth-child(2) .platform-icon { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+.platform-card:nth-child(2) h4 { color: #7c3aed; }
+
+.platform-card:nth-child(3) {
+    border-color: #06b6d4;
+}
+.platform-card:nth-child(3):hover {
+    border-color: #06b6d4;
+    box-shadow: 0 15px 45px rgba(6, 182, 212, 0.2);
+}
+.platform-card:nth-child(3) .platform-icon { background: linear-gradient(135deg, #06b6d4, #22d3ee); }
+.platform-card:nth-child(3) h4 { color: #0891b2; }
+
+.platform-card:nth-child(4) {
+    border-color: #22c55e;
+}
+.platform-card:nth-child(4):hover {
+    border-color: #22c55e;
+    box-shadow: 0 15px 45px rgba(34, 197, 94, 0.2);
+}
+.platform-card:nth-child(4) .platform-icon { background: linear-gradient(135deg, #22c55e, #4ade80); }
+.platform-card:nth-child(4) h4 { color: #16a34a; }
+
+.platform-card:nth-child(5) {
+    border-color: #f59e0b;
+}
+.platform-card:nth-child(5):hover {
+    border-color: #f59e0b;
+    box-shadow: 0 15px 45px rgba(245, 158, 11, 0.2);
+}
+.platform-card:nth-child(5) .platform-icon { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+.platform-card:nth-child(5) h4 { color: #d97706; }
+
+.platform-card:nth-child(6) {
+    border-color: #ec4899;
+}
+.platform-card:nth-child(6):hover {
+    border-color: #ec4899;
+    box-shadow: 0 15px 45px rgba(236, 72, 153, 0.2);
+}
+.platform-card:nth-child(6) .platform-icon { background: linear-gradient(135deg, #ec4899, #f472b6); }
+.platform-card:nth-child(6) h4 { color: #db2777; }
+
+.platform-card:nth-child(7) {
+    border-color: #3b82f6;
+}
+.platform-card:nth-child(7):hover {
+    border-color: #3b82f6;
+    box-shadow: 0 15px 45px rgba(59, 130, 246, 0.2);
+}
+.platform-card:nth-child(7) .platform-icon { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+.platform-card:nth-child(7) h4 { color: #2563eb; }
+
+.platform-card:nth-child(8) {
+    border-color: #14b8a6;
+}
+.platform-card:nth-child(8):hover {
+    border-color: #14b8a6;
+    box-shadow: 0 15px 45px rgba(20, 184, 166, 0.2);
+}
+.platform-card:nth-child(8) .platform-icon { background: linear-gradient(135deg, #14b8a6, #2dd4bf); }
+.platform-card:nth-child(8) h4 { color: #0d9488; }
 
 /* Footer */
 .footer-main {
@@ -1155,6 +1360,55 @@ body {
 .org-person.anggota .org-position {
     background: linear-gradient(135deg, var(--purple), #a78bfa);
 }
+
+/* ===== ORG PERSON CARD COLOR VARIATIONS FOR ANGGOTA ===== */
+.org-grid .org-person:nth-child(1) .org-person-card { border-color: #ef4444; }
+.org-grid .org-person:nth-child(1) .org-person-card::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+.org-grid .org-person:nth-child(1) .org-photo { border-color: #fecaca; }
+.org-grid .org-person:nth-child(1) .org-position { background: linear-gradient(135deg, #dc2626, #ef4444); }
+.org-grid .org-person:nth-child(1):hover .org-person-card { box-shadow: 0 15px 45px rgba(239, 68, 68, 0.25); }
+
+.org-grid .org-person:nth-child(2) .org-person-card { border-color: #f59e0b; }
+.org-grid .org-person:nth-child(2) .org-person-card::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.org-grid .org-person:nth-child(2) .org-photo { border-color: #fde68a; }
+.org-grid .org-person:nth-child(2) .org-position { background: linear-gradient(135deg, #d97706, #f59e0b); }
+.org-grid .org-person:nth-child(2):hover .org-person-card { box-shadow: 0 15px 45px rgba(245, 158, 11, 0.25); }
+
+.org-grid .org-person:nth-child(3) .org-person-card { border-color: #06b6d4; }
+.org-grid .org-person:nth-child(3) .org-person-card::before { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+.org-grid .org-person:nth-child(3) .org-photo { border-color: #a5f3fc; }
+.org-grid .org-person:nth-child(3) .org-position { background: linear-gradient(135deg, #0891b2, #06b6d4); }
+.org-grid .org-person:nth-child(3):hover .org-person-card { box-shadow: 0 15px 45px rgba(6, 182, 212, 0.25); }
+
+.org-grid .org-person:nth-child(4) .org-person-card { border-color: #8b5cf6; }
+.org-grid .org-person:nth-child(4) .org-person-card::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+.org-grid .org-person:nth-child(4) .org-photo { border-color: #ddd6fe; }
+.org-grid .org-person:nth-child(4) .org-position { background: linear-gradient(135deg, #7c3aed, #8b5cf6); }
+.org-grid .org-person:nth-child(4):hover .org-person-card { box-shadow: 0 15px 45px rgba(139, 92, 246, 0.25); }
+
+.org-grid .org-person:nth-child(5) .org-person-card { border-color: #ec4899; }
+.org-grid .org-person:nth-child(5) .org-person-card::before { background: linear-gradient(90deg, #ec4899, #f472b6); }
+.org-grid .org-person:nth-child(5) .org-photo { border-color: #fbcfe8; }
+.org-grid .org-person:nth-child(5) .org-position { background: linear-gradient(135deg, #db2777, #ec4899); }
+.org-grid .org-person:nth-child(5):hover .org-person-card { box-shadow: 0 15px 45px rgba(236, 72, 153, 0.25); }
+
+.org-grid .org-person:nth-child(6) .org-person-card { border-color: #10b981; }
+.org-grid .org-person:nth-child(6) .org-person-card::before { background: linear-gradient(90deg, #10b981, #34d399); }
+.org-grid .org-person:nth-child(6) .org-photo { border-color: #a7f3d0; }
+.org-grid .org-person:nth-child(6) .org-position { background: linear-gradient(135deg, #059669, #10b981); }
+.org-grid .org-person:nth-child(6):hover .org-person-card { box-shadow: 0 15px 45px rgba(16, 185, 129, 0.25); }
+
+.org-grid .org-person:nth-child(7) .org-person-card { border-color: #f97316; }
+.org-grid .org-person:nth-child(7) .org-person-card::before { background: linear-gradient(90deg, #f97316, #fb923c); }
+.org-grid .org-person:nth-child(7) .org-photo { border-color: #fed7aa; }
+.org-grid .org-person:nth-child(7) .org-position { background: linear-gradient(135deg, #ea580c, #f97316); }
+.org-grid .org-person:nth-child(7):hover .org-person-card { box-shadow: 0 15px 45px rgba(249, 115, 22, 0.25); }
+
+.org-grid .org-person:nth-child(8) .org-person-card { border-color: #14b8a6; }
+.org-grid .org-person:nth-child(8) .org-person-card::before { background: linear-gradient(90deg, #14b8a6, #2dd4bf); }
+.org-grid .org-person:nth-child(8) .org-photo { border-color: #99f6e4; }
+.org-grid .org-person:nth-child(8) .org-position { background: linear-gradient(135deg, #0d9488, #14b8a6); }
+.org-grid .org-person:nth-child(8):hover .org-person-card { box-shadow: 0 15px 45px rgba(20, 184, 166, 0.25); }
 
 /* Grid layout for anggota level */
 .org-grid {
@@ -1795,6 +2049,42 @@ body {
     margin: 0;
 }
 
+/* ===== TPF CARD COLOR VARIATIONS ===== */
+.tpf-card:nth-child(1) { border-color: #3b82f6; }
+.tpf-card:nth-child(1)::before { background: linear-gradient(180deg, #3b82f6, #60a5fa); }
+.tpf-card:nth-child(1):hover { border-color: #60a5fa; box-shadow: 0 12px 30px rgba(59, 130, 246, 0.2); }
+.tpf-card:nth-child(1) .tpf-card-icon { color: #1d4ed8; background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+.tpf-card:nth-child(1):hover .tpf-card-icon { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+.tpf-card:nth-child(1) h5 { color: #1e40af; }
+
+.tpf-card:nth-child(2) { border-color: #8b5cf6; }
+.tpf-card:nth-child(2)::before { background: linear-gradient(180deg, #8b5cf6, #a78bfa); }
+.tpf-card:nth-child(2):hover { border-color: #a78bfa; box-shadow: 0 12px 30px rgba(139, 92, 246, 0.2); }
+.tpf-card:nth-child(2) .tpf-card-icon { color: #6d28d9; background: linear-gradient(135deg, #ede9fe, #ddd6fe); }
+.tpf-card:nth-child(2):hover .tpf-card-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+.tpf-card:nth-child(2) h5 { color: #5b21b6; }
+
+.tpf-card:nth-child(3) { border-color: #ec4899; }
+.tpf-card:nth-child(3)::before { background: linear-gradient(180deg, #ec4899, #f472b6); }
+.tpf-card:nth-child(3):hover { border-color: #f472b6; box-shadow: 0 12px 30px rgba(236, 72, 153, 0.2); }
+.tpf-card:nth-child(3) .tpf-card-icon { color: #be185d; background: linear-gradient(135deg, #fce7f3, #fbcfe8); }
+.tpf-card:nth-child(3):hover .tpf-card-icon { background: linear-gradient(135deg, #ec4899, #db2777); color: white; }
+.tpf-card:nth-child(3) h5 { color: #9d174d; }
+
+.tpf-card:nth-child(4) { border-color: #f59e0b; }
+.tpf-card:nth-child(4)::before { background: linear-gradient(180deg, #f59e0b, #fbbf24); }
+.tpf-card:nth-child(4):hover { border-color: #fbbf24; box-shadow: 0 12px 30px rgba(245, 158, 11, 0.2); }
+.tpf-card:nth-child(4) .tpf-card-icon { color: #b45309; background: linear-gradient(135deg, #fef3c7, #fde68a); }
+.tpf-card:nth-child(4):hover .tpf-card-icon { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+.tpf-card:nth-child(4) h5 { color: #92400e; }
+
+.tpf-card:nth-child(5) { border-color: #06b6d4; }
+.tpf-card:nth-child(5)::before { background: linear-gradient(180deg, #06b6d4, #22d3ee); }
+.tpf-card:nth-child(5):hover { border-color: #22d3ee; box-shadow: 0 12px 30px rgba(6, 182, 212, 0.2); }
+.tpf-card:nth-child(5) .tpf-card-icon { color: #0e7490; background: linear-gradient(135deg, #cffafe, #a5f3fc); }
+.tpf-card:nth-child(5):hover .tpf-card-icon { background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; }
+.tpf-card:nth-child(5) h5 { color: #155e75; }
+
 /* Stats/Info Bar */
 .info-bar {
     display: grid;
@@ -1831,6 +2121,28 @@ body {
     font-size: 11px;
     font-weight: 600;
 }
+
+/* ===== INFO ITEM COLOR VARIATIONS ===== */
+.info-item:nth-child(1) {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-color: #f59e0b;
+}
+.info-item:nth-child(1) i { color: #d97706; }
+.info-item:nth-child(1) strong { color: #b45309; }
+
+.info-item:nth-child(2) {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    border-color: #3b82f6;
+}
+.info-item:nth-child(2) i { color: #2563eb; }
+.info-item:nth-child(2) strong { color: #1d4ed8; }
+
+.info-item:nth-child(3) {
+    background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+    border-color: #ec4899;
+}
+.info-item:nth-child(3) i { color: #db2777; }
+.info-item:nth-child(3) strong { color: #be185d; }
 
 /* Contact/Footer Info */
 .contact-info {
@@ -2622,6 +2934,55 @@ body {
     text-align: center;
 }
 
+/* ===== PHOTO CARD COLOR VARIATIONS ===== */
+.photo-card:nth-child(1) { border: 3px solid #ef4444; }
+.photo-card:nth-child(1):hover { box-shadow: 0 12px 30px rgba(239, 68, 68, 0.3); }
+.photo-card:nth-child(1) .photo-overlay { background: linear-gradient(transparent, rgba(220, 38, 38, 0.85)); }
+
+.photo-card:nth-child(2) { border: 3px solid #f59e0b; }
+.photo-card:nth-child(2):hover { box-shadow: 0 12px 30px rgba(245, 158, 11, 0.3); }
+.photo-card:nth-child(2) .photo-overlay { background: linear-gradient(transparent, rgba(217, 119, 6, 0.85)); }
+
+.photo-card:nth-child(3) { border: 3px solid #10b981; }
+.photo-card:nth-child(3):hover { box-shadow: 0 12px 30px rgba(16, 185, 129, 0.3); }
+.photo-card:nth-child(3) .photo-overlay { background: linear-gradient(transparent, rgba(5, 150, 105, 0.85)); }
+
+.photo-card:nth-child(4) { border: 3px solid #3b82f6; }
+.photo-card:nth-child(4):hover { box-shadow: 0 12px 30px rgba(59, 130, 246, 0.3); }
+.photo-card:nth-child(4) .photo-overlay { background: linear-gradient(transparent, rgba(29, 78, 216, 0.85)); }
+
+.photo-card:nth-child(5) { border: 3px solid #8b5cf6; }
+.photo-card:nth-child(5):hover { box-shadow: 0 12px 30px rgba(139, 92, 246, 0.3); }
+.photo-card:nth-child(5) .photo-overlay { background: linear-gradient(transparent, rgba(109, 40, 217, 0.85)); }
+
+.photo-card:nth-child(6) { border: 3px solid #ec4899; }
+.photo-card:nth-child(6):hover { box-shadow: 0 12px 30px rgba(236, 72, 153, 0.3); }
+.photo-card:nth-child(6) .photo-overlay { background: linear-gradient(transparent, rgba(190, 24, 93, 0.85)); }
+
+.photo-card:nth-child(7) { border: 3px solid #06b6d4; }
+.photo-card:nth-child(7):hover { box-shadow: 0 12px 30px rgba(6, 182, 212, 0.3); }
+.photo-card:nth-child(7) .photo-overlay { background: linear-gradient(transparent, rgba(14, 116, 144, 0.85)); }
+
+.photo-card:nth-child(8) { border: 3px solid #f97316; }
+.photo-card:nth-child(8):hover { box-shadow: 0 12px 30px rgba(249, 115, 22, 0.3); }
+.photo-card:nth-child(8) .photo-overlay { background: linear-gradient(transparent, rgba(234, 88, 12, 0.85)); }
+
+.photo-card:nth-child(9) { border: 3px solid #14b8a6; }
+.photo-card:nth-child(9):hover { box-shadow: 0 12px 30px rgba(20, 184, 166, 0.3); }
+.photo-card:nth-child(9) .photo-overlay { background: linear-gradient(transparent, rgba(13, 148, 136, 0.85)); }
+
+.photo-card:nth-child(10) { border: 3px solid #6366f1; }
+.photo-card:nth-child(10):hover { box-shadow: 0 12px 30px rgba(99, 102, 241, 0.3); }
+.photo-card:nth-child(10) .photo-overlay { background: linear-gradient(transparent, rgba(79, 70, 229, 0.85)); }
+
+.photo-card:nth-child(11) { border: 3px solid #84cc16; }
+.photo-card:nth-child(11):hover { box-shadow: 0 12px 30px rgba(132, 204, 22, 0.3); }
+.photo-card:nth-child(11) .photo-overlay { background: linear-gradient(transparent, rgba(101, 163, 13, 0.85)); }
+
+.photo-card:nth-child(12) { border: 3px solid #e11d48; }
+.photo-card:nth-child(12):hover { box-shadow: 0 12px 30px rgba(225, 29, 72, 0.3); }
+.photo-card:nth-child(12) .photo-overlay { background: linear-gradient(transparent, rgba(190, 18, 29, 0.85)); }
+
 .folder-label {
     font-size: 13px;
     font-weight: 700;
@@ -2742,6 +3103,52 @@ body {
     align-items: center;
     gap: 4px;
 }
+
+/* ===== VIDEO CARD COLOR VARIATIONS ===== */
+.video-card:nth-child(1) { border-color: #ef4444; }
+.video-card:nth-child(1):hover { border-color: #ef4444; box-shadow: 0 12px 30px rgba(239, 68, 68, 0.25); }
+.video-card:nth-child(1) .play-overlay { background: linear-gradient(135deg, #ef4444, #f87171); box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4); }
+.video-card:nth-child(1) .video-info h5 { color: #dc2626; }
+
+.video-card:nth-child(2) { border-color: #8b5cf6; }
+.video-card:nth-child(2):hover { border-color: #8b5cf6; box-shadow: 0 12px 30px rgba(139, 92, 246, 0.25); }
+.video-card:nth-child(2) .play-overlay { background: linear-gradient(135deg, #8b5cf6, #a78bfa); box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4); }
+.video-card:nth-child(2) .video-info h5 { color: #7c3aed; }
+
+.video-card:nth-child(3) { border-color: #06b6d4; }
+.video-card:nth-child(3):hover { border-color: #06b6d4; box-shadow: 0 12px 30px rgba(6, 182, 212, 0.25); }
+.video-card:nth-child(3) .play-overlay { background: linear-gradient(135deg, #06b6d4, #22d3ee); box-shadow: 0 8px 25px rgba(6, 182, 212, 0.4); }
+.video-card:nth-child(3) .video-info h5 { color: #0891b2; }
+
+.video-card:nth-child(4) { border-color: #f59e0b; }
+.video-card:nth-child(4):hover { border-color: #f59e0b; box-shadow: 0 12px 30px rgba(245, 158, 11, 0.25); }
+.video-card:nth-child(4) .play-overlay { background: linear-gradient(135deg, #f59e0b, #fbbf24); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4); }
+.video-card:nth-child(4) .video-info h5 { color: #d97706; }
+
+.video-card:nth-child(5) { border-color: #10b981; }
+.video-card:nth-child(5):hover { border-color: #10b981; box-shadow: 0 12px 30px rgba(16, 185, 129, 0.25); }
+.video-card:nth-child(5) .play-overlay { background: linear-gradient(135deg, #10b981, #34d399); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); }
+.video-card:nth-child(5) .video-info h5 { color: #059669; }
+
+.video-card:nth-child(6) { border-color: #ec4899; }
+.video-card:nth-child(6):hover { border-color: #ec4899; box-shadow: 0 12px 30px rgba(236, 72, 153, 0.25); }
+.video-card:nth-child(6) .play-overlay { background: linear-gradient(135deg, #ec4899, #f472b6); box-shadow: 0 8px 25px rgba(236, 72, 153, 0.4); }
+.video-card:nth-child(6) .video-info h5 { color: #db2777; }
+
+.video-card:nth-child(7) { border-color: #3b82f6; }
+.video-card:nth-child(7):hover { border-color: #3b82f6; box-shadow: 0 12px 30px rgba(59, 130, 246, 0.25); }
+.video-card:nth-child(7) .play-overlay { background: linear-gradient(135deg, #3b82f6, #60a5fa); box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4); }
+.video-card:nth-child(7) .video-info h5 { color: #2563eb; }
+
+.video-card:nth-child(8) { border-color: #14b8a6; }
+.video-card:nth-child(8):hover { border-color: #14b8a6; box-shadow: 0 12px 30px rgba(20, 184, 166, 0.25); }
+.video-card:nth-child(8) .play-overlay { background: linear-gradient(135deg, #14b8a6, #2dd4bf); box-shadow: 0 8px 25px rgba(20, 184, 166, 0.4); }
+.video-card:nth-child(8) .video-info h5 { color: #0d9488; }
+
+.video-card:nth-child(9) { border-color: #f97316; }
+.video-card:nth-child(9):hover { border-color: #f97316; box-shadow: 0 12px 30px rgba(249, 115, 22, 0.25); }
+.video-card:nth-child(9) .play-overlay { background: linear-gradient(135deg, #f97316, #fb923c); box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4); }
+.video-card:nth-child(9) .video-info h5 { color: #ea580c; }
 
 /* ============================================ */
 /* ===== GALLERY STYLES - GALERI PERATURAN ===== */
@@ -5822,10 +6229,11 @@ body {
             <div id="skJfkResults" style="display: none;">
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered" style="font-size: 14px;">
-                        <thead style="background: var(--green); color: white;">
+                        <thead style="background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); color: white;">
                             <tr>
-                                <th style="width: 80px;">Foto</th>
-                                <th style="width: 180px;">NIP</th>
+                                <th style="width: 90px;">Foto</th>
+                                <th style="width: 200px;">Nama Lengkap</th>
+                                <th style="width: 170px;">NIP</th>
                                 <th>Pangkat/Golongan Ruang</th>
                                 <th>Unit Kerja</th>
                                 <th>Jabatan Awal</th>
@@ -5860,6 +6268,86 @@ body {
     </div>
 </div>
 
+<!-- POPUP MODAL DETAIL PEGAWAI - LENGKAP -->
+<div class="modal-detail-overlay" id="popupDetailPegawai" onclick="closeDetailPopup(event)">
+    <div class="modal-detail-box" onclick="event.stopPropagation()">
+        <!-- Header -->
+        <div class="modal-detail-header">
+            <h3 style="margin: 0; font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-user-circle"></i> Detail Data Pegawai
+            </h3>
+            <button class="modal-detail-close" onclick="closeDetailPopup()" title="Tutup">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <!-- Body -->
+        <div class="modal-detail-body">
+            <!-- Foto & Identitas Utama -->
+            <div class="detail-photo-section">
+                <div id="detailPhotoContainer">
+                    <!-- Photo will be inserted here -->
+                </div>
+                <div class="detail-nama" id="detailNama">Nama Pegawai</div>
+                <span class="detail-nip-badge" id="detailNip"><i class="fas fa-id-card"></i> NIP</span>
+            </div>
+            
+            <!-- Grid Detail Data -->
+            <div class="detail-grid">
+                <!-- Pangkat/Golongan -->
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-star"></i> Pangkat / Golongan Ruang
+                    </div>
+                    <div class="detail-value pangkat-value" id="detailPangkat">-</div>
+                </div>
+                
+                <!-- Unit Kerja -->
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-building"></i> Unit Kerja
+                    </div>
+                    <div class="detail-value" id="detailUnitKerja">-</div>
+                </div>
+                
+                <!-- Jabatan Awal -->
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-arrow-right"></i> Jabatan Awal
+                    </div>
+                    <div class="detail-value" id="detailJabatanAwal">-</div>
+                </div>
+                
+                <!-- Jabatan Sekarang -->
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-check-circle"></i> Jabatan Sekarang
+                    </div>
+                    <div class="detail-value" id="detailJabatanSekarang">-</div>
+                </div>
+                
+                <!-- NIP (Full Width) -->
+                <div class="detail-item full-width">
+                    <div class="detail-label">
+                        <i class="fas fa-id-card"></i> Nomor Induk Pegawai (NIP)
+                    </div>
+                    <div class="detail-value" style="font-family: 'Courier New', monospace; color: var(--green-dark);" id="detailNipFull">-</div>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="detail-actions">
+                <a href="#" id="detailDownloadLink" target="_blank" class="btn-download-large">
+                    <i class="fas fa-download"></i> Download Dokumen SK JFK
+                </a>
+                <p style="margin-top: 12px; color: var(--gray-500); font-size: 12px;">
+                    <i class="fas fa-info-circle"></i> Dokumen akan terbuka di tab baru (Google Drive)
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Style untuk SK JFK Popup -->
 <style>
 .search-box-skjfk .input-group {
@@ -5878,24 +6366,78 @@ body {
 #skJfkTableBody tr:hover {
     background-color: var(--green-pale) !important;
 }
+/* Foto Pegawai - Enhanced */
+.foto-container-skjfk {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
 .foto-pegawai {
-    width: 50px;
-    height: 60px;
+    width: 65px;
+    height: 75px;
     object-fit: cover;
-    border-radius: 6px;
-    border: 2px solid var(--green-light);
+    border-radius: 10px;
+    border: 3px solid var(--green-light);
     background: var(--gray-100);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.foto-pegawai:hover {
+    transform: scale(1.08);
+    border-color: var(--green);
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
 }
 .foto-placeholder {
-    width: 50px;
-    height: 60px;
-    background: var(--green-pale);
-    border-radius: 6px;
+    width: 65px;
+    height: 75px;
+    background: linear-gradient(135deg, var(--green-pale) 0%, var(--green-light) 100%);
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--green-dark);
-    font-size: 18px;
+    font-size: 24px;
+    border: 3px solid var(--green-light);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.foto-placeholder:hover {
+    transform: scale(1.08);
+    border-color: var(--green);
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+}
+.foto-click-hint {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--green-dark);
+    color: white;
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+    pointer-events: none;
+}
+.foto-container-skjfk:hover .foto-click-hint {
+    opacity: 1;
+}
+
+/* Nama Pegawai */
+.nama-pegawai {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.nama-pegawai i {
+    color: var(--green);
+    font-size: 12px;
 }
 .btn-download-sk {
     display: inline-flex;
@@ -5942,6 +6484,579 @@ body {
 .unit-kerja {
     font-size: 13px;
     color: var(--text-dark);
+}
+.unit-kerja i {
+    color: var(--green);
+    margin-right: 4px;
+}
+
+/* ============================================ */
+/* POPUP DETAIL PEGAWAI - SUPER COLORFUL & KEREN */
+/* ============================================ */
+
+/* Overlay with animated gradient background */
+.modal-detail-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, 
+        rgba(139, 92, 246, 0.4) 0%, 
+        rgba(59, 130, 246, 0.4) 25%,
+        rgba(34, 197, 94, 0.4) 50%,
+        rgba(245, 158, 11, 0.4) 75%,
+        rgba(239, 68, 68, 0.4) 100%);
+    z-index: 10000;
+    backdrop-filter: blur(8px);
+    animation: fadeInOverlay 0.4s ease;
+}
+.modal-detail-overlay.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Main Modal Box - Glassmorphism + Gradient Border */
+.modal-detail-box {
+    background: linear-gradient(135deg, 
+        rgba(255,255,255,0.95) 0%, 
+        rgba(255,255,255,0.98) 100%);
+    border-radius: 28px;
+    max-width: 720px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUpModal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 
+        0 30px 80px rgba(0,0,0,0.35),
+        0 0 0 1px rgba(255,255,255,0.8),
+        inset 0 1px 0 rgba(255,255,255,1);
+    position: relative;
+}
+.modal-detail-box::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(45deg, 
+        #ff6b6b, #feca57, #48dbfb, #ff9ff3, 
+        #54a0ff, #5f27cd, #00d2d3, #ff9f43,
+        #ff6b6b);
+    background-size: 400% 400%;
+    border-radius: 30px;
+    z-index: -1;
+    animation: gradientBorder 8s ease infinite;
+    opacity: 0.8;
+}
+@keyframes gradientBorder {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+@keyframes slideUpModal {
+    from { 
+        transform: translateY(60px) scale(0.95);
+        opacity: 0;
+    }
+    to { 
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Decorative Blobs */
+.modal-detail-box::after {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* Header - Rainbow Gradient with Animated Background */
+.modal-detail-header {
+    background: linear-gradient(135deg, 
+        #667eea 0%, 
+        #764ba2 25%,
+        #f093fb 50%,
+        #f5576c 75%,
+        #4facfe 100%);
+    background-size: 200% 200%;
+    color: white;
+    padding: 32px 30px;
+    border-radius: 28px 28px 0 0;
+    position: relative;
+    overflow: hidden;
+    animation: headerGradient 10s ease infinite;
+}
+.modal-detail-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+}
+@keyframes headerGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.modal-detail-header h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    letter-spacing: 0.5px;
+}
+.modal-detail-header h3 i {
+    font-size: 1.6rem;
+    animation: iconPulse 2s ease-in-out infinite;
+}
+@keyframes iconPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+/* Close Button - Glowing Effect */
+.modal-detail-close {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.3);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.modal-detail-close:hover {
+    background: rgba(255,255,255,0.35);
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 6px 25px rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.5);
+}
+
+/* Body Section */
+.modal-detail-body {
+    padding: 35px 30px 30px;
+    background: linear-gradient(180deg, 
+        rgba(255,255,255,0.98) 0%, 
+        rgba(250,253,249,0.98) 100%);
+}
+
+/* Photo Section - Enhanced with Glow Ring */
+.detail-photo-section {
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+.detail-photo-main {
+    width: 160px;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 20px;
+    border: 5px solid transparent;
+    background: linear-gradient(white, white) padding-box,
+                linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c) border-box;
+    box-shadow: 
+        0 15px 40px rgba(102, 126, 234, 0.35),
+        0 5px 15px rgba(0,0,0,0.1);
+    margin-bottom: 18px;
+    transition: all 0.4s ease;
+    animation: photoFloat 3s ease-in-out infinite;
+}
+.detail-photo-main:hover {
+    transform: scale(1.05) rotate(-2deg);
+    box-shadow: 
+        0 20px 50px rgba(102, 126, 234, 0.45),
+        0 8px 25px rgba(0,0,0,0.15);
+}
+@keyframes photoFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* Photo Placeholder - Colorful Avatar */
+.detail-photo-placeholder {
+    width: 160px;
+    height: 190px;
+    background: linear-gradient(135deg, 
+        #667eea 0%, 
+        #764ba2 25%,
+        #f093fb 50%,
+        #f5576c 75%,
+        #4facfe 100%);
+    background-size: 300% 300%;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px;
+    font-size: 65px;
+    color: white;
+    border: 5px solid transparent;
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    box-shadow: 
+        0 15px 40px rgba(118, 75, 162, 0.35),
+        0 5px 15px rgba(0,0,0,0.1);
+    animation: placeholderGradient 5s ease infinite, photoFloat 3s ease-in-out infinite;
+    text-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    font-weight: 600;
+}
+@keyframes placeholderGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Name - Gradient Text Effect */
+.detail-nama {
+    font-size: 1.65rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: textShine 3s linear infinite;
+    line-height: 1.3;
+}
+@keyframes textShine {
+    to { background-position: 200% center; }
+}
+
+/* NIP Badge - Neon Style */
+.detail-nip-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    color: #667eea;
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    box-shadow: 
+        0 4px 15px rgba(102, 126, 234, 0.2),
+        inset 0 1px 0 rgba(255,255,255,0.5);
+    transition: all 0.3s ease;
+}
+.detail-nip-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 8px 25px rgba(102, 126, 234, 0.3),
+        inset 0 1px 0 rgba(255,255,255,0.5);
+}
+.detail-nip-badge i {
+    color: #f5576c;
+}
+
+/* Detail Grid - Modern Card Layout */
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin-top: 28px;
+}
+
+/* Individual Detail Cards - Colorful Variations */
+.detail-item {
+    background: linear-gradient(135deg, 
+        rgba(255,255,255,0.9) 0%, 
+        rgba(248,250,252,0.9) 100%);
+    padding: 20px;
+    border-radius: 16px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+.detail-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    transition: width 0.3s ease;
+}
+.detail-item:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+/* Color Variations for Each Card Type */
+.detail-item:nth-child(1)::before { /* Pangkat - Gold/Orange */
+    background: linear-gradient(180deg, #f59e0b, #f97316);
+}
+.detail-item:nth-child(1):hover {
+    background: linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(249,115,22,0.08) 100%);
+    border-color: rgba(245,158,11,0.3);
+}
+
+.detail-item:nth-child(2)::before { /* Unit Kerja - Blue */
+    background: linear-gradient(180deg, #3b82f6, #2563eb);
+}
+.detail-item:nth-child(2):hover {
+    background: linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(37,99,235,0.08) 100%);
+    border-color: rgba(59,130,246,0.3);
+}
+
+.detail-item:nth-child(3)::before { /* Jabatan Awal - Purple */
+    background: linear-gradient(180deg, #8b5cf6, #7c3aed);
+}
+.detail-item:nth-child(3):hover {
+    background: linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(124,58,237,0.08) 100%);
+    border-color: rgba(139,92,246,0.3);
+}
+
+.detail-item:nth-child(4)::before { /* Jabatan Sekarang - Green */
+    background: linear-gradient(180deg, #22c55e, #16a34a);
+}
+.detail-item:nth-child(4):hover {
+    background: linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(22,163,74,0.08) 100%);
+    border-color: rgba(34,197,94,0.3);
+}
+
+.detail-item.full-width::before { /* NIP Full - Pink/Red */
+    background: linear-gradient(180deg, #ec4899, #db2777);
+}
+.detail-item.full-width:hover {
+    background: linear-gradient(135deg, rgba(236,72,153,0.08) 0%, rgba(219,39,119,0.08) 100%);
+    border-color: rgba(236,72,153,0.3);
+}
+
+.detail-item.full-width {
+    grid-column: span 2;
+}
+
+/* Label Styling - Colored Icons */
+.detail-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gray-500);
+    margin-bottom: 8px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.detail-label i {
+    font-size: 14px;
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+.detail-item:nth-child(1) .detail-label i { /* Pangkat */
+    color: #f59e0b;
+    background: rgba(245,158,11,0.15);
+}
+.detail-item:nth-child(2) .detail-label i { /* Unit Kerja */
+    color: #3b82f6;
+    background: rgba(59,130,246,0.15);
+}
+.detail-item:nth-child(3) .detail-label i { /* Jabatan Awal */
+    color: #8b5cf6;
+    background: rgba(139,92,246,0.15);
+}
+.detail-item:nth-child(4) .detail-label i { /* Jabatan Sekarang */
+    color: #22c55e;
+    background: rgba(34,197,94,0.15);
+}
+.detail-item.full-width .detail-label i { /* NIP */
+    color: #ec4899;
+    background: rgba(236,72,153,0.15);
+}
+.detail-item:hover .detail-label i {
+    transform: scale(1.2) rotate(5deg);
+}
+
+/* Value Styling */
+.detail-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1.5;
+}
+
+/* Pangkat Badge - Golden Shimmer */
+.detail-value.pangkat-value {
+    display: inline-block;
+    background: linear-gradient(135deg, 
+        #fbbf24 0%, 
+        #f59e0b 25%,
+        #d97706 50%,
+        #f59e0b 75%,
+        #fbbf24 100%);
+    background-size: 200% auto;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 25px;
+    font-size: 13px;
+    font-weight: 800;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: 
+        0 4px 15px rgba(245,158,11,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+    animation: goldShimmer 3s linear infinite;
+    letter-spacing: 0.5px;
+}
+@keyframes goldShimmer {
+    to { background-position: 200% center; }
+}
+
+/* Actions Section - Download Button */
+.detail-actions {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 2px dashed rgba(102, 126, 234, 0.2);
+    text-align: center;
+    position: relative;
+}
+.detail-actions::before {
+    content: '✨';
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(250,253,249,0.98) 100%);
+    padding: 0 12px;
+}
+
+/* Download Button - Electric Blue with Glow */
+.btn-download-large {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 40px;
+    background: linear-gradient(135deg, 
+        #4facfe 0%, 
+        #00f2fe 50%,
+        #4facfe 100%);
+    background-size: 200% auto;
+    color: white;
+    border-radius: 16px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 16px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 
+        0 8px 25px rgba(79,172,254,0.45),
+        0 4px 12px rgba(79,172,254,0.3);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    position: relative;
+    overflow: hidden;
+    animation: buttonGlow 3s ease-in-out infinite;
+}
+.btn-download-large::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,0.4),
+        transparent
+    );
+    transition: left 0.5s ease;
+}
+.btn-download-large:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 
+        0 15px 40px rgba(79,172,254,0.55),
+        0 8px 20px rgba(79,172,254,0.4);
+    animation: none;
+}
+.btn-download-large:hover::before {
+    left: 100%;
+}
+@keyframes buttonGlow {
+    0%, 100% { box-shadow: 0 8px 25px rgba(79,172,254,0.45), 0 4px 12px rgba(79,172,254,0.3); }
+    50% { box-shadow: 0 12px 35px rgba(79,172,254,0.6), 0 6px 18px rgba(79,172,254,0.45); }
+}
+.btn-download-large i {
+    font-size: 20px;
+    animation: downloadBounce 2s ease-in-out infinite;
+}
+@keyframes downloadBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+.detail-actions p {
+    margin-top: 14px;
+    color: var(--gray-500);
+    font-size: 12px;
+    font-weight: 500;
+}
+.detail-actions p i {
+    color: #f093fb;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+    .detail-item.full-width {
+        grid-column: span 1;
+    }
+    .modal-detail-body {
+        padding: 25px 20px 20px;
+    }
+    .modal-detail-header {
+        padding: 25px 20px;
+    }
+    .modal-detail-header h3 {
+        font-size: 1.2rem;
+    }
+    .detail-nama {
+        font-size: 1.4rem;
+    }
+    .detail-photo-main,
+    .detail-photo-placeholder {
+        width: 140px;
+        height: 165px;
+    }
 }
 </style>
 
@@ -7087,7 +8202,7 @@ async function testConnection() {
  * Konfigurasi URL Web App untuk SK JFK
  * Ganti dengan URL Google Apps Script Web App Anda
  */
-const SK_JFK_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyU4s8Pn1j-xF-Wdx2NCB5kACalEbZp6564QrJbLPOk2jqi2CueC1D7R-RMrexgCazG/exec';
+const SK_JFK_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx6kvkr4F0Gix_SjeyIGF60UOvqFbjbABS9VNU3V_Gh7UyH6p3g3sTFaT4w-u66QSSl/exec';
 
 /**
  * searchByNip() - Mencari data SK JFK berdasarkan NIP
@@ -7157,13 +8272,26 @@ function displaySkJfkResults(data) {
     data.forEach((item, index) => {
         const row = document.createElement('tr');
         
-        // Foto column
+        // Foto column - Clickable dengan hint
         let fotoHtml = '';
         if (item.foto) {
-            fotoHtml = `<img src="${item.foto}" alt="Foto ${item.nama || 'Pegawai'}" class="foto-pegawai" onerror="this.outerHTML='<div class=\\'foto-placeholder\\'><i class=\\'fas fa-user\\'></i></div>'">`;
+            fotoHtml = `<div class="foto-container-skjfk" onclick='showDetailPegawai(${JSON.stringify(item).replace(/'/g, "\\'")})'>
+                <img src="${item.foto}" alt="Foto ${item.nama || 'Pegawai'}" class="foto-pegawai" 
+                     onerror="this.outerHTML='<div class=\\'foto-placeholder\\'><i class=\\'fas fa-user\\'></i></div>'">
+                <span class="foto-click-hint"><i class="fas fa-eye"></i> Lihat Detail</span>
+            </div>`;
         } else {
-            fotoHtml = `<div class="foto-placeholder"><i class="fas fa-user"></i></div>`;
+            fotoHtml = `<div class="foto-container-skjfk" onclick='showDetailPegawai(${JSON.stringify(item).replace(/'/g, "\\'")})'>
+                <div class="foto-placeholder"><i class="fas fa-user"></i></div>
+                <span class="foto-click-hint"><i class="fas fa-eye"></i> Lihat Detail</span>
+            </div>`;
         }
+        
+        // Nama Pegawai
+        const namaPegawai = item.nama ? 
+            `<span class="nama-pegawai" onclick='showDetailPegawai(${JSON.stringify(item).replace(/'/g, "\\'")})' style="cursor: pointer;">
+                <i class="fas fa-user-circle"></i> ${item.nama}
+             </span>` : '<span class="text-muted">-</span>';
         
         // Pangkat badge
         const pangkatBadge = item.pangkat ? 
@@ -7178,9 +8306,10 @@ function displaySkJfkResults(data) {
         
         row.innerHTML = `
             <td style="text-align: center;">${fotoHtml}</td>
+            <td>${namaPegawai}</td>
             <td><span class="nip-text">${item.nip || '-'}</span></td>
             <td>${pangkatBadge}</td>
-            <td class="unit-kerja">${item.unitKerja || '-'}</td>
+            <td class="unit-kerja"><i class="fas fa-building"></i>${item.unitKerja || '-'}</td>
             <td>
                 <div class="jabatan-label">Jabatan Awal:</div>
                 <div class="jabatan-value">${item.jabatanAwal || '-'}</div>
@@ -7199,6 +8328,78 @@ function displaySkJfkResults(data) {
 }
 
 /**
+ * showDetailPegawai() - Menampilkan popup detail lengkap pegawai
+ * @param {Object} item - Data pegawai
+ */
+function showDetailPegawai(item) {
+    // Set Foto
+    const photoContainer = document.getElementById('detailPhotoContainer');
+    if (item.foto) {
+        photoContainer.innerHTML = `<img src="${item.foto}" alt="Foto ${item.nama || 'Pegawai'}" class="detail-photo-main"
+            onerror="this.outerHTML='<div class=\\'detail-photo-placeholder\\'><i class=\\'fas fa-user\\'></i></div>'">`;
+    } else {
+        // Generate avatar initials dari nama
+        const initials = item.nama ? item.nama.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '??';
+        photoContainer.innerHTML = `<div class="detail-photo-placeholder">${initials}</div>`;
+    }
+    
+    // Set Nama
+    document.getElementById('detailNama').textContent = item.nama || 'Tidak tersedia';
+    
+    // Set NIP (badge & full)
+    document.getElementById('detailNip').textContent = item.nip || '-';
+    document.getElementById('detailNipFull').textContent = item.nip || '-';
+    
+    // Set Pangkat
+    document.getElementById('detailPangkat').textContent = item.pangkat || 'Tidak tersedia';
+    
+    // Set Unit Kerja
+    document.getElementById('detailUnitKerja').textContent = item.unitKerja || 'Tidak tersedia';
+    
+    // Set Jabatan Awal
+    document.getElementById('detailJabatanAwal').textContent = item.jabatanAwal || 'Tidak tersedia';
+    
+    // Set Jabatan Sekarang
+    document.getElementById('detailJabatanSekarang').textContent = item.jabatanSekarang || 'Tidak tersedia';
+    
+    // Set Download Link
+    const downloadLink = document.getElementById('detailDownloadLink');
+    if (item.driveLink) {
+        downloadLink.href = item.driveLink;
+        downloadLink.style.display = 'inline-flex';
+        downloadLink.nextElementSibling.style.display = 'block';
+    } else {
+        downloadLink.style.display = 'none';
+        downloadLink.nextElementSibling.innerHTML = '<i class="fas fa-exclamation-circle"></i> Dokumen SK JFK tidak tersedia untuk pegawai ini';
+    }
+    
+    // Show modal with animation
+    const modal = document.getElementById('popupDetailPegawai');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevent background scroll
+}
+
+/**
+ * closeDetailPopup() - Menutup popup detail pegawai
+ * @param {Event} event - Optional click event
+ */
+function closeDetailPopup(event) {
+    // If event exists and clicked outside the box, or if called without event from close button
+    if (!event || event.target === event.currentTarget) {
+        const modal = document.getElementById('popupDetailPegawai');
+        modal.classList.remove('active');
+        document.body.style.overflow = ''; // Restore scroll
+    }
+}
+
+// Close detail popup on Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeDetailPopup();
+    }
+});
+
+/**
  * displayDemoData() - Menampilkan data demo untuk testing
  */
 function displayDemoData(nip) {
@@ -7212,6 +8413,16 @@ function displayDemoData(nip) {
             jabatanAwal: 'Sanitarian Pelaksana',
             jabatanSekarang: 'Sanitarian Ahli Muda',
             driveLink: 'https://drive.google.com/file/d/EXAMPLE_SK_001/view'
+        },
+        {
+            nip: nip,
+            nama: 'Siti Nurhaliza, Amd.Keb',
+            foto: '',
+            pangkat: 'Penata Muda Tk.I / III-b',
+            unitKerja: 'Puskesmas Loa Kulu',
+            jabatanAwal: 'Bidan Pelaksana',
+            jabatanSekarang: 'Bidan Ahli',
+            driveLink: 'https://drive.google.com/file/d/EXAMPLE_SK_002/view'
         }
     ];
     
