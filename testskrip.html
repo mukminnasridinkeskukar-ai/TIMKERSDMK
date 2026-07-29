@@ -4204,7 +4204,7 @@
 // File pendukung: SIMBAKES_WebApp_Code.gs (Google Apps Script Code)
 // ============================================================
 
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytF0dH7AVlJprLTRKDGdb0rzYvoAzsqXmYX8W-KiGOlWE4kAtbKKebDxtEVqxdNgYygQ/exec'; // ← PASTE URL WEB APP DI SINI
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby2gVTNeBQaOS1xljlIRUA-mpAyWlktklnlbdNdUaS8hE8Raq0bQoTuARqUu0ghvnkqQg/exec'; // ← PASTE URL WEB APP DI SINI
 
 // Set ke false jika sudah memasukkan URL Google Apps Script di atas
 const USE_LOCAL_STORAGE = false; // Ganti menjadi false setelah setup Google Sheets
@@ -4864,18 +4864,23 @@ function searchStatus() {
 // ===== RENDER FUNCTIONS =====
 
 // ===== CONFIGURATION =====
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbytF0dH7AVlJprLTRKDGdb0rzYvoAzsqXmYX8W-KiGOlWE4kAtbKKebDxtEVqxdNgYygQ/exec'; // Ganti dengan URL Web App Google Apps Script Anda
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby2gVTNeBQaOS1xljlIRUA-mpAyWlktklnlbdNdUaS8hE8Raq0bQoTuARqUu0ghvnkqQg/exec'; // Ganti dengan URL Web App Google Apps Script Anda
 
-// ===== GOOGLE DRIVE PHOTO HELPER =====
+// ===== GOOGLE DRIVE PHOTO HELPER (ENHANCED v2.0) =====
 /**
- * Konversi Google Drive URL ke format direct image link
- * Mendukung berbagai format URL Drive:
- * - drive.google.com/file/d/FILE_ID
- * - drive.google.com/open?id=FILE_ID
- * - https://drive.google.com/uc?export=view&id=FILE_ID
- * - https://lh3.googleusercontent.com/...
+ * KUMPULAN FUNGSI UNTUK MENAMPILKAN FOTO DARI GOOGLE DRIVE
+ * 
+ * Metode yang digunakan (urutan prioritas):
+ * 1. Direct URL conversion (lh3.googleusercontent.com)
+ * 2. Multiple URL format fallbacks
+ * 3. Web App Proxy endpoint (getImage)
+ * 4. Placeholder image jika semua gagal
  */
-function getDirectImageUrl(driveUrl) {
+
+/**
+ * Ekstrak File ID dari berbagai format Google Drive URL
+ */
+function extractFileId(driveUrl) {
     if (!driveUrl || driveUrl === '-' || driveUrl.length < 10) return '';
     
     let fileId = '';
@@ -4884,36 +4889,278 @@ function getDirectImageUrl(driveUrl) {
     const match1 = driveUrl.match(/\/file\/d\/([a-zA-Z0-9-_]+)/);
     if (match1) fileId = match1[1];
     
-    // Pattern 2: ?id=FILE_ID
+    // Pattern 2: ?id=FILE_ID or &id=FILE_ID
     if (!fileId) {
         const match2 = driveUrl.match(/[?&]id=([a-zA-Z0-9-_]+)/);
         if (match2) fileId = match2[1];
     }
     
-    // Pattern 3: /d/FILE_ID (shortened)
+    // Pattern 3: /d/FILE_ID (shortened URL)
     if (!fileId) {
         const match3 = driveUrl.match(/\/d\/([a-zA-Z0-9-_]{25,})/);
         if (match3) fileId = match3[1];
     }
     
-    // Jika sudah direct URL atau bukan drive, return as-is
+    // Pattern 4: open?id=FILE_ID
     if (!fileId) {
-        if (driveUrl.startsWith('http') && !driveUrl.includes('drive.google.com') && !driveUrl.includes('googleusercontent.com')) {
-            return driveUrl;
-        }
-        if (driveUrl.includes('googleusercontent.com')) {
-            return driveUrl;
-        }
-        return driveUrl;
+        const match4 = driveUrl.match(/open\?id=([a-zA-Z0-9-_]+)/);
+        if (match4) fileId = match4[1];
     }
     
-    return `https://lh3.googleusercontent.com/d/${fileId}=s2200`;
+    return fileId;
 }
 
 /**
- * Set gambar dengan handling error yang lebih baik
+ * Generate multiple possible direct URLs untuk sebuah File ID
+ * Ini memberikan beberapa alternatif URL yang bisa dicoba
  */
-function setPhotoWithFallback(imgElement, placeholderElement, photoUrl) {
+function generateDirectUrls(fileId) {
+    if (!fileId) return [];
+    
+    return [
+        // Format 1: lh3.googleusercontent.com (thumbnail service) - PALING RELIABLE
+        `https://lh3.googleusercontent.com/d/${fileId}=s2200`,
+        // Format 2: drive.google.com uc export (view mode)
+        `https://drive.google.com/uc?export=view&id=${fileId}`,
+        // Format 3: drive.google.com thumbnail
+        `https://drive.google.com/thumbnail?id=${fileId}&sz=w2200-h1500`,
+        // Format 4: thumbnails.googleapi.com
+        `https://thumbnails.googleusercontent.com/vi/${fileId}/w=2200-h=1500`
+    ];
+}
+
+/**
+ * Konversi Google Drive URL ke format direct image link
+ * Mendukung berbagai format URL Drive:
+ * - drive.google.com/file/d/FILE_ID
+ * - drive.google.com/open?id=FILE_ID
+ * - https://drive.google.com/uc?export=view&id=FILE_ID
+ * - https://lh3.googleusercontent.com/...
+ * 
+ * @returns {string} URL langsung yang bisa digunakan di <img src>
+ */
+function getDirectImageUrl(driveUrl) {
+    if (!driveUrl || driveUrl === '-' || driveUrl.length < 10) return '';
+    
+    // Jika sudah data URL (base64), return as-is
+    if (driveUrl.startsWith('data:image/')) {
+        return driveUrl;
+    }
+    
+    // Jika sudah direct URL dan bukan drive, return as-is
+    if (driveUrl.startsWith('http') && !driveUrl.includes('drive.google.com') && !driveUrl.includes('googleusercontent.com')) {
+        return driveUrl;
+    }
+    
+    // Jika sudah googleusercontent URL, return as-is
+    if (driveUrl.includes('googleusercontent.com')) {
+        return driveUrl;
+    }
+    
+    // Extract file ID dan generate direct URL
+    const fileId = extractFileId(driveUrl);
+    
+    if (fileId) {
+        // Return URL paling reliable (format lh3)
+        return `https://lh3.googleusercontent.com/d/${fileId}=s2200`;
+    }
+    
+    // Jika tidak bisa extract, return original (mungkin sudah direct URL)
+    return driveUrl;
+}
+
+/**
+ * Generate proxy URL menggunakan Web App endpoint
+ * Ini adalah FALLBACK jika direct URL gagal
+ */
+function getProxyImageUrl(driveUrl) {
+    if (!driveUrl || driveUrl === '-' || driveUrl.length < 10) return '';
+    
+    const fileId = extractFileId(driveUrl);
+    
+    if (fileId) {
+        // Method 1: Gunakan fileId langsung
+        return `${WEB_APP_URL}?action=getImage&fileId=${fileId}&t=${Date.now()}`;
+    } else {
+        // Method 2: Encode URL lengkap
+        return `${WEB_APP_URL}?action=getImage&url=${encodeURIComponent(driveUrl)}&t=${Date.now()}`;
+    }
+}
+
+/**
+ * Cache untuk foto yang berhasil dimuat
+ * Menghindari request ulang ke server untuk foto yang sama
+ */
+const photoCache = new Map();
+const photoFailCache = new Set(); // Cache URL yang gagal (untuk skip retry)
+
+/**
+ * Set gambar dengan MULTI-LEVEL FALLBACK
+ * Urutan mencoba:
+ * 1. Direct URL (lh3.googleusercontent.com)
+ * 2. Alternative direct URLs (jika #1 gagal)
+ * 3. Proxy via Web App (jika semua direct URL gagal)
+ * 4. Placeholder (jika semua metode gagal)
+ */
+async function setPhotoWithFallback(imgElement, placeholderElement, photoUrl) {
+    // Reset state
+    imgElement.style.display = 'none';
+    if (placeholderElement) placeholderElement.style.display = 'flex';
+    
+    // Validasi input
+    if (!photoUrl || photoUrl === '-' || photoUrl.length < 10) {
+        if (placeholderElement) placeholderElement.style.display = 'flex';
+        return;
+    }
+    
+    // Cek cache dulu
+    const cacheKey = photoUrl.substring(0, 100);
+    if (photoCache.has(cacheKey)) {
+        imgElement.src = photoCache.get(cacheKey);
+        imgElement.style.display = 'block';
+        if (placeholderElement) placeholderElement.style.display = 'none';
+        return;
+    }
+    
+    // Cek fail cache - jika pernah gagal, langsung coba proxy
+    if (photoFailCache.has(cacheKey)) {
+        await tryProxyImage(imgElement, placeholderElement, photoUrl, cacheKey);
+        return;
+    }
+    
+    // LEVEL 1: Coba direct URL utama
+    const directUrl = getDirectImageUrl(photoUrl);
+    
+    if (!directUrl) {
+        await tryProxyImage(imgElement, placeholderElement, photoUrl, cacheKey);
+        return;
+    }
+    
+    // Try direct URL dengan Promise
+    const directSuccess = await tryLoadImage(imgElement, directUrl);
+    
+    if (directSuccess) {
+        photoCache.set(cacheKey, directUrl);
+        imgElement.style.display = 'block';
+        if (placeholderElement) placeholderElement.style.display = 'none';
+        return;
+    }
+    
+    // LEVEL 2: Coba alternative URLs
+    const fileId = extractFileId(photoUrl);
+    if (fileId) {
+        const altUrls = generateDirectUrls(fileId);
+        // Skip index 0 karena itu sudah dicoba sebagai directUrl
+        for (let i = 1; i < altUrls.length; i++) {
+            const altSuccess = await tryLoadImage(imgElement, altUrls[i]);
+            if (altSuccess) {
+                photoCache.set(cacheKey, altUrls[i]);
+                imgElement.style.display = 'block';
+                if (placeholderElement) placeholderElement.style.display = 'none';
+                console.log(`✅ Foto loaded via alternative URL ${i}:`, altUrls[i].substring(0, 60));
+                return;
+            }
+            // Small delay between attempts
+            await new Promise(r => setTimeout(r, 100));
+        }
+    }
+    
+    // LEVEL 3: Coba via Proxy (Web App endpoint)
+    await tryProxyImage(imgElement, placeholderElement, photoUrl, cacheKey);
+}
+
+/**
+ * Helper: Coba load image dari URL, return true jika success
+ */
+function tryLoadImage(imgElement, url) {
+    return new Promise((resolve) => {
+        const testImg = new Image();
+        const timeout = setTimeout(() => {
+            resolve(false);
+        }, 8000); // 8 second timeout
+        
+        testImg.onload = () => {
+            clearTimeout(timeout);
+            // Check if image has valid dimensions (not a redirect/error page)
+            if (testImg.naturalWidth > 10 && testImg.naturalHeight > 10) {
+                imgElement.src = url;
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        };
+        
+        testImg.onerror = () => {
+            clearTimeout(timeout);
+            resolve(false);
+        };
+        
+        testImg.src = url;
+    });
+}
+
+/**
+ * Helper: Coba load image via Web App Proxy
+ */
+async function tryProxyImage(imgElement, placeholderElement, photoUrl, cacheKey) {
+    console.log('🔄 Trying proxy for photo:', photoUrl.substring(0, 50) + '...');
+    
+    try {
+        const proxyUrl = getProxyImageUrl(photoUrl);
+        const response = await fetch(proxyUrl);
+        const result = await response.json();
+        
+        if (result.status === 'success' && result.imageUrl) {
+            imgElement.src = result.imageUrl;
+            imgElement.style.display = 'block';
+            if (placeholderElement) placeholderElement.style.display = 'none';
+            
+            if (cacheKey && !result.isPlaceholder) {
+                photoCache.set(cacheKey, result.imageUrl);
+            }
+            
+            console.log('✅ Foto loaded via proxy');
+            return;
+        }
+        
+        // Proxy juga gagal, tampilkan placeholder
+        throw new Error(result.message || 'Proxy failed');
+        
+    } catch (error) {
+        console.warn('⚠️ Semua metode gagal untuk foto:', error.message);
+        
+        // Tandai di fail cache agar tidak retry terus
+        if (cacheKey) {
+            photoFailCache.add(cacheKey);
+        }
+        
+        // Tampilkan placeholder
+        imgElement.style.display = 'none';
+        if (placeholderElement) placeholderElement.style.display = 'flex';
+    }
+}
+
+/**
+ * Sync version of setPhotoWithFallback untuk penggunaan sederhana
+ * (tanpa await, langsung set src)
+ */
+function setPhotoSync(imgElement, placeholderElement, photoUrl) {
+    // Validasi
+    if (!photoUrl || photoUrl === '-' || photoUrl.length < 10) {
+        imgElement.style.display = 'none';
+        if (placeholderElement) placeholderElement.style.display = 'flex';
+        return;
+    }
+    
+    // Jika base64 data URL, langsung set
+    if (photoUrl.startsWith('data:image/')) {
+        imgElement.src = photoUrl;
+        imgElement.style.display = 'block';
+        if (placeholderElement) placeholderElement.style.display = 'none';
+        return;
+    }
+    
+    // Get direct URL
     const directUrl = getDirectImageUrl(photoUrl);
     
     if (!directUrl) {
@@ -4922,19 +5169,134 @@ function setPhotoWithFallback(imgElement, placeholderElement, photoUrl) {
         return;
     }
     
+    // Set dengan onerror handler yang akan coba proxy
     imgElement.onload = function() {
         imgElement.style.display = 'block';
         if (placeholderElement) placeholderElement.style.display = 'none';
     };
     
-    imgElement.onerror = function() {
-        console.warn('⚠️ Gagal load foto:', directUrl.substring(0, 100) + '...');
-        imgElement.style.display = 'none';
-        if (placeholderElement) placeholderElement.style.display = 'flex';
+    imgElement.onerror = async function() {
+        console.warn('⚠️ Direct URL failed, trying proxy...');
+        // Try proxy on error
+        await tryProxyImage(imgElement, placeholderElement, photoUrl, photoUrl.substring(0, 100));
     };
     
     imgElement.src = directUrl;
 }
+
+/**
+ * Generate HTML untuk photo cell di tabel
+ * Dengan automatic fallback handling
+ */
+function generatePhotoCell(linkFoto, nama = '', size = 'small') {
+    if (!linkFoto || linkFoto === '-' || linkFoto.length < 10) {
+        if (size === 'small') {
+            return `<div class="photo-placeholder-small">👤</div>`;
+        } else if (size === 'table') {
+            return `<div class="table-photo-wrapper"><span class="table-photo-placeholder">👤</span></div>`;
+        } else {
+            return `<div style="width:120px;height:150px;background:#f1f5f9;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:2rem;">👤</div>`;
+        }
+    }
+    
+    const directUrl = getDirectImageUrl(linkFoto);
+    const safeName = nama ? escapeHtml(nama) : 'Foto';
+    const safeUrl = escapeHtml(linkFoto); // Store original URL for fallback
+    
+    if (size === 'small') {
+        return `<img src="${directUrl}" alt="${safeName}" class="photo-cell" 
+            data-photo-url="${safeUrl}"
+            onload="this.style.display='block'"
+            onerror="handleImageError(this, '${safeUrl}')">`;
+    } else if (size === 'table') {
+        return `<div class="table-photo-wrapper">
+            <img src="${directUrl}" alt="${safeName}" 
+                data-photo-url="${safeUrl}"
+                onerror="handleImageError(this, '${safeUrl}')">
+        </div>`;
+    } else {
+        return `<div style="position:relative;width:120px;height:150px;">
+            <img src="${directUrl}" alt="${safeName}" 
+                data-photo-url="${safeUrl}"
+                style="width:120px;height:150px;object-fit:cover;border-radius:12px;border:3px solid #e2e8f0;"
+                onerror="handleImageError(this, '${safeUrl}')">
+            <div style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:#f1f5f9;border-radius:12px;color:#94a3b8;">
+                <span style="font-size:2rem;">👤</span>
+                <span style="font-size:0.75rem;">Foto tidak tersedia</span>
+            </div>
+        </div>`;
+    }
+}
+
+/**
+ * Initialize async photo loading untuk semua gambar dalam container
+ * Fungsi ini dipanggil setelah render tabel untuk memastikan semua foto
+ * dimuat dengan fallback mechanism yang lengkap
+ */
+function initAsyncPhotos(container) {
+    if (!container) return;
+    
+    // Cari semua img elements dalam container
+    const images = container.querySelectorAll('img[data-photo-url]');
+    
+    images.forEach(img => {
+        const photoUrl = img.getAttribute('data-photo-url');
+        if (photoUrl && photoUrl.length > 10) {
+            // Find parent placeholder
+            const placeholder = img.parentElement.querySelector('.photo-placeholder-small, .table-photo-placeholder, [class*="placeholder"]');
+            
+            // Apply async loading with fallback
+            setPhotoWithFallback(img, placeholder, photoUrl);
+        }
+    });
+}
+
+/**
+ * Alternative: Enhanced img onerror handler yang coba multiple URLs
+ * Digunakan sebagai inline handler pada gambar di tabel
+ */
+window.handleImageError = function(img, originalUrl) {
+    console.warn('⚠️ Image failed to load, trying fallback...');
+    
+    // Coba alternative URLs
+    const fileId = extractFileId(originalUrl);
+    if (fileId) {
+        const altUrls = generateDirectUrls(fileId);
+        
+        // Try each URL sequentially
+        let attempt = 0;
+        const tryNext = () => {
+            if (attempt >= altUrls.length) {
+                // Semua gagal, coba proxy
+                tryProxyImage(img, null, originalUrl, originalUrl.substring(0, 100));
+                return;
+            }
+            
+            const testImg = new Image();
+            testImg.onload = () => {
+                if (testImg.naturalWidth > 10) {
+                    img.src = altUrls[attempt];
+                    console.log(`✅ Image loaded via fallback ${attempt}`);
+                } else {
+                    attempt++;
+                    tryNext();
+                }
+            };
+            testImg.onerror = () => {
+                attempt++;
+                tryNext();
+            };
+            testImg.src = altUrls[attempt];
+        };
+        
+        tryNext();
+    } else {
+        // Tidak bisa extract ID, tampilkan placeholder
+        if (img.parentElement) {
+            img.parentElement.innerHTML = '<span class="photo-placeholder-small">👤</span>';
+        }
+    }
+};
 
 // ===== API FETCH HELPER WITH BETTER ERROR HANDLING =====
 async function fetchAPI(url, options = {}) {
@@ -5165,14 +5527,11 @@ function renderRecentSubmissions() {
     
     tbody.innerHTML = paginatedResult.data.map((item, index) => {
         const rowNum = (paginatedResult.pageInfo.currentPage - 1) * 10 + index + 1;
+        // Use generatePhotoCell for consistent image handling with fallback
+        const photoHtml = generatePhotoCell(item.linkFoto, item.namaLengkap || '', 'small');
         return `
             <tr>
-                <td>
-                    ${item.linkFoto && item.linkFoto !== '-' ? 
-                        `<img src="${item.linkFoto}" alt="Foto" class="photo-cell" onerror="this.parentElement.innerHTML='<div class=\\'photo-placeholder-small\\'>👤</div>'">` : 
-                        `<div class="photo-placeholder-small">👤</div>`
-                    }
-                </td>
+                <td>${photoHtml}</td>
                 <td><strong>${item.namaLengkap || '-'}</strong></td>
                 <td>${item.jurusanTujuan || '-'}</td>
                 <td>${item.jenjangPendidikan || '-'}</td>
@@ -5181,6 +5540,9 @@ function renderRecentSubmissions() {
             </tr>
         `;
     }).join('');
+    
+    // Initialize async photo loading for all images in this table
+    initAsyncPhotos(tbody);
     
     // Render pagination controls
     container.innerHTML = PaginationManager.renderControls('recent-submissions');
@@ -6050,7 +6412,7 @@ function displaySearchResult(data) {
     const photoEl = document.getElementById('status-photo');
     const placeholderEl = document.getElementById('photo-placeholder');
     
-    setPhotoWithFallback(photoEl, placeholderElement, data.linkFoto);
+    setPhotoWithFallback(photoEl, placeholderEl, data.linkFoto);
     
     // Set basic info
     document.getElementById('result-register').textContent = data.noRegister || '-';
@@ -6702,10 +7064,8 @@ function renderAdminTable(data) {
     data.forEach((row, index) => {
         const rowNum = (adminCurrentPage - 1) * adminPageSize + index + 1;
         
-        // Photo cell
-        const photoCell = row.linkFoto && row.linkFoto !== '-' && row.linkFoto.length > 10 
-            ? `<div class="table-photo-wrapper"><img src="${row.linkFoto}" alt="Foto ${row.namaLengkap}" onerror="this.parentElement.innerHTML='<span class=\\'table-photo-placeholder\\'>👤</span>'"></div>`
-            : `<div class="table-photo-wrapper"><span class="table-photo-placeholder">👤</span></div>`;
+        // Photo cell - use generatePhotoCell for consistent handling with fallback
+        const photoCell = generatePhotoCell(row.linkFoto, row.namaLengkap || '', 'table');
         
         // Status badge
         const statusBadge = getTableStatusBadge(row.status);
@@ -6826,6 +7186,9 @@ function renderAdminTable(data) {
     });
     
     tbody.innerHTML = html;
+    
+    // Initialize async photo loading for all images in admin table
+    initAsyncPhotos(tbody);
 }
 
 /**
@@ -6995,10 +7358,7 @@ function showDetailModal(data) {
                 <!-- Photo & Basic Info -->
                 <div style="display:flex;gap:1.5rem;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid #e2e8f0;">
                     <div style="flex-shrink:0;">
-                        ${data.linkFoto && data.linkFoto !== '-' 
-                            ? `<img src="${data.linkFoto}" alt="Foto" style="width:120px;height:150px;object-fit:cover;border-radius:12px;border:3px solid #e2e8f0;">`
-                            : `<div style="width:120px;height:150px;background:#f1f5f9;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:3rem;border:3px solid #e2e8f0;">👤</div>`
-                        }
+                        ${generatePhotoCell(data.linkFoto, data.namaLengkap || '', 'large')}
                     </div>
                     <div style="flex:1;">
                         <h2 style="font-size:1.5rem;margin-bottom:0.5rem;">${data.namaLengkap || '-'}</h2>
