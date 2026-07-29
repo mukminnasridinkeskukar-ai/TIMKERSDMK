@@ -4204,7 +4204,7 @@
 // File pendukung: SIMBAKES_WebApp_Code.gs (Google Apps Script Code)
 // ============================================================
 
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby2gVTNeBQaOS1xljlIRUA-mpAyWlktklnlbdNdUaS8hE8Raq0bQoTuARqUu0ghvnkqQg/exec'; // ← PASTE URL WEB APP DI SINI
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx-63iYNzW71PIKybmgNaBXwws5pkgbSYCIVE-0M0LyngVwwj4YC0ETC-9s45za8CvdSA/exec'; // ← PASTE URL WEB APP DI SINI
 
 // Set ke false jika sudah memasukkan URL Google Apps Script di atas
 const USE_LOCAL_STORAGE = false; // Ganti menjadi false setelah setup Google Sheets
@@ -4303,7 +4303,7 @@ function showPage(pageId) {
     
     if (pageId === 'dashboard') renderDashboard();
     if (pageId === 'roadmap') renderRoadmap();
-    if (pageId === 'data-pengusul') renderPengusulTable();
+    if (pageId === 'data-pengusul') loadDataPengusul();
     if (pageId === 'data-roadmap') renderRoadmapAdmin();
 }
 
@@ -4864,7 +4864,7 @@ function searchStatus() {
 // ===== RENDER FUNCTIONS =====
 
 // ===== CONFIGURATION =====
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby2gVTNeBQaOS1xljlIRUA-mpAyWlktklnlbdNdUaS8hE8Raq0bQoTuARqUu0ghvnkqQg/exec'; // Ganti dengan URL Web App Google Apps Script Anda
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx-63iYNzW71PIKybmgNaBXwws5pkgbSYCIVE-0M0LyngVwwj4YC0ETC-9s45za8CvdSA/exec'; // Ganti dengan URL Web App Google Apps Script Anda
 
 // ===== GOOGLE DRIVE PHOTO HELPER (ENHANCED v2.0) =====
 /**
@@ -6255,31 +6255,475 @@ function renderPengusulTable() {
     `).join('');
 }
 
-function renderRoadmapAdmin() {
+// ===== DATA ROADMAP ADMIN FUNCTIONS v2.0 =====
+
+/**
+ * Global variable to store roadmap admin data
+ */
+let roadmapAdminData = [];
+let roadmapEditingId = null;
+
+/**
+ * Render Roadmap Admin Page - FIXED: Fetch from API and add CRUD
+ */
+async function renderRoadmapAdmin() {
     const container = document.getElementById('roadmap-admin-cards');
-    container.innerHTML = roadmapData.map(r => `
-        <div class="card">
-            <div class="card-header">
-                <span class="year-badge">${r.tahun}</span>
-                <span class="priority-badge ${getPriorityClass(r.prioritas)}">${r.prioritas}</span>
+    
+    // Show loading state
+    container.innerHTML = `
+        <div style="text-align:center;padding:3rem;">
+            <div class="spinner" style="margin:0 auto 1rem;"></div>
+            <p style="color:#64748b;">Memuat data Roadmap Kebutuhan...</p>
+        </div>
+    `;
+    
+    try {
+        console.log('🔄 Loading Roadmap Admin data...');
+        
+        // Fetch data from API
+        const response = await fetch(`${WEB_APP_URL}?action=getRoadmapData&t=${Date.now()}`);
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            roadmapAdminData = result.data || [];
+            
+            if (roadmapAdminData.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center;padding:3rem;background:white;border-radius:16px;">
+                        <div style="font-size:3rem;margin-bottom:1rem;">📭</div>
+                        <h3 style="color:#5b21b6;font-size:1.25rem;margin:0 0 0.5rem 0;">Tidak Ada Data Roadmap</h3>
+                        <p style="color:#64748b;margin-bottom:1.5rem;">Belum ada data roadmap kebutuhan beasiswa</p>
+                        <button onclick="openRoadmapAddModal()" class="btn btn-primary" style="background:linear-gradient(135deg,#667eea,#764ba2);">
+                            ➕ Tambah Data Baru
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Render table with CRUD controls
+            renderRoadmapAdminTable(container, roadmapAdminData);
+            
+        } else {
+            throw new Error(result.message || 'Gagal memuat data');
+        }
+        
+    } catch (error) {
+        console.error('❌ Error loading roadmap admin:', error);
+        container.innerHTML = `
+            <div style="text-align:center;padding:3rem;background:white;border-radius:16px;">
+                <div style="font-size:3rem;margin-bottom:1rem;">⚠️</div>
+                <h3 style="color:#dc2626;font-size:1.25rem;margin:0 0 0.5rem 0;">Gagal Memuat Data</h3>
+                <p style="color:#64748b;margin-bottom:1.5rem;">${error.message}</p>
+                <button onclick="renderRoadmapAdmin()" class="btn btn-secondary">🔄 Coba Lagi</button>
             </div>
-            <div class="card-body">
-                <h4 style="font-size:1.125rem;font-weight:600;margin:0.5rem 0;">${r.bidangFokus}</h4>
-                <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin:0.5rem 0;">
-                    <span style="color:#64748b;">Target:</span>
-                    <strong>${r.targetPenerima} orang</strong>
+        `;
+    }
+}
+
+/**
+ * Render Roadmap Admin as Table with CRUD buttons
+ */
+function renderRoadmapAdminTable(container, data) {
+    const statusOptions = ['Aktif', 'Non-Aktif', 'Pending', 'Selesai'];
+    
+    container.innerHTML = `
+        <!-- Header Actions -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;background:white;padding:1rem 1.5rem;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+            <div>
+                <h3 style="margin:0;font-size:1.125rem;font-weight:600;">📊 Data Roadmap Kebutuhan</h3>
+                <p style="margin:0.25rem 0 0;color:#64748b;font-size:0.875rem;">Total: ${data.length} data</p>
+            </div>
+            <button onclick="openRoadmapAddModal()" class="btn btn-primary" style="background:linear-gradient(135deg,#667eea,#764ba2);white-space:nowrap;">
+                ➕ Tambah Data Baru
+            </button>
+        </div>
+        
+        <!-- Table -->
+        <div class="admin-table-wrapper" style="background:white;border-radius:12px;overflow:hidden;">
+            <div class="admin-table-scroll" style="max-height:550px;">
+                <table class="admin-table" style="min-width:1000px;">
+                    <thead>
+                        <tr>
+                            <th style="width:50px;">#</th>
+                            <th>Kode</th>
+                            <th>Jurusan</th>
+                            <th>Kualifikasi Awal</th>
+                            <th>Jenis Pendidikan</th>
+                            <th>Perguruan Tinggi</th>
+                            <th>Pekerjaan</th>
+                            <th>Tahun Studi</th>
+                            <th>Unit Pendayaguna</th>
+                            <th>Status</th>
+                            <th style="width:150px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roadmap-admin-tbody">
+                        ${data.map((row, index) => `
+                            <tr data-row-index="${index}" data-kode="${row[0] || ''}">
+                                <td style="text-align:center;font-weight:600;color:#64748b;">${index + 1}</td>
+                                <td><strong style="color:#667eea;">${row[0] || '-'}</strong></td>
+                                <td>${row[1] || '-'}</td>
+                                <td>${row[2] || '-'}</td>
+                                <td>${row[3] || '-'}</td>
+                                <td>${row[4] || '-'}</td>
+                                <td>${row[5] || '-'}</td>
+                                <td style="text-align:center;">${row[6] || '-'}</td>
+                                <td>${row[7] || '-'}</td>
+                                <td>${getRoadmapStatusBadge(row[8])}</td>
+                                <td>
+                                    <div style="display:flex;gap:0.5rem;">
+                                        <button onclick="openRoadmapEditModal(${index})" class="btn btn-sm" style="background:#dbeafe;color:#1d4ed8;font-size:0.75rem;padding:0.4rem 0.8rem;" title="Edit">
+                                            ✏️ Edit
+                                        </button>
+                                        <button onclick="confirmDeleteRoadmap(${index}, '${row[0] || ''}')" class="btn btn-sm" style="background:#fee2e2;color:#dc2626;font-size:0.75rem;padding:0.4rem 0.8rem;" title="Hapus">
+                                            🗑️ Hapus
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Open Add Roadmap Modal
+ */
+function openRoadmapAddModal() {
+    const modalId = 'roadmap-form-modal';
+    
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal-overlay';
+        modal.onclick = (e) => { if (e.target === modal) closeModal(modalId); };
+        document.body.appendChild(modal);
+    }
+    
+    roadmapEditingId = null;
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width:700px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;">
+                <h3 class="modal-title">➕ Tambah Data Roadmap Baru</h3>
+                <button class="modal-close" onclick="closeModal('${modalId}')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <form onsubmit="submitRoadmapForm(event)" style="padding:1.5rem;">
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;">
+                    <div>
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Kode <span class="required">*</span></label>
+                        <input type="text" id="rm-kode" required placeholder="Contoh: RM-001" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Jurusan <span class="required">*</span></label>
+                        <input type="text" id="rm-jurusan" required placeholder="Contoh: Keperawatan" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Kualifikasi Awal</label>
+                        <input type="text" id="rm-kualifikasi" placeholder="Contoh: D3 Keperawatan" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Jenis Pendidikan</label>
+                        <select id="rm-jenis-pendidikan" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                            <option value="">Pilih Jenis</option>
+                            <option value="D3">D3 (Diploma)</option>
+                            <option value="D4">D4 (Diploma Terapan)</option>
+                            <option value="S1">S1 (Sarjana)</option>
+                            <option value="S2">S2 (Magister)</option>
+                            <option value="S3">S3 (Doktor)</option>
+                            <option value="Profesi">Profesi</option>
+                            <option value="Spesialis">Spesialis</option>
+                        </select>
+                    </div>
+                    <div style="grid-column:span 2;">
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Perguruan Tinggi</label>
+                        <input type="text" id="rm-pt" placeholder="Contoh: Universitas Indonesia" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Pekerjaan</label>
+                        <input type="text" id="rm-pekerjaan" placeholder="Contoh: Perawat" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Tahun Mulai Studi</label>
+                        <input type="number" id="rm-tahun" placeholder="Contoh: 2024" min="2020" max="2030" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Unit Pendayaguna</label>
+                        <input type="text" id="rm-unit" placeholder="Contoh: RSUP Fatmawati" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Status</label>
+                        <select id="rm-status" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                            <option value="Aktif">Aktif</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Non-Aktif">Non-Aktif</option>
+                            <option value="Selesai">Selesai</option>
+                        </select>
+                    </div>
                 </div>
-                <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin:0.5rem 0;">
-                    <span style="color:#64748b;">Alokasi:</span>
-                    <strong>${r.alokasiDana}</strong>
+                
+                <div style="margin-top:1.5rem;display:flex;gap:0.75rem;justify-content:flex-end;">
+                    <button type="button" class="btn" style="background:#f1f5f9;color:#475569;" onclick="closeModal('${modalId}')">Batal</button>
+                    <button type="submit" class="btn btn-primary" style="background:linear-gradient(135deg,#667eea,#764ba2);">
+                        💾 Simpan Data
+                    </button>
                 </div>
-                <div style="display:flex;gap:0.5rem;margin-top:1rem;">
-                    <button class="btn btn-secondary btn-sm" style="flex:1;">Edit</button>
-                    <button class="btn btn-danger btn-sm" style="flex:1;">Hapus</button>
+            </form>
+        </div>
+    `;
+    
+    modal.style.display = 'flex';
+}
+
+/**
+ * Open Edit Roadmap Modal
+ */
+function openRoadmapEditModal(index) {
+    const row = roadmapAdminData[index];
+    if (!row) {
+        showToast('❌ Data tidak ditemukan', 'error');
+        return;
+    }
+    
+    const modalId = 'roadmap-form-modal';
+    
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal-overlay';
+        modal.onclick = (e) => { if (e.target === modal) closeModal(modalId); };
+        document.body.appendChild(modal);
+    }
+    
+    roadmapEditingId = index;
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width:700px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#059669,#10b981);color:white;">
+                <h3 class="modal-title">✏️ Edit Data Roadmap - ${row[0]}</h3>
+                <button class="modal-close" onclick="closeModal('${modalId}')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <form onsubmit="submitRoadmapForm(event)" style="padding:1.5rem;">
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;">
+                    <div>
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Kode <span class="required">*</span></label>
+                        <input type="text" id="rm-kode" required value="${escapeHtml(row[0])}" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Jurusan <span class="required">*</span></label>
+                        <input type="text" id="rm-jurusan" required value="${escapeHtml(row[1])}" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Kualifikasi Awal</label>
+                        <input type="text" id="rm-kualifikasi" value="${escapeHtml(row[2] || '')}" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Jenis Pendidikan</label>
+                        <select id="rm-jenis-pendidikan" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                            <option value="">Pilih Jenis</option>
+                            <option value="D3" ${row[3] === 'D3' ? 'selected' : ''}>D3 (Diploma)</option>
+                            <option value="D4" ${row[3] === 'D4' ? 'selected' : ''}>D4 (Diploma Terapan)</option>
+                            <option value="S1" ${row[3] === 'S1' ? 'selected' : ''}>S1 (Sarjana)</option>
+                            <option value="S2" ${row[3] === 'S2' ? 'selected' : ''}>S2 (Magister)</option>
+                            <option value="S3" ${row[3] === 'S3' ? 'selected' : ''}>S3 (Doktor)</option>
+                            <option value="Profesi" ${row[3] === 'Profesi' ? 'selected' : ''}>Profesi</option>
+                            <option value="Spesialis" ${row[3] === 'Spesialis' ? 'selected' : ''}>Spesialis</option>
+                        </select>
+                    </div>
+                    <div style="grid-column:span 2;">
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Perguruan Tinggi</label>
+                        <input type="text" id="rm-pt" value="${escapeHtml(row[4] || '')}" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Pekerjaan</label>
+                        <input type="text" id="rm-pekerjaan" value="${escapeHtml(row[5] || '')}" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Tahun Mulai Studi</label>
+                        <input type="number" id="rm-tahun" value="${row[6] || ''}" placeholder="Contoh: 2024" min="2020" max="2030" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Unit Pendayaguna</label>
+                        <input type="text" id="rm-unit" value="${escapeHtml(row[7] || '')}" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:600;display:block;margin-bottom:0.4rem;font-size:0.875rem;">Status</label>
+                        <select id="rm-status" style="width:100%;padding:0.7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                            <option value="Aktif" ${row[8] === 'Aktif' ? 'selected' : ''}>Aktif</option>
+                            <option value="Pending" ${row[8] === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="Non-Aktif" ${row[8] === 'Non-Aktif' ? 'selected' : ''}>Non-Aktif</option>
+                            <option value="Selesai" ${row[8] === 'Selesai' ? 'selected' : ''}>Selesai</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="margin-top:1.5rem;display:flex;gap:0.75rem;justify-content:flex-end;">
+                    <button type="button" class="btn" style="background:#f1f5f9;color:#475569;" onclick="closeModal('${modalId}')">Batal</button>
+                    <button type="submit" class="btn btn-primary" style="background:linear-gradient(135deg,#059669,#10b981);">
+                        💾 Update Data
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    modal.style.display = 'flex';
+}
+
+/**
+ * Submit Roadmap Form (Add/Edit)
+ */
+async function submitRoadmapForm(event) {
+    event.preventDefault();
+    
+    const formData = {
+        kode: document.getElementById('rm-kode').value.trim(),
+        jurusan: document.getElementById('rm-jurusan').value.trim(),
+        kualifikasi: document.getElementById('rm-kualifikasi').value.trim(),
+        jenisPendidikan: document.getElementById('rm-jenis-pendidikan').value,
+        perguruanTinggi: document.getElementById('rm-pt').value.trim(),
+        pekerjaan: document.getElementById('rm-pekerjaan').value.trim(),
+        tahunStudi: document.getElementById('rm-tahun').value,
+        unitPendayaguna: document.getElementById('rm-unit').value.trim(),
+        status: document.getElementById('rm-status').value
+    };
+    
+    // Validation
+    if (!formData.kode || !formData.jurusan) {
+        showToast('❌ Kode dan Jurusan wajib diisi!', 'error');
+        return;
+    }
+    
+    try {
+        const isEdit = roadmapEditingId !== null;
+        const action = isEdit ? 'editRoadmap' : 'addRoadmap';
+        
+        // Add rowIndex for edit
+        if (isEdit) {
+            formData.rowIndex = roadmapEditingId;
+        }
+        
+        console.log('📤 Submitting roadmap:', action, formData);
+        
+        const response = await fetch(WEB_APP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: action,
+                data: formData
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            showToast(`✅ ${isEdit ? 'Data berhasil diperbarui' : 'Data berhasil ditambahkan'}`, 'success');
+            closeModal('roadmap-form-modal');
+            renderRoadmapAdmin(); // Refresh table
+            
+            // Also refresh the public roadmap page if exists
+            if (typeof loadRoadmapData === 'function') {
+                loadRoadmapData();
+            }
+        } else {
+            throw new Error(result.message || 'Gagal menyimpan data');
+        }
+        
+    } catch (error) {
+        console.error('Error submitting roadmap:', error);
+        showToast(`❌ Gagal menyimpan: ${error.message}`, 'error');
+    }
+}
+
+/**
+ * Confirm Delete Roadmap
+ */
+function confirmDeleteRoadmap(index, kode) {
+    const modalId = 'roadmap-delete-modal';
+    
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal-overlay';
+        modal.onclick = (e) => { if (e.target === modal) closeModal(modalId); };
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width:450px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#dc2626,#ef4444);color:white;">
+                <h3 class="modal-title">🗑️ Konfirmasi Hapus Data Roadmap</h3>
+                <button class="modal-close" onclick="closeModal('${modalId}')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div style="padding:1.5rem;">
+                <div style="text-align:center;margin-bottom:1.5rem;">
+                    <div style="font-size:3rem;margin-bottom:1rem;">⚠️</div>
+                    <p style="font-weight:600;font-size:1.125rem;margin-bottom:0.5rem;">Apakah Anda yakin ingin menghapus data ini?</p>
+                    <p style="color:#64748b;font-size:0.875rem;">Tindakan ini tidak dapat dibatalkan!</p>
+                </div>
+                <div style="background:#fef2f2;border:1px solid #fecaca;padding:1rem;border-radius:8px;margin-bottom:1.5rem;">
+                    <p style="font-size:0.875rem;"><strong>Kode:</strong> ${kode}</p>
+                </div>
+                <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+                    <button class="btn" style="background:#f1f5f9;color:#475569;" onclick="closeModal('${modalId}')">Batal</button>
+                    <button class="btn" style="background:#dc2626;color:white;" onclick="deleteRoadmap(${index})">🗑️ Ya, Hapus</button>
                 </div>
             </div>
         </div>
-    `).join('');
+    `;
+    
+    modal.style.display = 'flex';
+}
+
+/**
+ * Delete Roadmap
+ */
+async function deleteRoadmap(index) {
+    try {
+        const rowData = roadmapAdminData[index];
+        
+        const response = await fetch(WEB_APP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'deleteRoadmap',
+                rowIndex: index,
+                kode: rowData[0]
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            showToast(`✅ ${result.message}`, 'success');
+            closeModal('roadmap-delete-modal');
+            renderRoadmapAdmin(); // Refresh table
+            
+            // Also refresh public roadmap page
+            if (typeof loadRoadmapData === 'function') {
+                loadRoadmapData();
+            }
+        } else {
+            throw new Error(result.message || 'Gagal menghapus data');
+        }
+        
+    } catch (error) {
+        console.error('Error deleting roadmap:', error);
+        showToast(`❌ Gagal menghapus: ${error.message}`, 'error');
+    }
 }
 
 // ===== HELPER FUNCTIONS =====
@@ -7077,7 +7521,7 @@ function renderAdminTable(data) {
         };
         
         html += `
-            <tr data-row-number="${row.rowNumber}">
+            <tr data-row-number="${row.rowNumber}" data-foto="${row.linkFoto || '-'}" data-dokumen="${row.linkDokumen || '-'}">
                 <!-- CRUD Actions Column -->
                 <td>
                     <div class="crud-actions">
@@ -7236,12 +7680,32 @@ function updatePagination(pagination) {
 }
 
 /**
- * Update admin statistics bar
+ * Update admin statistics bar - Fetch real stats from API
  */
-function updateAdminStats(pagination) {
-    // We need to get stats separately or calculate from current view
-    // For now, show total from pagination
+async function updateAdminStats(pagination) {
+    // Update total from pagination
     document.getElementById('stat-total-pengusul').textContent = pagination.totalRecords;
+    
+    // Fetch detailed stats for status breakdown
+    try {
+        const response = await fetch(`${WEB_APP_URL}?action=getAllSubmissions&t=${Date.now()}&limit=10000`);
+        const result = await response.json();
+        
+        if (result.status === 'success' && result.data) {
+            const allData = result.data;
+            document.getElementById('stat-approved-pengusul').textContent = 
+                allData.filter(p => p.status === 'Disetujui').length;
+            document.getElementById('stat-rejected-pengusul').textContent = 
+                allData.filter(p => p.status === 'Ditolak').length;
+            document.getElementById('stat-revision-pengusul').textContent = 
+                allData.filter(p => p.status === 'Perbaikan').length;
+            document.getElementById('stat-verify-pengusul').textContent = 
+                allData.filter(p => p.status === 'Proses Verifikasi').length;
+        }
+    } catch (error) {
+        console.warn('Could not fetch detailed stats:', error);
+        // Keep showing at least the total
+    }
 }
 
 /**
@@ -7308,22 +7772,57 @@ function refreshDataPengusul() {
 }
 
 /**
- * View detail of a submission
+ * View detail of a submission - FIXED: Get data from table row or API
  */
 async function viewDetailPengusul(rowNumber) {
     try {
-        // Get the row data from table
-        const response = await fetch(`${WEB_APP_URL}?action=searchSubmission&t=${Date.now()}&rowNumber=${rowNumber}`);
+        // Method 1: Try to get data from table row directly (faster)
+        const rowElement = document.querySelector(`tr[data-row-number="${rowNumber}"]`);
+        
+        if (rowElement) {
+            // Extract data from table cells
+            const cells = rowElement.querySelectorAll('td');
+            if (cells.length >= 24) {
+                const data = {
+                    rowNumber: rowNumber,
+                    noRegister: cells[3]?.textContent?.trim() || '',
+                    namaLengkap: cells[5]?.textContent?.trim() || '',
+                    nik: cells[4]?.textContent?.trim() || '',
+                    jurusanTujuan: cells[15]?.textContent?.trim() || '',
+                    jenjangPendidikan: cells[16]?.textContent?.trim() || '',
+                    unitTujuan: cells[17]?.textContent?.trim() || '',
+                    rencanaTahun: cells[18]?.textContent?.trim() || '',
+                    status: cells[22]?.textContent?.trim() || '',
+                    email: cells[20]?.textContent?.trim() || '',
+                    linkFoto: rowElement.getAttribute('data-foto') || '-',
+                    linkDokumen: rowElement.getAttribute('data-dokumen') || '-'
+                };
+                
+                console.log('✅ Data dari tabel:', data);
+                showDetailModal(data);
+                return;
+            }
+        }
+        
+        // Method 2: Fallback - Fetch from API using getAllSubmissions
+        console.log('🔄 Mengambil data dari API untuk row:', rowNumber);
+        const response = await fetch(`${WEB_APP_URL}?action=getAllSubmissions&t=${Date.now()}&limit=1000`);
         const result = await response.json();
         
-        if (result.status === 'success' && result.found) {
-            showDetailModal(result.data);
-        } else {
-            showToast('❌ Data tidak ditemukan', 'error');
+        if (result.status === 'success' && result.data) {
+            const foundData = result.data.find(item => item.rowNumber == rowNumber);
+            
+            if (foundData) {
+                showDetailModal(foundData);
+                return;
+            }
         }
+        
+        showToast('❌ Data tidak ditemukan', 'error');
+        
     } catch (error) {
         console.error('Error viewing detail:', error);
-        showToast('❌ Gagal memuat detail', 'error');
+        showToast('❌ Gagal memuat detail: ' + error.message, 'error');
     }
 }
 
