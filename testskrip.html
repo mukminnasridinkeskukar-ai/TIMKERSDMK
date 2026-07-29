@@ -240,6 +240,7 @@
 
         .nav-item.active.cyan { background: #ecfeff; color: #0891b2; }
         .nav-item.active.amber { background: #fffbeb; color: #d97706; }
+        .nav-item.active.purple { background: #f3e8ff; color: #7c3aed; }
 
         .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
 
@@ -2459,6 +2460,10 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                         Cek Status Pengajuan
                     </button>
+                    <button class="nav-item purple" onclick="showPage('cek-penetapan')" id="nav-cek-penetapan">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        Cek Status Penetapan
+                    </button>
                 </div>
             </div>
 
@@ -3628,6 +3633,188 @@
             </div>
         </div>
 
+        <!-- ===== CEK STATUS PENETAPAN PAGE v1.0 ===== -->
+        <div class="page" id="page-cek-penetapan">
+            <div class="page-header">
+                <h2>🎓 Cek Status Penetapan</h2>
+                <p>Lacak status penetapan penerima beasiswa kesehatan menggunakan NIK</p>
+            </div>
+
+            <!-- Search Section -->
+            <div class="search-section" style="background:linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%);border-color:#c4b5fd;">
+                <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+                    <div style="width:48px;height:48px;background:linear-gradient(135deg,#7c3aed,#a78bfa);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" width="24" height="24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+                    </div>
+                    <div>
+                        <h3 style="font-size:1.125rem;font-weight:600;color:#5b21b6;margin:0;">Pencarian Data Penetapan</h3>
+                        <p style="font-size:0.875rem;color:#7c3aed;margin:0.25rem 0 0 0;">Masukkan NIK untuk melihat status penetapan beasiswa Anda</p>
+                    </div>
+                </div>
+                
+                <div class="search-form-grid">
+                    <div class="form-group" style="flex:1;">
+                        <label style="font-weight:600;color:#5b21b6;">NIK (Nomor Induk Kependudukan)</label>
+                        <input type="text" class="form-input" id="penetapan-search-nik" placeholder="Masukkan 16 digit NIK" maxlength="16" oninput="this.value=this.value.replace(/[^0-9]/g,'')" style="border-color:#c4b5fd;background:white;">
+                    </div>
+                    <button class="btn btn-primary" onclick="searchPenetapanData()" style="height:44px;align-self:flex-end;background:linear-gradient(135deg,#7c3aed,#a78bfa);border:none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                        Cek Penetapan
+                    </button>
+                </div>
+                <p style="font-size:0.8rem;color:#7c3aed;margin-top:0.75rem;margin-bottom:0;">
+                    💡 Masukkan NIK 16 digit yang terdaftar pada pengajuan beasiswa
+                </p>
+            </div>
+
+            <!-- Loading State -->
+            <div id="penetapan-loading" class="search-loading" style="display:none;">
+                <div class="spinner"></div>
+                <p>Mencari data penetapan...</p>
+            </div>
+
+            <!-- Result Container (Hidden until search) -->
+            <div id="penetapan-result-container" style="display:none;">
+                
+                <!-- Penetapan Result Card - Photo Left, Data Right -->
+                <div id="penetapan-result-card" class="status-result-card" style="border-left:5px solid #7c3aed;">
+                    <div class="status-card-header" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">
+                        <span class="status-card-title" style="color:white;">
+                            📋 Hasil Penetapan Beasiswa
+                        </span>
+                        <span id="penetapan-result-timestamp" style="font-size:0.8rem;color:rgba(255,255,255,0.8);"></span>
+                    </div>
+                    
+                    <div class="status-card-body" style="padding:1.5rem;">
+                        <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+                            <!-- Photo Section (Left) -->
+                            <div style="flex:0 0 auto;min-width:180px;max-width:220px;">
+                                <div style="position:relative;width:100%;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#f3e8ff,#ede9fe);border:3px solid #c4b5fd;box-shadow:0 4px 15px rgba(124,58,237,0.2);">
+                                    <img id="penetapan-photo" src="" alt="Foto Penerima" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none';document.getElementById('penetapan-photo-placeholder').style.display='flex';">
+                                    <div id="penetapan-photo-placeholder" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.5rem;color:#7c3aed;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                        <span style="font-size:0.75rem;font-weight:500;">Foto Penerima</span>
+                                    </div>
+                                </div>
+                                <!-- Register Badge under Photo -->
+                                <div id="penetapan-register-badge" style="margin-top:0.75rem;text-align:center;padding:0.5rem 1rem;background:linear-gradient(135deg,#7c3aed,#a78bfa);color:white;border-radius:20px;font-size:0.75rem;font-weight:600;">
+                                    -
+                                </div>
+                            </div>
+                            
+                            <!-- Data Section (Right) -->
+                            <div style="flex:1;min-width:300px;">
+                                <!-- Header Info -->
+                                <div style="margin-bottom:1rem;padding-bottom:1rem;border-bottom:2px dashed #e9d5ff;">
+                                    <h3 id="penetapan-nama-lengkap" style="font-size:1.35rem;font-weight:700;color:#5b21b6;margin:0 0 0.25rem 0;">-</h3>
+                                    <p id="penetapan-nik-display" style="font-family:monospace;font-size:0.9rem;color:#7c3aed;margin:0;">NIK: -</p>
+                                </div>
+                                
+                                <!-- Data Grid - 2 Columns -->
+                                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;margin-bottom:1rem;">
+                                    <div style="background:#faf5ff;padding:0.75rem;border-radius:10px;border:1px solid #e9d5ff;">
+                                        <span style="font-size:0.7rem;color:#7c3aed;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">No SK Penetapan</span>
+                                        <p id="penetapan-no-sk" style="font-size:0.95rem;font-weight:600;color:#5b21b6;margin:0.25rem 0 0 0;">-</p>
+                                    </div>
+                                    <div style="background:#faf5ff;padding:0.75rem;border-radius:10px;border:1px solid #e9d5ff;">
+                                        <span style="font-size:0.7rem;color:#7c3aed;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Tanggal Penetapan</span>
+                                        <p id="penetapan-tanggal" style="font-size:0.95rem;font-weight:600;color:#5b21b6;margin:0.25rem 0 0 0;">-</p>
+                                    </div>
+                                    <div style="background:#faf5ff;padding:0.75rem;border-radius:10px;border:1px solid #e9d5ff;">
+                                        <span style="font-size:0.7rem;color:#7c3aed;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Jurusan Tujuan</span>
+                                        <p id="penetapan-jurusan" style="font-size:0.9rem;font-weight:600;color:#5b21b6;margin:0.25rem 0 0 0;">-</p>
+                                    </div>
+                                    <div style="background:#faf5ff;padding:0.75rem;border-radius:10px;border:1px solid #e9d5ff;">
+                                        <span style="font-size:0.7rem;color:#7c3aed;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Jenjang Pendidikan</span>
+                                        <p id="penetapan-jenjang" style="font-size:0.9rem;font-weight:600;color:#5b21b6;margin:0.25rem 0 0 0;">-</p>
+                                    </div>
+                                    <div style="background:#faf5ff;padding:0.75rem;border-radius:10px;border:1px solid #e9d5ff;">
+                                        <span style="font-size:0.7rem;color:#7c3aed;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Unit Tujuan</span>
+                                        <p id="penetapan-unit" style="font-size:0.9rem;font-weight:600;color:#5b21b6;margin:0.25rem 0 0 0;">-</p>
+                                    </div>
+                                    <div style="background:#faf5ff;padding:0.75rem;border-radius:10px;border:1px solid #e9d5ff;">
+                                        <span style="font-size:0.7rem;color:#7c3aed;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Rencana Tahun Studi</span>
+                                        <p id="penetapan-tahun-studi" style="font-size:0.9rem;font-weight:600;color:#5b21b6;margin:0.25rem 0 0 0;">-</p>
+                                    </div>
+                                </div>
+
+                                <!-- Status Penetapan Badge -->
+                                <div style="margin-bottom:1rem;">
+                                    <span style="font-size:0.8rem;color:#7c3aed;font-weight:600;display:block;margin-bottom:0.5rem;">Status Penetapan</span>
+                                    <div id="penetapan-status-badge" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.25rem;border-radius:12px;font-size:1rem;font-weight:700;background:#fef3c7;color:#92400e;">
+                                        ⏳ Memuat...
+                                    </div>
+                                </div>
+
+                                <!-- Catatan Penetapan -->
+                                <div id="penetapan-catatan-container" style="display:none;margin-bottom:1rem;">
+                                    <span style="font-size:0.8rem;color:#7c3aed;font-weight:600;display:block;margin-bottom:0.35rem;">Catatan Penetapan</span>
+                                    <div id="penetapan-catatan" style="background:#fefce8;padding:0.75rem;border-radius:8px;border:1px #fde047 solid;font-size:0.875rem;color:#854d0e;"></div>
+                                </div>
+
+                                <!-- Info Keuangan Section -->
+                                <div style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-radius:12px;padding:1rem;border:1px solid #a7f3d0;">
+                                    <h4 style="font-size:0.9rem;font-weight:700;color:#065f46;margin:0 0 0.75rem 0;display:flex;align-items:center;gap:0.5rem;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                                        Informasi Keuangan Beasiswa
+                                    </h4>
+                                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem;">
+                                        <div>
+                                            <span style="font-size:0.7rem;color:#059669;font-weight:600;">Nilai Beasiswa</span>
+                                            <p id="penetapan-nilai" style="font-size:1rem;font-weight:700;color:#047857;margin:0.1rem 0 0 0;">-</p>
+                                        </div>
+                                        <div>
+                                            <span style="font-size:0.7rem;color:#059669;font-weight:600;">Periode Pemberian</span>
+                                            <p id="penetapan-periode" style="font-size:0.9rem;font-weight:600;color:#047857;margin:0.1rem 0 0 0;">-</p>
+                                        </div>
+                                        <div style="grid-column:span 2;">
+                                            <span style="font-size:0.7rem;color:#059669;font-weight:600;">Nomor Rekening</span>
+                                            <p id="penetapan-rekening" style="font-family:monospace;font-size:0.9rem;font-weight:600;color:#047857;margin:0.1rem 0 0 0;">-</p>
+                                        </div>
+                                        <div>
+                                            <span style="font-size:0.7rem;color:#059669;font-weight:600;">Nama Bank</span>
+                                            <p id="penetapan-bank" style="font-size:0.9rem;font-weight:600;color:#047857;margin:0.1rem 0 0 0;">-</p>
+                                        </div>
+                                        <div>
+                                            <span style="font-size:0.7rem;color:#059669;font-weight:600;">Atas Nama</span>
+                                            <p id="penetapan-atas-nama" style="font-size:0.9rem;font-weight:600;color:#047857;margin:0.1rem 0 0 0;">-</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div style="display:flex;gap:0.75rem;margin-top:1rem;flex-wrap:wrap;" id="penetapan-actions">
+                                    <button id="penetapan-btn-foto" class="btn btn-primary" style="display:none;flex:1;min-width:140px;background:linear-gradient(135deg,#059669,#10b981);" onclick="">
+                                        📷 Lihat Foto
+                                    </button>
+                                    <button id="penetapan-btn-dokumen" class="btn" style="display:none;flex:1;min-width:140px;background:linear-gradient(135deg,#2563eb,#3b82f6);color:white;" onclick="">
+                                        📄 Lihat Dokumen
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Not Found Message -->
+                <div id="penetapan-not-found" style="display:none;text-align:center;padding:3rem;background:white;border-radius:16px;border:2px dashed #c4b5fd;">
+                    <div style="width:80px;height:80px;background:#fef3c7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+                        <span style="font-size:2.5rem;">🔍</span>
+                    </div>
+                    <h3 style="color:#92400e;font-size:1.25rem;margin:0 0 0.5rem 0;">Data Penetapan Tidak Ditemukan</h3>
+                    <p id="penetapan-not-found-msg" style="color:#a16207;margin:0 0 1rem 0;">Data penetapan dengan NIK tersebut belum tersedia.</p>
+                    <div style="background:#fefce8;padding:1rem;border-radius:10px;display:inline-block;text-align:left;max-width:400px;">
+                        <p style="font-size:0.85rem;color:#854d0e;margin:0;"><strong>Kemungkinan penyebab:</strong></p>
+                        <ul style="font-size:0.8rem;color:#a16207;margin:0.5rem 0 0 0;padding-left:1.25rem;">
+                            <li>Proses penetapan masih berlangsung</li>
+                            <li>NIK yang dimasukkan tidak sesuai</li>
+                            <li>Belum dilakukan penetapan untuk NIK ini</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ===== DATA PENGUSUL PAGE (Admin Only) v3.0 ===== -->
         <div class="page" id="page-data-pengusul">
             <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
@@ -3898,7 +4085,7 @@
 // File pendukung: SIMBAKES_WebApp_Code.gs (Google Apps Script Code)
 // ============================================================
 
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxa473_N8MQfJUEh16Dv3qZom7p-iEJWQptKQRoH7D0u8tvTgggKXfbaNWspUUtzJcTUw/exec'; // ← PASTE URL WEB APP DI SINI
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxXlojiTVLeCJ8IVUsOKnwbmcwC2QWPExU854QO6ZwLvyHwvn7kHk8b3Y6lN1wVBSeHcw/exec'; // ← PASTE URL WEB APP DI SINI
 
 // Set ke false jika sudah memasukkan URL Google Apps Script di atas
 const USE_LOCAL_STORAGE = false; // Ganti menjadi false setelah setup Google Sheets
@@ -4558,7 +4745,7 @@ function searchStatus() {
 // ===== RENDER FUNCTIONS =====
 
 // ===== CONFIGURATION =====
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxa473_N8MQfJUEh16Dv3qZom7p-iEJWQptKQRoH7D0u8tvTgggKXfbaNWspUUtzJcTUw/exec'; // Ganti dengan URL Web App Google Apps Script Anda
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxXlojiTVLeCJ8IVUsOKnwbmcwC2QWPExU854QO6ZwLvyHwvn7kHk8b3Y6lN1wVBSeHcw/exec'; // Ganti dengan URL Web App Google Apps Script Anda
 
 // ===== DASHBOARD v3.0 FUNCTIONS =====
 
@@ -5353,6 +5540,169 @@ function setActionButtons(status) {
 function showNotFound(message) {
     document.getElementById('not-found-container').style.display = 'block';
     document.getElementById('not-found-message').textContent = message;
+}
+
+// ===== CEK STATUS PENETAPAN FUNCTIONS =====
+
+/**
+ * Main function: Search Penetapan by NIK
+ */
+async function searchPenetapanData() {
+    const nik = document.getElementById('penetapan-search-nik').value.trim();
+    
+    // Validation
+    if (!nik) {
+        showToast('❌ Masukkan NIK 16 digit!', 'error');
+        return;
+    }
+    
+    if (nik.length < 16) {
+        showToast('❌ NIK harus 16 digit!', 'error');
+        return;
+    }
+    
+    // Hide previous results, show loading
+    document.getElementById('penetapan-result-container').style.display = 'none';
+    document.getElementById('penetapan-loading').style.display = 'block';
+    
+    try {
+        const url = `${WEB_APP_URL}?action=getPenetapanByNIK&nik=${encodeURIComponent(nik)}&t=${Date.now()}`;
+        
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        // Hide loading
+        document.getElementById('penetapan-loading').style.display = 'none';
+        
+        if (result.status === 'success' && result.found && result.data) {
+            displayPenetapanResult(result.data);
+        } else {
+            showPenetapanNotFound(result.message || 'Data penetapan tidak ditemukan');
+        }
+        
+    } catch (error) {
+        console.error('Error searching penetapan:', error);
+        document.getElementById('penetapan-loading').style.display = 'none';
+        showPenetapanNotFound('Gagal terhubung ke server. Silakan coba lagi.');
+    }
+}
+
+/**
+ * Display Penetapan result in the card (Photo Left, Data Right)
+ */
+function displayPenetapanResult(data) {
+    // Show result container
+    document.getElementById('penetapan-result-container').style.display = 'block';
+    
+    // Show result card, hide not found
+    document.getElementById('penetapan-result-card').style.display = 'block';
+    document.getElementById('penetapan-not-found').style.display = 'none';
+    
+    // Set Photo (Left side)
+    const photoEl = document.getElementById('penetapan-photo');
+    const placeholderEl = document.getElementById('penetapan-photo-placeholder');
+    
+    if (data.linkFoto && data.linkFoto !== '-' && data.linkFoto.length > 10) {
+        photoEl.src = data.linkFoto;
+        photoEl.style.display = 'block';
+        placeholderEl.style.display = 'none';
+    } else {
+        photoEl.style.display = 'none';
+        placeholderEl.style.display = 'flex';
+    }
+    
+    // Set Register Badge under photo
+    document.getElementById('penetapan-register-badge').textContent = data.noRegister || '-';
+    
+    // Set Header Info (Right side - top)
+    document.getElementById('penetapan-nama-lengkap').textContent = data.namaLengkap || '-';
+    document.getElementById('penetapan-nik-display').textContent = `NIK: ${data.nik || '-'}`;
+    
+    // Set Data Grid fields
+    document.getElementById('penetapan-no-sk').textContent = data.noSKPenetapan || '-';
+    document.getElementById('penetapan-tanggal').textContent = formatDate(data.tanggalPenetapan);
+    document.getElementById('penetapan-jurusan').textContent = data.jurusanTujuan || '-';
+    document.getElementById('penetapan-jenjang').textContent = data.jenjangPendidikan || '-';
+    document.getElementById('penetapan-unit').textContent = data.unitTujuan || '-';
+    document.getElementById('penetapan-tahun-studi').textContent = data.rencanaTahun || '-';
+    
+    // Set Status Badge with styling
+    setPenetapanStatusBadge(data.statusPenetapan);
+    
+    // Set Catatan Penetapan
+    const catatanContainer = document.getElementById('penetapan-catatan-container');
+    const catatanEl = document.getElementById('penetapan-catatan');
+    if (data.catatanPenetapan && data.catatanPenetapan !== '-') {
+        catatanContainer.style.display = 'block';
+        catatanEl.textContent = data.catatanPenetapan;
+    } else {
+        catatanContainer.style.display = 'none';
+    }
+    
+    // Set Info Keuangan
+    document.getElementById('penetapan-nilai').textContent = data.nilaiBeasiswa || '-';
+    document.getElementById('penetapan-periode').textContent = data.periodePemberian || '-';
+    document.getElementById('penetapan-rekening').textContent = data.nomorRekening || '-';
+    document.getElementById('penetapan-bank').textContent = data.namaBank || '-';
+    document.getElementById('penetapan-atas-nama').textContent = data.atasNamaRekening || '-';
+    
+    // Set Action Buttons for Foto & Dokumen
+    const btnFoto = document.getElementById('penetapan-btn-foto');
+    const btnDokumen = document.getElementById('penetapan-btn-dokumen');
+    
+    if (data.linkFoto && data.linkFoto !== '-' && data.linkFoto.length > 10) {
+        btnFoto.style.display = 'flex';
+        btnFoto.onclick = () => window.open(data.linkFoto, '_blank');
+    } else {
+        btnFoto.style.display = 'none';
+    }
+    
+    if (data.linkDokumen && data.linkDokumen !== '-' && data.linkDokumen.length > 10) {
+        btnDokumen.style.display = 'flex';
+        btnDokumen.onclick = () => window.open(data.linkDokumen, '_blank');
+    } else {
+        btnDokumen.style.display = 'none';
+    }
+    
+    // Set timestamp
+    const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('penetapan-result-timestamp').textContent = `Dicari pada: ${now}`;
+}
+
+/**
+ * Set Penetapan Status Badge styling and text
+ */
+function setPenetapanStatusBadge(status) {
+    const statusEl = document.getElementById('penetapan-status-badge');
+    const statusLower = String(status).toLowerCase().trim();
+    
+    let icon, bgColor, textColor, text;
+    
+    if (statusLower.includes('ditetapkan') || statusLower.includes('disetujui') || statusLower.includes('lulus') || statusLower.includes('diterima')) {
+        icon = '✅'; bgColor = '#dcfce7'; textColor = '#166534'; text = status || 'Ditetapkan';
+    } else if (statusLower.includes('ditolak') || statusLower.includes('gagal')) {
+        icon = '❌'; bgColor = '#fef2f2'; textColor = '#991b1b'; text = status || 'Ditolak';
+    } else if (statusLower.includes('pending') || statusLower.includes('proses') || statusLower.includes('verifikasi') || statusLower.includes('menunggu')) {
+        icon = '⏳'; bgColor = '#eff6ff'; textColor = '#1d4ed8'; text = status || 'Proses Penetapan';
+    } else if (statusLower.includes('dicabut') || statusLower.includes('batal')) {
+        icon = '🚫'; bgColor = '#f8fafc'; textColor = '#64748b'; text = status || 'Dicabut';
+    } else {
+        icon = '📋'; bgColor = '#fef3c7'; textColor = '#92400e'; text = status || 'Status Tidak Diketahui';
+    }
+    
+    statusEl.innerHTML = `${icon} ${text}`;
+    statusEl.style.background = bgColor;
+    statusEl.style.color = textColor;
+}
+
+/**
+ * Show Penetapan Not Found state
+ */
+function showPenetapanNotFound(message) {
+    document.getElementById('penetapan-result-container').style.display = 'block';
+    document.getElementById('penetapan-result-card').style.display = 'none';
+    document.getElementById('penetapan-not-found').style.display = 'block';
+    document.getElementById('penetapan-not-found-msg').textContent = message || 'Data penetapan tidak ditemukan.';
 }
 
 /**
