@@ -4195,7 +4195,7 @@
 // File pendukung: SIMBAKES_WebApp_Code.gs (Google Apps Script Code)
 // ============================================================
 
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzya8PQ5laBaxheFXBr8BEdMMty_yZKOS4SJQtnYNkUY-NoqOcWxHNdgQXQVxWa3POa/exec'; // ← PASTE URL WEB APP DI SINI
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxTvH8XBEDGLVD2V7c2pe_cH3jVRGW4xFpCCy9Uk5nnHxHDHZWGeXTn4Uu3x7klAqGDJA/exec'; // ← PASTE URL WEB APP DI SINI
 
 // Set ke false jika sudah memasukkan URL Google Apps Script di atas
 const USE_LOCAL_STORAGE = false; // Ganti menjadi false setelah setup Google Sheets
@@ -4855,7 +4855,122 @@ function searchStatus() {
 // ===== RENDER FUNCTIONS =====
 
 // ===== CONFIGURATION =====
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzya8PQ5laBaxheFXBr8BEdMMty_yZKOS4SJQtnYNkUY-NoqOcWxHNdgQXQVxWa3POa/exec'; // Ganti dengan URL Web App Google Apps Script Anda
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxTvH8XBEDGLVD2V7c2pe_cH3jVRGW4xFpCCy9Uk5nnHxHDHZWGeXTn4Uu3x7klAqGDJA/exec'; // Ganti dengan URL Web App Google Apps Script Anda
+
+// ===== GOOGLE DRIVE PHOTO HELPER =====
+/**
+ * Konversi Google Drive URL ke format direct image link
+ * Mendukung berbagai format URL Drive:
+ * - drive.google.com/file/d/FILE_ID
+ * - drive.google.com/open?id=FILE_ID
+ * - https://drive.google.com/uc?export=view&id=FILE_ID
+ * - https://lh3.googleusercontent.com/...
+ */
+function getDirectImageUrl(driveUrl) {
+    if (!driveUrl || driveUrl === '-' || driveUrl.length < 10) return '';
+    
+    let fileId = '';
+    
+    // Pattern 1: /file/d/FILE_ID/view or /file/d/FILE_ID/
+    const match1 = driveUrl.match(/\/file\/d\/([a-zA-Z0-9-_]+)/);
+    if (match1) fileId = match1[1];
+    
+    // Pattern 2: ?id=FILE_ID
+    if (!fileId) {
+        const match2 = driveUrl.match(/[?&]id=([a-zA-Z0-9-_]+)/);
+        if (match2) fileId = match2[1];
+    }
+    
+    // Pattern 3: /d/FILE_ID (shortened)
+    if (!fileId) {
+        const match3 = driveUrl.match(/\/d\/([a-zA-Z0-9-_]{25,})/);
+        if (match3) fileId = match3[1];
+    }
+    
+    // Jika sudah direct URL atau bukan drive, return as-is
+    if (!fileId) {
+        if (driveUrl.startsWith('http') && !driveUrl.includes('drive.google.com') && !driveUrl.includes('googleusercontent.com')) {
+            return driveUrl;
+        }
+        if (driveUrl.includes('googleusercontent.com')) {
+            return driveUrl;
+        }
+        return driveUrl;
+    }
+    
+    return `https://lh3.googleusercontent.com/d/${fileId}=s2200`;
+}
+
+/**
+ * Set gambar dengan handling error yang lebih baik
+ */
+function setPhotoWithFallback(imgElement, placeholderElement, photoUrl) {
+    const directUrl = getDirectImageUrl(photoUrl);
+    
+    if (!directUrl) {
+        imgElement.style.display = 'none';
+        if (placeholderElement) placeholderElement.style.display = 'flex';
+        return;
+    }
+    
+    imgElement.onload = function() {
+        imgElement.style.display = 'block';
+        if (placeholderElement) placeholderElement.style.display = 'none';
+    };
+    
+    imgElement.onerror = function() {
+        console.warn('⚠️ Gagal load foto:', directUrl.substring(0, 100) + '...');
+        imgElement.style.display = 'none';
+        if (placeholderElement) placeholderElement.style.display = 'flex';
+    };
+    
+    imgElement.src = directUrl;
+}
+
+// ===== API FETCH HELPER WITH BETTER ERROR HANDLING =====
+async function fetchAPI(url, options = {}) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    
+    try {
+        const response = await fetch(url, {
+            ...options,
+            signal: controller.signal,
+            mode: 'cors',
+            headers: {
+                'Accept': 'application/json',
+                ...options.headers
+            }
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.status === 'error') {
+            throw new Error(data.message || 'Server mengembalikan error');
+        }
+        
+        return data;
+    } catch (error) {
+        clearTimeout(timeoutId);
+        
+        if (error.name === 'AbortError') {
+            throw new Error('Timeout: Server terlalu lama merespons (>30 detik)');
+        }
+        
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            throw new Error('Gagal terhubung ke server. Pastikan koneksi internet stabil dan URL Web App sudah benar.');
+        }
+        
+        throw error;
+    }
+}
+
 
 // ===== DASHBOARD v3.0 FUNCTIONS =====
 
@@ -5341,65 +5456,78 @@ async function loadRoadmapData() {
     const tableWrapperEl = document.getElementById('roadmap-table-wrapper');
     const emptyStateEl = document.getElementById('roadmap-empty-state');
     
+    // Safety check - pastikan elemen ada
+    if (!loadingEl || !tableWrapperEl || !emptyStateEl) {
+        console.error('❌ Elemen Roadmap tidak ditemukan di DOM!');
+        return;
+    }
+    
     // Show loading
     loadingEl.style.display = 'block';
     tableWrapperEl.style.display = 'none';
     emptyStateEl.style.display = 'none';
     
+    console.log('🔄 Loading Roadmap Kebutuhan data...');
+    
     try {
         // Build URL with current filter values
         let url = `${WEB_APP_URL}?action=getRoadmapData&t=${Date.now()}`;
         
-        // Add current filter values
-        const jurusan = document.getElementById('roadmap-filter-jurusan').value;
-        const pt = document.getElementById('roadmap-filter-pt').value;
-        const pekerjaan = document.getElementById('roadmap-filter-pekerjaan').value;
-        const unit = document.getElementById('roadmap-filter-unit').value;
-        const status = document.getElementById('roadmap-filter-status').value;
+        // Add current filter values dengan safety check
+        const jurusanSelect = document.getElementById('roadmap-filter-jurusan');
+        const ptSelect = document.getElementById('roadmap-filter-pt');
+        const pekerjaanSelect = document.getElementById('roadmap-filter-pekerjaan');
+        const unitSelect = document.getElementById('roadmap-filter-unit');
+        const statusSelect = document.getElementById('roadmap-filter-status');
         
-        if (jurusan) url += `&jurusan=${encodeURIComponent(jurusan)}`;
-        if (pt) url += `&perguruanTinggi=${encodeURIComponent(pt)}`;
-        if (pekerjaan) url += `&pekerjaan=${encodeURIComponent(pekerjaan)}`;
-        if (unit) url += `&unitPendayaguna=${encodeURIComponent(unit)}`;
-        if (status) url += `&status=${encodeURIComponent(status)}`;
+        if (jurusanSelect && jurusanSelect.value) url += `&jurusan=${encodeURIComponent(jurusanSelect.value)}`;
+        if (ptSelect && ptSelect.value) url += `&perguruanTinggi=${encodeURIComponent(ptSelect.value)}`;
+        if (pekerjaanSelect && pekerjaanSelect.value) url += `&pekerjaan=${encodeURIComponent(pekerjaanSelect.value)}`;
+        if (unitSelect && unitSelect.value) url += `&unitPendayaguna=${encodeURIComponent(unitSelect.value)}`;
+        if (statusSelect && statusSelect.value) url += `&status=${encodeURIComponent(statusSelect.value)}`;
         
-        const response = await fetch(url);
-        const result = await response.json();
+        console.log('📡 Memanggil Roadmap API:', url.substring(0, 100) + '...');
+        
+        const result = await fetchAPI(url);
         
         // Hide loading
         loadingEl.style.display = 'none';
         
-        if (result.status === 'success') {
-            // Cache data and filter options for dropdowns
-            roadmapCachedData = result.data || [];
-            
-            // Populate filter dropdowns if not yet populated
-            if (result.filterOptions && !roadmapFilterOptions) {
-                roadmapFilterOptions = result.filterOptions;
-                populateRoadmapFilterDropdowns(result.filterOptions);
-            }
-            
-            // Render table or show empty state
-            if (result.data && result.data.length > 0) {
-                tableWrapperEl.style.display = 'block';
-                emptyStateEl.style.display = 'none';
-                renderRoadmapTable(result.data);
-                updateRoadmapResultCount(result.totalRecords);
-            } else {
-                tableWrapperEl.style.display = 'none';
-                emptyStateEl.style.display = 'block';
-                updateRoadmapResultCount(0);
-            }
+        console.log('✅ Hasil Roadmap:', result);
+        
+        // Cache data and filter options for dropdowns
+        roadmapCachedData = result.data || [];
+        
+        // Populate filter dropdowns if not yet populated
+        if (result.filterOptions && !roadmapFilterOptions) {
+            roadmapFilterOptions = result.filterOptions;
+            populateRoadmapFilterDropdowns(result.filterOptions);
+        }
+        
+        // Render table or show empty state
+        if (result.data && result.data.length > 0) {
+            tableWrapperEl.style.display = 'block';
+            emptyStateEl.style.display = 'none';
+            renderRoadmapTable(result.data);
+            updateRoadmapResultCount(result.totalRecords || result.data.length);
+            showToast(`✅ Berhasil memuat ${result.data.length} data roadmap`, 'success');
         } else {
-            throw new Error(result.message || 'Gagal memuat data');
+            tableWrapperEl.style.display = 'none';
+            emptyStateEl.style.display = 'block';
+            updateRoadmapResultCount(0);
         }
         
     } catch (error) {
-        console.error('Error loading roadmap data:', error);
+        console.error('❌ Error loading roadmap data:', error);
         loadingEl.style.display = 'none';
         emptyStateEl.style.display = 'block';
-        document.getElementById('roadmap-empty-state').querySelector('h3').textContent = 'Gagal Memuat Data';
-        document.getElementById('roadmap-empty-state').querySelector('p').textContent = error.message || 'Terjadi kesalahan saat memuat data. Silakan coba lagi.';
+        
+        const titleEl = document.getElementById('roadmap-empty-state').querySelector('h3');
+        const descEl = document.getElementById('roadmap-empty-state').querySelector('p');
+        if (titleEl) titleEl.textContent = 'Gagal Memuat Data';
+        if (descEl) descEl.textContent = error.message || 'Terjadi kesalahan saat memuat data. Silakan coba lagi.';
+        
+        showToast('❌ Gagal memuat data roadmap: ' + error.message, 'error');
     }
 }
 
@@ -5806,18 +5934,11 @@ function displaySearchResult(data) {
     // Show result container
     document.getElementById('result-container').classList.add('active');
     
-    // Set photo
+    // Set photo with improved handler
     const photoEl = document.getElementById('status-photo');
     const placeholderEl = document.getElementById('photo-placeholder');
     
-    if (data.linkFoto && data.linkFoto !== '-' && data.linkFoto.length > 10) {
-        photoEl.src = data.linkFoto;
-        photoEl.style.display = 'block';
-        placeholderEl.style.display = 'none';
-    } else {
-        photoEl.style.display = 'none';
-        placeholderEl.style.display = 'flex';
-    }
+    setPhotoWithFallback(photoEl, placeholderElement, data.linkFoto);
     
     // Set basic info
     document.getElementById('result-register').textContent = data.noRegister || '-';
@@ -5956,13 +6077,17 @@ async function searchPenetapanData() {
     // Validation
     if (!nik) {
         showToast('❌ Masukkan NIK 16 digit!', 'error');
+        document.getElementById('penetapan-search-nik').focus();
         return;
     }
     
     if (nik.length < 16) {
-        showToast('❌ NIK harus 16 digit!', 'error');
+        showToast('⚠️ NIK harus 16 digit! Saat ini: ' + nik.length + ' digit', 'error');
+        document.getElementById('penetapan-search-nik').focus();
         return;
     }
+    
+    console.log('🔍 Mencari data penetapan untuk NIK:', nik);
     
     // Hide previous results, show loading
     document.getElementById('penetapan-result-container').style.display = 'none';
@@ -5971,22 +6096,26 @@ async function searchPenetapanData() {
     try {
         const url = `${WEB_APP_URL}?action=getPenetapanByNIK&nik=${encodeURIComponent(nik)}&t=${Date.now()}`;
         
-        const response = await fetch(url);
-        const result = await response.json();
+        console.log('📡 Memanggil API Penetapan:', url.substring(0, 80) + '...');
+        
+        const result = await fetchAPI(url);
         
         // Hide loading
         document.getElementById('penetapan-loading').style.display = 'none';
         
-        if (result.status === 'success' && result.found && result.data) {
+        console.log('✅ Hasil pencarian penetapan:', result);
+        
+        if (result.found && result.data) {
             displayPenetapanResult(result.data);
         } else {
-            showPenetapanNotFound(result.message || 'Data penetapan tidak ditemukan');
+            showPenetapanNotFound(result.message || `Data penetapan dengan NIK "${nik}" tidak ditemukan`);
         }
         
     } catch (error) {
-        console.error('Error searching penetapan:', error);
+        console.error('❌ Error searching penetapan:', error);
         document.getElementById('penetapan-loading').style.display = 'none';
-        showPenetapanNotFound('Gagal terhubung ke server. Silakan coba lagi.');
+        showPenetapanNotFound('Gagal terhubung ke server: ' + error.message);
+        showToast('❌ ' + error.message, 'error');
     }
 }
 
@@ -5994,6 +6123,8 @@ async function searchPenetapanData() {
  * Display Penetapan result in the card (Photo Left, Data Right)
  */
 function displayPenetapanResult(data) {
+    console.log('📋 Menampilkan hasil penetapan:', data);
+    
     // Show result container
     document.getElementById('penetapan-result-container').style.display = 'block';
     
@@ -6001,18 +6132,11 @@ function displayPenetapanResult(data) {
     document.getElementById('penetapan-result-card').style.display = 'block';
     document.getElementById('penetapan-not-found').style.display = 'none';
     
-    // Set Photo (Left side)
+    // Set Photo (Left side) with improved handler
     const photoEl = document.getElementById('penetapan-photo');
     const placeholderEl = document.getElementById('penetapan-photo-placeholder');
     
-    if (data.linkFoto && data.linkFoto !== '-' && data.linkFoto.length > 10) {
-        photoEl.src = data.linkFoto;
-        photoEl.style.display = 'block';
-        placeholderEl.style.display = 'none';
-    } else {
-        photoEl.style.display = 'none';
-        placeholderEl.style.display = 'flex';
-    }
+    setPhotoWithFallback(photoEl, placeholderEl, data.linkFoto);
     
     // Set Register Badge under photo
     document.getElementById('penetapan-register-badge').textContent = data.noRegister || '-';
