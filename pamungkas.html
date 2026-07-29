@@ -1704,7 +1704,7 @@ function levelIcon(){
 // GANTI INI dengan URL Web App Google Apps Script Anda.
 // Format: https://script.google.com/macros/s/DEPLOYMENT_ID/exec
 // Dapatkan dari: Deploy > Manage deployments > salin URL Web App
-var APP_URL = 'https://script.google.com/macros/s/AKfycbxV2XBJewZoJVaPbvpVvexWnZCRe5GX0quIT42zunFaS51_ze4gc0vb0leaZ4t4F0liFA/exec';
+var APP_URL = 'https://script.google.com/macros/s/AKfycbxe4xU_t2xj0hiLPiMRjph6k_q_RZ8zTjZP4Bw3GihugU4z-e3zLRrpeKwJbZXXqvZbng/exec';
 
 /* ========== API HELPER — callServer() via JSONP ==========
  * Menggunakan JSONP (dynamic <script> tag) bukan fetch().
@@ -1905,12 +1905,13 @@ function renderIKP(indikatorData){
   // Gunakan data dari Google Sheet jika tersedia, fallback ke default
   var dataSource = (indikatorData && indikatorData.length > 0) ? indikatorData : IKP_DATA;
   dataSource.forEach(function(item){
-    var pct=Math.min(item.value, item.target);
+    var numVal=parseFloat(item.value)||0,numTgt=parseFloat(item.target)||100;
+    var pct=Math.min(numVal,numTgt);
     html+='<div class="ikp-card" onclick="openIKPPopup(\''+item.label+'\', \''+item.value+'\', \''+item.target+'\', \''+item.unit+'\', \''+(item.source||'Default')+'\', \''+(item.desc||'-')+'\')" title="Klik untuk detail">';
-    html+='<div class="ikp-card-num">'+item.id.replace(/\w/g,function(c,i){return i===0?c.toUpperCase():'';}).substring(0,3)+'</div>';
-    html+='<div class="ikp-card-label"><i class="fas '+item.icon+'"></i><span>'+item.label+'</span></div>';
-    html+='<div class="ikp-bar-wrap"><div class="ikp-bar '+item.barClass+'" style="width:0%" data-target="'+pct+'"></div></div>';
-    html+='<div class="ikp-card-footer"><div class="ikp-value '+item.valueClass+'">'+item.value+item.unit+'</div><div class="ikp-target">Target: '+item.target+item.unit+'</div></div>';
+    html+='<div class="ikp-card-num">'+(item.id||item.ID||'IKP').replace(/\w/g,function(c,i){return i===0?c.toUpperCase():'';}).substring(0,3)+'</div>';
+    html+='<div class="ikp-card-label"><i class="fas '+(item.icon||'fa-chart-line')+'"></i><span>'+(item.label||'Indikator')+'</span></div>';
+    html+='<div class="ikp-bar-wrap"><div class="ikp-bar '+(item.barClass||'ikp-bar-1')+'" style="width:0%" data-target="'+pct+'"></div></div>';
+    html+='<div class="ikp-card-footer"><div class="ikp-value '+(item.valueClass||'ikp-value-1')+'">'+numVal+(item.unit||'')+'</div><div class="ikp-target">Target: '+(item.target||0)+(item.unit||'')+'</div></div>';
     html+='</div>';
   });
   g.innerHTML=html;
