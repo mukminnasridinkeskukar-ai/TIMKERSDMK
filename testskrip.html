@@ -648,6 +648,26 @@
             background: #ecfeff;
         }
 
+        .file-upload-area.loading {
+            opacity: 0.7;
+            pointer-events: none;
+            position: relative;
+        }
+
+        .file-upload-area.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 32px;
+            height: 32px;
+            margin: -16px 0 0 -16px;
+            border: 3px solid #e2e8f0;
+            border-top-color: #0891b2;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
         .file-upload-icon {
             width: 48px;
             height: 48px;
@@ -1791,7 +1811,7 @@
 // File pendukung: SIMBAKES_WebApp_Code.gs (Google Apps Script Code)
 // ============================================================
 
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCHLeWxcuB7-PkezWL9JbBxn7LRGkwtUvTg4n8UGaShZ97X7PjFxGytheCO13V9ViMyw/exec'; // ← PASTE URL WEB APP DI SINI
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwAZW_GRRpEf-f2-YAdIFzdJQglDRrtnEL2PFVS85Nk4hu-OKOFpXMCIfJ6dNm9d1m98g/exec'; // ← PASTE URL WEB APP DI SINI
 
 // Set ke false jika sudah memasukkan URL Google Apps Script di atas
 const USE_LOCAL_STORAGE = false; // Ganti menjadi false setelah setup Google Sheets
@@ -1819,9 +1839,10 @@ let submittedApplications = JSON.parse(localStorage.getItem('simbakes_applicatio
 
 let isAdminLoggedIn = false;
 
-// File storage
-let uploadedPhoto = null;
-let uploadedFile = null;
+// File storage (v2.0 - Base64 for Google Drive upload)
+let uploadedPhoto = null;        // Base64 string for photo
+let uploadedPDFBase64 = null;    // Base64 string for PDF document
+let uploadedFileInfo = null;     // File info object (name, size)
 
 // ===== LANDING PAGE =====
 let progress = 0;
@@ -1918,34 +1939,95 @@ function adminLogout() {
 }
 
 // ===== FILE HANDLING =====
+
 function handlePhotoUpload(input) {
     if (input.files && input.files[0]) {
         const file = input.files[0];
         
         // Validate file size (max 2MB)
         if (file.size > 2 * 1024 * 1024) {
-            showToast('Ukuran file maksimal 2MB!', 'error');
+            showToast('❌ Ukuran foto maksimal 2MB!', 'error');
             input.value = '';
             return;
         }
         
         // Validate file type
         if (!file.type.startsWith('image/')) {
-            showToast('Format file harus gambar (JPG/PNG)!', 'error');
+            showToast('❌ Format file harus gambar (JPG/PNG)!', 'error');
             input.value = '';
             return;
         }
         
+        // Show loading state on upload area
+        const uploadArea = document.getElementById('photo-upload');
+        uploadArea.style.opacity = '0.7';
+        uploadArea.style.pointerEvents = 'none';
+        
         const reader = new FileReader();
         reader.onload = function(e) {
+            // Store base64 data
             uploadedPhoto = e.target.result;
-            document.getElementById('photo-preview').src = e.target.result;
-            document.getElementById('photo-preview').style.display = 'block';
+            
+            // Enhanced preview with better styling
+            const preview = document.getElementById('photo-preview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            preview.style.objectFit = 'cover';
+            preview.style.objectPosition = 'center';
+            
+            // Hide placeholder
             document.getElementById('photo-placeholder').style.display = 'none';
+            
+            // Update upload area style
             document.getElementById('photo-upload').classList.add('has-image');
+            uploadArea.style.opacity = '1';
+            uploadArea.style.pointerEvents = 'auto';
+            
+            // Show success indicator
+            showPhotoSuccessIndicator();
+            
+            console.log('✅ Foto berhasil diproses:', {
+                size: file.size,
+                type: file.type,
+                base64Length: uploadedPhoto.length
+            });
+        };
+        reader.onerror = function() {
+            showToast('❌ Gagal membaca file foto!', 'error');
+            uploadArea.style.opacity = '1';
+            uploadArea.style.pointerEvents = 'auto';
         };
         reader.readAsDataURL(file);
     }
+}
+
+// Show success checkmark on photo upload
+function showPhotoSuccessIndicator() {
+    let indicator = document.getElementById('photo-success');
+    if (!indicator) {
+        indicator = document.createElement('div');
+        indicator.id = 'photo-success';
+        indicator.innerHTML = '✓';
+        indicator.style.cssText = `
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 28px;
+            height: 28px;
+            background: #059669;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(5,150,105,0.4);
+            z-index: 10;
+        `;
+        document.getElementById('photo-upload').appendChild(indicator);
+    }
+    indicator.style.display = 'flex';
 }
 
 function handleFileUpload(input) {
@@ -1954,27 +2036,63 @@ function handleFileUpload(input) {
         
         // Validate file size (max 2MB)
         if (file.size > 2 * 1024 * 1024) {
-            showToast('Ukuran file maksimal 2MB!', 'error');
+            showToast('❌ Ukuran file maksimal 2MB!', 'error');
             input.value = '';
             return;
         }
         
         // Validate file type
         if (file.type !== 'application/pdf') {
-            showToast('Format file harus PDF!', 'error');
+            showToast('❌ Format file harus PDF!', 'error');
             input.value = '';
             return;
         }
         
-        uploadedFile = file;
-        document.getElementById('file-name-text').textContent = file.name + ' (' + formatFileSize(file.size) + ')';
-        document.getElementById('file-name-display').classList.remove('hidden');
-        document.getElementById('file-upload-area').classList.add('has-file');
+        // Store file info
+        uploadedFileInfo = {
+            name: file.name,
+            size: file.size,
+            type: file.type
+        };
+        
+        // Show loading state
+        const uploadArea = document.getElementById('file-upload-area');
+        uploadArea.classList.add('loading');
+        
+        // Read PDF as Base64 for Google Drive upload
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Store base64 data
+            uploadedPDFBase64 = e.target.result;
+            
+            // Update UI
+            document.getElementById('file-name-text').textContent = 
+                `${file.name} (${formatFileSize(file.size)})`;
+            document.getElementById('file-name-display').classList.remove('hidden');
+            document.getElementById('file-upload-area').classList.add('has-file');
+            document.getElementById('file-upload-area').classList.remove('loading');
+            
+            console.log('✅ Dokumen PDF berhasil diproses:', {
+                name: file.name,
+                size: file.size,
+                base64Length: uploadedPDFBase64.length
+            });
+            
+            showToast('📄 Dokumen siap dikirim', 'success');
+        };
+        reader.onerror = function() {
+            showToast('❌ Gagal membaca file PDF!', 'error');
+            document.getElementById('file-upload-area').classList.remove('loading');
+            uploadedPDFBase64 = null;
+            uploadedFileInfo = null;
+        };
+        reader.readAsDataURL(file); // This gives us base64
     }
 }
 
 function removeFile() {
-    uploadedFile = null;
+    uploadedPDFBase64 = null;
+    uploadedFileInfo = null;
     document.getElementById('file-dokumen').value = '';
     document.getElementById('file-name-display').classList.add('hidden');
     document.getElementById('file-upload-area').classList.remove('has-file');
@@ -2084,7 +2202,22 @@ async function submitForm() {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<div class="spinner"></div> Mengirim...';
     
-    // Collect form data
+    // Validate files are processed
+    if (!uploadedPhoto) {
+        showToast('❌ Silakan upload foto pasfoto terlebih dahulu!', 'error');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Ya, Kirim Sekarang';
+        return;
+    }
+    
+    if (!uploadedPDFBase64) {
+        showToast('❌ Silakan upload dokumen PDF terlebih dahulu!', 'error');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Ya, Kirim Sekarang';
+        return;
+    }
+    
+    // Collect form data with files
     const formData = {
         noRegister: document.getElementById('reg-nomor').value,
         tanggalPengajuan: document.getElementById('reg-tanggal').value,
@@ -2106,11 +2239,22 @@ async function submitForm() {
         noHP: document.getElementById('no-hp').value,
         noWA: document.getElementById('no-wa').value,
         email: document.getElementById('email').value,
-        foto: uploadedPhoto,
-        namaFile: uploadedFile ? uploadedFile.name : null,
+        
+        // FILE DATA (Base64 for Google Drive)
+        foto: uploadedPhoto,                    // Base64 photo string
+        dokumenPDF: uploadedPDFBase64,          // Base64 PDF string
+        namaFile: uploadedFileInfo ? uploadedFileInfo.name : null,
+        
         status: 'Proses Verifikasi',
         timestamp: new Date().toISOString()
     };
+    
+    console.log('📦 Data form siap dikirim:', {
+        hasFoto: !!formData.foto && formData.foto.length > 100,
+        hasPDF: !!formData.dokumenPDF && formData.dokumenPDF.length > 100,
+        fotoSize: formData.foto ? Math.round(formData.foto.length / 1024) + 'KB' : '-',
+        pdfSize: formData.dokumenPDF ? Math.round(formData.dokumenPDF.length / 1024) + 'KB' : '-'
+    });
     
     try {
         // Check if Google Sheets is configured
@@ -2119,16 +2263,18 @@ async function submitForm() {
                                          GOOGLE_APPS_SCRIPT_URL.trim() !== '';
         
         if (isGoogleSheetsConfigured) {
-            // Send to Google Sheets
-            console.log('🚀 Mengirim ke Google Sheets...');
-            await sendToGoogleSheets(formData);
-            console.log('✅ Berhasil dikirim ke Google Sheets!');
+            // Send to Google Sheets/Drive
+            console.log('🚀 Mengirim ke Google Sheets/Drive...');
+            
+            const result = await sendToGoogleSheets(formData);
+            
+            console.log('✅ Berhasil dikirim ke Google Sheets/Drive!', result);
             
             // Show success modal
             closeModal('confirm-modal');
             document.getElementById('success-reg-number').textContent = formData.noRegister;
             document.getElementById('success-modal').classList.add('active');
-            showToast('Pengajuan berhasil dikirim ke Google Sheets!', 'success');
+            showToast('✅ Pengajuan berhasil! Foto & dokumen tersimpan di Google Drive.', 'success');
             
         } else if (USE_LOCAL_STORAGE) {
             // Save to localStorage as fallback/demo mode
@@ -2138,7 +2284,7 @@ async function submitForm() {
             closeModal('confirm-modal');
             document.getElementById('success-reg-number').textContent = formData.noRegister;
             document.getElementById('success-modal').classList.add('active');
-            showToast('Data tersimpan (Demo Mode - aktifkan Google Sheets untuk production)', 'success');
+            showToast('📝 Data tersimpan locally (Demo Mode - aktifkan Google Sheets untuk production)', 'success');
             
         } else {
             throw new Error('Google Sheets URL belum dikonfigurasi. Periksa pengaturan.');
@@ -2158,13 +2304,12 @@ async function submitForm() {
         // Show appropriate error message
         let errorMsg = 'Data tersimpan locally. ';
         if (GOOGLE_APPS_SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
-            errorMsg += '⚠️ Google Sheets belum dikonfigurasi. Lihat file SIMBAKES_WebApp_Code.gs untuk panduan setup.';
+            errorMsg += '⚠️ Google Sheets belum dikonfigurasi. Lihat panduan setup.';
         } else {
-            errorMsg += '⚠️ Gagal terhubung ke Google Sheets: ' + error.message;
+            errorMsg += '⚠️ Gagal terhubung: ' + error.message;
         }
         showToast(errorMsg, 'error');
         
-        // Log error details in console for debugging
         console.error('Detail Error:', {
             message: error.message,
             urlConfigured: GOOGLE_APPS_SCRIPT_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE',
@@ -2251,13 +2396,29 @@ function saveToLocal(data) {
 
 function resetForm() {
     document.getElementById('form-ajukan').reset();
+    
+    // Reset file variables
     uploadedPhoto = null;
-    uploadedFile = null;
+    uploadedPDFBase64 = null;
+    uploadedFileInfo = null;
+    
+    // Reset photo upload area
     document.getElementById('photo-preview').style.display = 'none';
+    document.getElementById('photo-preview').src = '';
     document.getElementById('photo-placeholder').style.display = 'flex';
     document.getElementById('photo-upload').classList.remove('has-image');
+    
+    // Remove photo success indicator if exists
+    const photoSuccess = document.getElementById('photo-success');
+    if (photoSuccess) {
+        photoSuccess.remove();
+    }
+    
+    // Reset PDF upload area
     document.getElementById('file-name-display').classList.add('hidden');
-    document.getElementById('file-upload-area').classList.remove('has-file');
+    document.getElementById('file-upload-area').classList.remove('has-file', 'loading');
+    
+    // Re-initialize form
     initializeForm();
 }
 
