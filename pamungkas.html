@@ -213,8 +213,8 @@
     .ikp-header h3{margin:0;font-size:1.05rem;font-weight:700;color:var(--text-primary);letter-spacing:.2px;}
     .ikp-header p{margin:2px 0 0;font-size:.78rem;color:var(--text-secondary);}
     .ikp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;}
-    .ikp-card{background:var(--bg-card);border-radius:var(--radius-md);padding:20px 22px;box-shadow:var(--shadow-sm);border:1px solid var(--border-color);transition:var(--transition);position:relative;overflow:hidden;}
-    .ikp-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+    .ikp-card{background:var(--bg-card);border-radius:var(--radius-md);padding:20px 22px;box-shadow:var(--shadow-sm);border:1px solid var(--border-color);transition:var(--transition);position:relative;overflow:hidden;cursor:pointer;}
+    .ikp-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);border-color:var(--primary);}
     .ikp-card-num{position:absolute;top:12px;right:16px;font-size:2.6rem;font-weight:800;opacity:.06;color:var(--text-primary);line-height:1;}
     .ikp-card-label{font-size:.82rem;color:var(--text-secondary);margin-bottom:10px;display:flex;align-items:flex-start;gap:8px;line-height:1.4;}
     .ikp-card-label i{color:var(--primary);margin-top:3px;flex-shrink:0;}
@@ -1018,7 +1018,7 @@
                 <th>Nama Lengkap dengan Gelar</th>
                 <th>Unit Kerja</th>
                 <th>Jenis Profesi</th>
-                <th>Status Pekerjaan</th>
+                <th>Pekerjaan</th>
                 <th>Judul Kegiatan</th>
                 <th>Status</th>
               </tr></thead>
@@ -1704,7 +1704,7 @@ function levelIcon(){
 // GANTI INI dengan URL Web App Google Apps Script Anda.
 // Format: https://script.google.com/macros/s/DEPLOYMENT_ID/exec
 // Dapatkan dari: Deploy > Manage deployments > salin URL Web App
-var APP_URL = 'https://script.google.com/macros/s/AKfycbxBBLbOuKuLJUho8f3rw6EssRkt7hO0yutRvAVCL4aB3DFMq0YTWoPaxhmMoq8AyFC2XQ/exec';
+var APP_URL = 'https://script.google.com/macros/s/AKfycbwSKBp90uX-jIKpaeD-njuANL__fBKf-5hIfhh48p-L1qJ399tx_0cYVWIipV9thBER2Q/exec';
 
 /* ========== API HELPER — callServer() via JSONP ==========
  * Menggunakan JSONP (dynamic <script> tag) bukan fetch().
@@ -1881,14 +1881,16 @@ function loadDashboard(){
     hideLoading();
     if(!res||!res.success){showToast(res?res.message:'Data tidak tersedia. Pastikan Spreadsheet terhubung.','error');renderEmptyDashboard();return;}
     var data=res.data;
-    renderIKP();
+    renderIKP(data.indikator||[]);
     renderStatCards(data.summary||{});
     _dashAllPendaftaran=data.allPendaftaran||[];_dashAllSdmk=data.allSdmk||[];renderDashboardTable(data.recentRegistrations||[]);
   }).catch(function(e){hideLoading();showToast('Gagal memuat data: '+(e.message||e),'error');renderEmptyDashboard();});
 }
 /* ========== INDIKATOR KINERJA PROGRAM ========== */
 /*
- * DATA CAPAIAN - Edit nilai di bawah ini sesuai sumber data
+ * DATA CAPAIAN - Default/Fallback data
+ * Data aktual diambil dari Google Sheet "Indikator"
+ * Jika sheet Indikator kosong/tidak ada, data default ini yang ditampilkan
  * ================================================ */
 var IKP_DATA = [
   {id:'sdmk_dinkes', label:'Jumlah SDMK Dinas Kesehatan', value:2284, target:3200, unit:' Orang', barClass:'ikp-bar-1', valueClass:'ikp-value-1', icon:'fa-hospital'},
@@ -1896,13 +1898,15 @@ var IKP_DATA = [
   {id:'pelatihan_kompetensi', label:'Persentase SDMK yang dilatih sesuai Kompetensinya', value:0.0, target:100, unit:'%', barClass:'ikp-bar-3', valueClass:'ikp-value-3', icon:'fa-graduation-cap'}
 ];
 
-function renderIKP(){
+function renderIKP(indikatorData){
   var g=document.getElementById('ikpGrid');
   if(!g)return;
   var html='';
-  IKP_DATA.forEach(function(item){
+  // Gunakan data dari Google Sheet jika tersedia, fallback ke default
+  var dataSource = (indikatorData && indikatorData.length > 0) ? indikatorData : IKP_DATA;
+  dataSource.forEach(function(item){
     var pct=Math.min(item.value, item.target);
-    html+='<div class="ikp-card">';
+    html+='<div class="ikp-card" onclick="openIKPPopup(\''+item.label+'\', \''+item.value+'\', \''+item.target+'\', \''+item.unit+'\', \''+(item.source||'Default')+'\', \''+(item.desc||'-')+'\')" title="Klik untuk detail">';
     html+='<div class="ikp-card-num">'+item.id.replace(/\w/g,function(c,i){return i===0?c.toUpperCase():'';}).substring(0,3)+'</div>';
     html+='<div class="ikp-card-label"><i class="fas '+item.icon+'"></i><span>'+item.label+'</span></div>';
     html+='<div class="ikp-bar-wrap"><div class="ikp-bar '+item.barClass+'" style="width:0%" data-target="'+pct+'"></div></div>';
@@ -1990,6 +1994,23 @@ function openStatPopup(card){
     });
     html+='</tbody></table>';
     if(rows.length>200) html+='<div style="padding:10px 14px;text-align:center;color:var(--text-muted);font-size:.8rem;">Menampilkan 200 dari '+rows.length+' data</div>';
+    
+    // Add data source information
+    var sourceLabel = '';
+    var sourceSheet = '';
+    if(src==='sdmk'||src==='sdmk-exclude'){sourceLabel='Data SDMK (Tenaga Kesehatan)';sourceSheet='Sheet: SDMK';}
+    else if(src==='pendaftaran'||src==='pendaftaran-exclude'){sourceLabel='Data Pendaftaran Pelatihan';sourceSheet='Sheet: Pendaftaran';}
+    else if(src==='sertifikat'){sourceLabel='Data Sertifikat';sourceSheet='Sheet: Sertifikat';}
+    else if(src==='pengumuman'){sourceLabel='Data Pengumuman';sourceSheet='Sheet: Pengumuman';}
+    else{sourceLabel='Data Dashboard';sourceSheet='Google Sheet';}
+    
+    html+='<div style="margin-top:14px;padding:12px 14px;background:#F0F9FF;border-left:4px solid #0D6EFD;border-radius:0 8px 8px 0;display:flex;align-items:center;gap:10px;">';
+    html+='<i class="fas fa-database" style="color:#0D6EFD;font-size:1rem;"></i>';
+    html+='<div>';
+    html+='<div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;">Sumber Data</div>';
+    html+='<div style="font-size:0.82rem;color:var(--text-primary);font-weight:600;">'+sourceLabel+' <span style="font-weight:400;color:var(--text-secondary);">('+sourceSheet+')</span></div>';
+    html+='</div></div>';
+    
     body.innerHTML=html;
   }
   document.getElementById('statPopupOverlay').classList.add('active');
@@ -1998,6 +2019,66 @@ function openStatPopup(card){
 function closeStatPopup(){
   document.getElementById('statPopupOverlay').classList.remove('active');
   document.body.style.overflow='';
+}
+
+/* ========== IKP POPUP - Detail Indikator Kinerja Program ========== */
+function openIKPPopup(label, value, target, unit, source, desc){
+  var overlay = document.getElementById('statPopupOverlay');
+  var title = document.getElementById('statPopupTitle');
+  var body = document.getElementById('statPopupBody');
+  
+  title.innerHTML = '<i class="fas fa-chart-line" style="color:var(--primary);margin-right:8px;"></i> ' + label;
+  
+  var pct = target > 0 ? Math.min((parseFloat(value) / parseFloat(target)) * 100, 100) : 0;
+  var barColor = pct >= 80 ? '#059669' : pct >= 50 ? '#F59E0B' : '#EF4444';
+  
+  var html = '';
+  html += '<div style="padding:20px;">';
+  html += '<div style="background:var(--primary-light);border-radius:12px;padding:20px;margin-bottom:16px;text-align:center;">';
+  html += '<div style="font-size:2.5rem;font-weight:800;color:var(--primary);">' + value + unit + '</div>';
+  html += '<div style="font-size:0.85rem;color:var(--text-secondary);margin-top:4px;">Capaian Saat Ini</div>';
+  html += '</div>';
+  
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">';
+  html += '<div style="background:#F8FAFC;border-radius:10px;padding:14px;text-align:center;">';
+  html += '<div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;">Target</div>';
+  html += '<div style="font-size:1.3rem;font-weight:700;color:var(--text-primary);">' + target + unit + '</div>';
+  html += '</div>';
+  html += '<div style="background:#F8FAFC;border-radius:10px;padding:14px;text-align:center;">';
+  html += '<div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;">Persentase</div>';
+  html += '<div style="font-size:1.3rem;font-weight:700;color:' + barColor + ';">' + pct.toFixed(1) + '%</div>';
+  html += '</div>';
+  html += '</div>';
+  
+  // Progress bar
+  html += '<div style="margin-bottom:16px;">';
+  html += '<div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-muted);margin-bottom:6px;">';
+  html += '<span>Progress Capaian</span>';
+  html += '<span>' + pct.toFixed(1) + '%</span>';
+  html += '</div>';
+  html += '<div style="height:12px;background:#E2E8F0;border-radius:6px;overflow:hidden;">';
+  html += '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,' + barColor + ',' + (barColor === '#059669' ? '#10B981' : barColor === '#F59E0B' ? '#FBBF24' : '#F87171') + ');border-radius:6px;transition:width 0.5s ease;"></div>';
+  html += '</div>';
+  html += '</div>';
+  
+  // Data source info
+  html += '<div style="background:#FFFBEB;border-left:4px solid #F59E0B;border-radius:0 8px 8px 0;padding:14px;margin-bottom:12px;">';
+  html += '<div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;"><i class="fas fa-database" style="margin-right:4px;"></i>Sumber Data</div>';
+  html += '<div style="font-size:0.9rem;color:var(--text-primary);font-weight:600;">' + (source === 'Default' ? 'Data Default (Sheet Indikator kosong/tidak tersedia)' : 'Google Sheet - Sheet: Indikator') + '</div>';
+  html += '</div>';
+  
+  if(desc && desc !== '-'){
+    html += '<div style="background:#F0F9FF;border-left:4px solid #0D6EFD;border-radius:0 8px 8px 0;padding:14px;">';
+    html += '<div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;"><i class="fas fa-info-circle" style="margin-right:4px;"></i>Keterangan</div>';
+    html += '<div style="font-size:0.85rem;color:var(--text-primary);">' + desc + '</div>';
+    html += '</div>';
+  }
+  
+  html += '</div>';
+  
+  body.innerHTML = html;
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
 }
 
 
