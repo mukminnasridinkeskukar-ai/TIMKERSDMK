@@ -1811,7 +1811,7 @@
 // File pendukung: SIMBAKES_WebApp_Code.gs (Google Apps Script Code)
 // ============================================================
 
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwAZW_GRRpEf-f2-YAdIFzdJQglDRrtnEL2PFVS85Nk4hu-OKOFpXMCIfJ6dNm9d1m98g/exec'; // ← PASTE URL WEB APP DI SINI
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwEITeUmBlU4NaJeyZL257so-ubGZaq6lKFfl9Un-_gwgzohqEq8q7sGN5wNboAr3Zcaw/exec'; // ← PASTE URL WEB APP DI SINI
 
 // Set ke false jika sudah memasukkan URL Google Apps Script di atas
 const USE_LOCAL_STORAGE = false; // Ganti menjadi false setelah setup Google Sheets
@@ -2143,9 +2143,9 @@ function validateForm() {
         errors.push('Foto Pasfoto');
     }
     
-    // Check file
-    if (!uploadedFile) {
-        errors.push('File Dokumen');
+    // Check PDF document
+    if (!uploadedPDFBase64) {
+        errors.push('File Dokumen (PDF)');
     }
     
     // Validate NIK length
@@ -2191,7 +2191,7 @@ function showConfirmation() {
         <div class="confirm-item"><span class="confirm-label">No. HP/WA</span><span class="confirm-value">${document.getElementById('no-hp').value} / ${document.getElementById('no-wa').value}</span></div>
         <div class="confirm-item"><span class="confirm-label">Email</span><span class="confirm-value">${document.getElementById('email').value}</span></div>
         <div class="confirm-item"><span class="confirm-label">Foto</span><span class="confirm-value">✓ Terupload</span></div>
-        <div class="confirm-item"><span class="confirm-label">Dokumen</span><span class="confirm-value">${uploadedFile ? uploadedFile.name : '-'}</span></div>
+        <div class="confirm-item"><span class="confirm-label">Dokumen PDF</span><span class="confirm-value">${uploadedFileInfo ? uploadedFileInfo.name : '-'}</span></div>
     `;
     
     document.getElementById('confirm-modal').classList.add('active');
