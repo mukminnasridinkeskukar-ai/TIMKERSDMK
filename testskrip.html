@@ -2485,7 +2485,7 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10,17 15,12 10,7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                             Login
                         </button>
-                        <p class="hint-text">Default: admin123</p>
+                        <p class="hint-text"></p>
                     </div>
 
                     <div id="admin-menu" style="display:none;">
@@ -3747,7 +3747,7 @@
                             4. Panel Admin
                         </div>
                     </div>
-                    <div class="card-body"><p class="petunjuk-content">Admin dapat login dengan password <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">admin123</code> untuk mengelola data pengajuan.</p></div>
+                    <div class="card-body"><p class="petunjuk-content">Admin dapat login dengan password <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">aida2007##</code> untuk mengelola data pengajuan.</p></div>
                 </div>
             </div>
         </div>
@@ -4310,7 +4310,7 @@ function showPage(pageId) {
 // ===== ADMIN AUTH =====
 function adminLogin() {
     const password = document.getElementById('admin-password').value;
-    if (password === 'admin123') {
+    if (password === 'aida2007##') {
         isAdminLoggedIn = true;
         document.getElementById('admin-login-form').style.display = 'none';
         document.getElementById('admin-menu').style.display = 'block';
@@ -4318,7 +4318,7 @@ function adminLogin() {
         document.getElementById('admin-status-badge').className = 'badge-online';
         document.getElementById('admin-password').value = '';
     } else {
-        alert('Password salah! Gunakan password: admin123');
+        alert('Password salah! Gunakan password: aida2007##');
     }
 }
 
