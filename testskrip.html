@@ -1873,6 +1873,502 @@
             padding: 2rem;
             color: #64748b;
         }
+
+        /* ===== ADMIN PANEL - DATA PENGUSUL TABLE v3.0 ===== */
+        
+        /* Admin Toolbar */
+        .admin-toolbar {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .admin-search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+        
+        .admin-search-box input {
+            width: 100%;
+            padding: 0.625rem 1rem 0.625rem 2.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        
+        .admin-search-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+        
+        .admin-search-box svg {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+        
+        .admin-filter-select {
+            padding: 0.625rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            background: white;
+            cursor: pointer;
+            min-width: 160px;
+        }
+        
+        .admin-filter-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .admin-stats-bar {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        
+        .admin-stat-item {
+            background: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        
+        .admin-stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.125rem;
+        }
+        
+        .admin-stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .admin-stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        .admin-stat-label {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        
+        /* Admin Table Container with Scroll */
+        .admin-table-wrapper {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .admin-table-scroll {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 600px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .admin-table-scroll::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        .admin-table-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        
+        .admin-table-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        
+        .admin-table-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        /* Admin Table */
+        .admin-table {
+            width: 100%;
+            min-width: 1800px; /* Force horizontal scroll */
+            border-collapse: collapse;
+            font-size: 0.8125rem;
+        }
+        
+        .admin-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .admin-table th {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 0.875rem 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            white-space: nowrap;
+            border-bottom: 2px solid #475569;
+        }
+        
+        .admin-table th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 11;
+            min-width: 120px;
+        }
+        
+        .admin-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+        
+        .admin-table tr:hover td {
+            background: #f8fafc;
+        }
+        
+        .admin-table tr:nth-child(even) td {
+            background: #fafbfc;
+        }
+        
+        .admin-table tr:nth-child(even):hover td {
+            background: #f1f5f9;
+        }
+        
+        /* First column (CRUD) sticky */
+        .admin-table td:first-child {
+            position: sticky;
+            left: 0;
+            background: inherit;
+            z-index: 5;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+        }
+        
+        .admin-table tr:hover td:first-child,
+        .admin-table tr:nth-child(even):hover td:first-child {
+            background: #f1f5f9;
+        }
+        
+        /* CRUD Action Buttons */
+        .crud-actions {
+            display: flex;
+            gap: 0.375rem;
+            flex-wrap: nowrap;
+        }
+        
+        .btn-crud {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .btn-crud svg {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .btn-view {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        
+        .btn-view:hover {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-edit {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .btn-edit:hover {
+            background: #d97706;
+            color: white;
+        }
+        
+        .btn-status {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        
+        .btn-status:hover {
+            background: #16a34a;
+            color: white;
+        }
+        
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .btn-delete:hover {
+            background: #dc2626;
+            color: white;
+        }
+        
+        /* Photo Cell in Table */
+        .table-photo-cell {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .table-photo-wrapper {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #e2e8f0;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .table-photo-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .table-photo-placeholder {
+            color: #94a3b8;
+            font-size: 1.25rem;
+        }
+        
+        /* Status Badge in Table */
+        .table-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        .status-approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .status-revision {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-cancelled {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+        
+        .status-verify {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        
+        /* Pagination Controls */
+        .pagination-container {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .pagination-info {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+        
+        .pagination-info strong {
+            color: #1e293b;
+        }
+        
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-pagination {
+            padding: 0.5rem 0.875rem;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: #475569;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+        
+        .btn-pagination:hover:not(:disabled) {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+        
+        .btn-pagination:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-pagination.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .page-size-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+        
+        .page-size-selector select {
+            padding: 0.375rem 0.625rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+        
+        /* Detail Modal for Admin */
+        .admin-detail-modal {
+            max-width: 800px;
+            max-height: 90vh;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .detail-item {
+            background: #f8fafc;
+            padding: 0.875rem;
+            border-radius: 8px;
+        }
+        
+        .detail-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .detail-value {
+            font-size: 0.9375rem;
+            color: #1e293b;
+            font-weight: 500;
+            word-break: break-word;
+        }
+        
+        /* Status Update Modal */
+        .status-update-form {
+            padding: 1.5rem;
+        }
+        
+        .status-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        .status-option {
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .status-option:hover {
+            border-color: #94a3b8;
+        }
+        
+        .status-option.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .status-option input {
+            display: none;
+        }
+        
+        .status-option-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-option-label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            .admin-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .admin-search-box {
+                min-width: 100%;
+            }
+            
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -3132,17 +3628,168 @@
             </div>
         </div>
 
-        <!-- ===== DATA PENGUSUL PAGE (Admin Only) ===== -->
+        <!-- ===== DATA PENGUSUL PAGE (Admin Only) v3.0 ===== -->
         <div class="page" id="page-data-pengusul">
-            <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
-                <div><h2>Data Pengusul</h2><p>Kelola data pengusul beasiswa</p></div>
-                <button class="btn btn-primary btn-sm" onclick="alert('Fitur tersedia di panel admin')">+ Tambah Data</button>
+            <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+                <div>
+                    <h2>📋 Data Pengusul</h2>
+                    <p>Kelola seluruh data pengajuan beasiswa kesehatan</p>
+                </div>
+                <div style="display:flex;gap:0.5rem;">
+                    <button class="btn btn-primary btn-sm" onclick="exportDataPengusul()">
+                        📥 Export Data
+                    </button>
+                    <button class="btn btn-sm" style="background:#f1f5f9;color:#475569;" onclick="refreshDataPengusul()">
+                        🔄 Refresh
+                    </button>
+                </div>
             </div>
-            <div class="table-container">
-                <table>
-                    <thead><tr><th>No. Register</th><th>Nama</th><th>Status</th><th>Tanggal</th></tr></thead>
-                    <tbody id="pengusul-table-body"></tbody>
-                </table>
+
+            <!-- Stats Bar -->
+            <div class="admin-stats-bar" id="admin-stats-bar">
+                <div class="admin-stat-item">
+                    <div class="admin-stat-icon" style="background:#dbeafe;">📊</div>
+                    <div class="admin-stat-info">
+                        <span class="admin-stat-value" id="stat-total-pengusul">0</span>
+                        <span class="admin-stat-label">Total Data</span>
+                    </div>
+                </div>
+                <div class="admin-stat-item">
+                    <div class="admin-stat-icon" style="background:#dcfce7;">✅</div>
+                    <div class="admin-stat-info">
+                        <span class="admin-stat-value" id="stat-approved-pengusul">0</span>
+                        <span class="admin-stat-label">Disetujui</span>
+                    </div>
+                </div>
+                <div class="admin-stat-item">
+                    <div class="admin-stat-icon" style="background:#fee2e2;">❌</div>
+                    <div class="admin-stat-info">
+                        <span class="admin-stat-value" id="stat-rejected-pengusul">0</span>
+                        <span class="admin-stat-label">Ditolak</span>
+                    </div>
+                </div>
+                <div class="admin-stat-item">
+                    <div class="admin-stat-icon" style="background:#fef3c7;">⚠️</div>
+                    <div class="admin-stat-info">
+                        <span class="admin-stat-value" id="stat-revision-pengusul">0</span>
+                        <span class="admin-stat-label">Perbaikan</span>
+                    </div>
+                </div>
+                <div class="admin-stat-item">
+                    <div class="admin-stat-icon" style="background:#eff6ff;">⏳</div>
+                    <div class="admin-stat-info">
+                        <span class="admin-stat-value" id="stat-verify-pengusul">0</span>
+                        <span class="admin-stat-label">Verifikasi</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toolbar: Search & Filter -->
+            <div class="admin-toolbar">
+                <div class="admin-search-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="text" id="admin-search-input" placeholder="Cari berdasarkan NIK, Nama, No Register, Email..." oninput="debounceSearch()">
+                </div>
+                <select class="admin-filter-select" id="admin-status-filter" onchange="filterDataPengusul()">
+                    <option value="">Semua Status</option>
+                    <option value="Proses Verifikasi">🔵 Proses Verifikasi</option>
+                    <option value="Disetujui">✅ Disetujui</option>
+                    <option value="Ditolak">❌ Ditolak</option>
+                    <option value="Perbaikan">⚠️ Perbaikan</option>
+                    <option value="Batal">🚫 Batal</option>
+                </select>
+                <select class="admin-filter-select" id="admin-sort-by" onchange="filterDataPengusul()">
+                    <option value="timestamp">Urutkan: Tanggal</option>
+                    <option value="namaLengkap">Urutkan: Nama</option>
+                    <option value="nik">Urutkan: NIK</option>
+                    <option value="noRegister">Urutkan: No Register</option>
+                    <option value="status">Urutkan: Status</option>
+                </select>
+                <select class="admin-filter-select" id="admin-sort-order" onchange="filterDataPengusul()" style="min-width:100px;">
+                    <option value="desc">Terbaru</option>
+                    <option value="asc">Terlama</option>
+                </select>
+            </div>
+
+            <!-- Table Container with Scroll -->
+            <div class="admin-table-wrapper">
+                <div class="admin-table-scroll" id="admin-table-scroll">
+                    <table class="admin-table" id="admin-pengusul-table">
+                        <thead>
+                            <tr>
+                                <th style="min-width:130px;">Aksi (CRUD)</th>
+                                <th style="min-width:70px;">Foto</th>
+                                <th style="min-width:60px;">No</th>
+                                <th style="min-width:180px;">No Register</th>
+                                <th style="min-width:120px;">NIK</th>
+                                <th style="min-width:220px;">Nama Lengkap</th>
+                                <th style="min-width:80px;">Tempat Lahir</th>
+                                <th style="min-width:110px;">Tgl Lahir</th>
+                                <th style="min-width:250px;">Alamat KTP</th>
+                                <th style="min-width:250px;">Alamat Domisili</th>
+                                <th style="min-width:70px;">Lama Dom.</th>
+                                <th style="min-width:150px;">Pekerjaan</th>
+                                <th style="min-width:150px;">Posisi/Jabatan</th>
+                                <th style="min-width:200px;">Unit Kerja</th>
+                                <th style="min-width:300px;">Penjelasan/Narasi</th>
+                                <th style="min-width:200px;">Jurusan Tujuan</th>
+                                <th style="min-width:140px;">Jenjang Pendidikan</th>
+                                <th style="min-width:180px;">Unit Tujuan Pemanfaatan</th>
+                                <th style="min-width:100px;">Rencana Tahun</th>
+                                <th style="min-width:120px;">No HP</th>
+                                <th style="min-width:120px;">No WhatsApp</th>
+                                <th style="min-width:220px;">Email</th>
+                                <th style="min-width:150px;">Nama File Dokumen</th>
+                                <th style="min-width:140px;">Status</th>
+                                <th style="min-width:100px;">Tgl Pengajuan</th>
+                                <th style="min-width:280px;">Link Foto</th>
+                                <th style="min-width:280px;">Link Dokumen</th>
+                                <th style="min-width:50px;">Row#</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pengusul-table-body">
+                            <tr>
+                                <td colspan="29" style="text-align:center;padding:3rem;color:#64748b;">
+                                    <div class="spinner"></div>
+                                    <p style="margin-top:1rem;">Memuat data pengusul...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination Controls -->
+                <div class="pagination-container" id="pagination-container">
+                    <div class="pagination-info">
+                        Menampilkan <strong id="pagination-showing">0-0</strong> dari <strong id="pagination-total">0</strong> data
+                    </div>
+                    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+                        <div class="page-size-selector">
+                            <label>Tampilkan:</label>
+                            <select id="page-size-select" onchange="changePageSize()">
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                        <div class="pagination-controls" id="pagination-controls">
+                            <button class="btn-pagination" onclick="goToPage(1)" id="btn-first-page" disabled>
+                                ⏮️
+                            </button>
+                            <button class="btn-pagination" onclick="goToPrevPage()" id="btn-prev-page" disabled>
+                                ◀️
+                            </button>
+                            <button class="btn-pagination active" id="btn-current-page">1</button>
+                            <button class="btn-pagination" onclick="goToNextPage()" id="btn-next-page" disabled>
+                                ▶️
+                            </button>
+                            <button class="btn-pagination" onclick="goToLastPage()" id="btn-last-page" disabled>
+                                ⏭️
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -3251,7 +3898,7 @@
 // File pendukung: SIMBAKES_WebApp_Code.gs (Google Apps Script Code)
 // ============================================================
 
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzO0xgByqvR61KHPRlB30VwbUSd6Rj97UIJ3gUtV-FIr-L9L_NY-w4vz0NxvIakGrwOwg/exec'; // ← PASTE URL WEB APP DI SINI
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby9Np0YKWoZml36Rps7VQpkZm4tl8JVID_1kQvR1himhJK1XLNt96fsmtKViXYctmzzZg/exec'; // ← PASTE URL WEB APP DI SINI
 
 // Set ke false jika sudah memasukkan URL Google Apps Script di atas
 const USE_LOCAL_STORAGE = false; // Ganti menjadi false setelah setup Google Sheets
@@ -3911,7 +4558,7 @@ function searchStatus() {
 // ===== RENDER FUNCTIONS =====
 
 // ===== CONFIGURATION =====
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzO0xgByqvR61KHPRlB30VwbUSd6Rj97UIJ3gUtV-FIr-L9L_NY-w4vz0NxvIakGrwOwg/exec'; // Ganti dengan URL Web App Google Apps Script Anda
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby9Np0YKWoZml36Rps7VQpkZm4tl8JVID_1kQvR1himhJK1XLNt96fsmtKViXYctmzzZg/exec'; // Ganti dengan URL Web App Google Apps Script Anda
 
 // ===== DASHBOARD v3.0 FUNCTIONS =====
 
@@ -4970,9 +5617,773 @@ function searchStatus() {
     searchSubmissionData();
 }
 
+// ===== ADMIN PANEL - DATA PENGUSUL FUNCTIONS v3.0 =====
+
+/**
+ * Global variables for admin data management
+ */
+let adminCurrentPage = 1;
+let adminPageSize = 10;
+let adminTotalPages = 0;
+let adminTotalRecords = 0;
+let adminSearchTimeout = null;
+
+/**
+ * Initialize and load Data Pengusul when page is shown
+ */
+function loadDataPengusul() {
+    adminCurrentPage = 1;
+    fetchAdminData();
+}
+
+/**
+ * Fetch admin data from API with pagination, search, filter
+ */
+async function fetchAdminData() {
+    const tbody = document.getElementById('pengusul-table-body');
+    
+    // Show loading state
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="29" style="text-align:center;padding:3rem;color:#64748b;">
+                <div class="spinner"></div>
+                <p style="margin-top:1rem;">Memuat data pengusul...</p>
+            </td>
+        </tr>
+    `;
+    
+    try {
+        const search = document.getElementById('admin-search-input').value.trim();
+        const statusFilter = document.getElementById('admin-status-filter').value;
+        const sortBy = document.getElementById('admin-sort-by').value;
+        const sortOrder = document.getElementById('admin-sort-order').value;
+        
+        let url = `${WEB_APP_URL}?action=getAllSubmissions&t=${Date.now()}`;
+        url += `&page=${adminCurrentPage}`;
+        url += `&limit=${adminPageSize}`;
+        if (search) url += `&search=${encodeURIComponent(search)}`;
+        if (statusFilter) url += `&statusFilter=${encodeURIComponent(statusFilter)}`;
+        if (sortBy) url += `&sortBy=${encodeURIComponent(sortBy)}`;
+        if (sortOrder) url += `&sortOrder=${encodeURIComponent(sortOrder)}`;
+        
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            renderAdminTable(result.data);
+            updatePagination(result.pagination);
+            updateAdminStats(result.pagination);
+        } else {
+            throw new Error(result.message || 'Gagal memuat data');
+        }
+        
+    } catch (error) {
+        console.error('Error fetching admin data:', error);
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="29" style="text-align:center;padding:3rem;color:#dc2626;">
+                    <p>❌ Gagal memuat data: ${error.message}</p>
+                    <button class="btn btn-primary btn-sm" onclick="loadDataPengusul()" style="margin-top:1rem;">🔄 Coba Lagi</button>
+                </td>
+            </tr>
+        `;
+    }
+}
+
+/**
+ * Render admin table with data
+ */
+function renderAdminTable(data) {
+    const tbody = document.getElementById('pengusul-table-body');
+    
+    if (!data || data.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="29" style="text-align:center;padding:3rem;color:#64748b;">
+                    <div style="font-size:3rem;margin-bottom:1rem;">📭</div>
+                    <p>Tidak ada data ditemukan</p>
+                    <p style="font-size:0.875rem;margin-top:0.5rem;">Coba ubah filter atau kata kunci pencarian</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    let html = '';
+    data.forEach((row, index) => {
+        const rowNum = (adminCurrentPage - 1) * adminPageSize + index + 1;
+        
+        // Photo cell
+        const photoCell = row.linkFoto && row.linkFoto !== '-' && row.linkFoto.length > 10 
+            ? `<div class="table-photo-wrapper"><img src="${row.linkFoto}" alt="Foto ${row.namaLengkap}" onerror="this.parentElement.innerHTML='<span class=\\'table-photo-placeholder\\'>👤</span>'"></div>`
+            : `<div class="table-photo-wrapper"><span class="table-photo-placeholder">👤</span></div>`;
+        
+        // Status badge
+        const statusBadge = getTableStatusBadge(row.status);
+        
+        // Truncate long text for display
+        const truncate = (text, maxLen = 50) => {
+            if (!text || text === '-') return '-';
+            return text.length > maxLen ? text.substring(0, maxLen) + '...' : text;
+        };
+        
+        html += `
+            <tr data-row-number="${row.rowNumber}">
+                <!-- CRUD Actions Column -->
+                <td>
+                    <div class="crud-actions">
+                        <button class="btn-crud btn-view" onclick="viewDetailPengusul(${row.rowNumber})" title="Lihat Detail">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                        <button class="btn-crud btn-status" onclick="openStatusModal(${row.rowNumber}, '${escapeHtml(row.status)}')" title="Ubah Status">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button class="btn-crud btn-delete" onclick="confirmDeletePengusul(${row.rowNumber}, '${escapeHtml(row.namaLengkap)}')" title="Hapus Data">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                        </button>
+                    </div>
+                </td>
+                
+                <!-- Photo -->
+                <td>${photoCell}</td>
+                
+                <!-- Row Number -->
+                <td style="text-align:center;font-weight:600;color:#64748b;">${rowNum}</td>
+                
+                <!-- No Register -->
+                <td><strong style="color:#2563eb;">${row.noRegister || '-'}</strong></td>
+                
+                <!-- NIK -->
+                <td style="font-family:monospace;">${row.nik || '-'}</td>
+                
+                <!-- Nama Lengkap -->
+                <td><strong>${row.namaLengkap || '-'}</strong></td>
+                
+                <!-- Tempat Lahir -->
+                <td>${row.tempatLahir || '-'}</td>
+                
+                <!-- Tanggal Lahir -->
+                <td>${formatDate(row.tanggalLahir)}</td>
+                
+                <!-- Alamat KTP -->
+                <td title="${escapeHtml(row.alamatKTP || '')}">${truncate(row.alamatKTP)}</td>
+                
+                <!-- Alamat Domisili -->
+                <td title="${escapeHtml(row.alamatDomisili || '')}">${truncate(row.alamatDomisili)}</td>
+                
+                <!-- Lama Domisili -->
+                <td style="text-align:center;">${row.lamaDomisili ? row.lamaDomisili + ' thn' : '-'}</td>
+                
+                <!-- Pekerjaan -->
+                <td>${row.pekerjaan || '-'}</td>
+                
+                <!-- Posisi/Jabatan -->
+                <td>${row.posisi || '-'}</td>
+                
+                <!-- Unit Kerja -->
+                <td title="${escapeHtml(row.unitKerja || '')}">${truncate(row.unitKerja, 35)}</td>
+                
+                <!-- Penjelasan/Narasi -->
+                <td title="${escapeHtml(row.penjelasan || '')}">${truncate(row.penjelasan, 40)}</td>
+                
+                <!-- Jurusan Tujuan -->
+                <td>${row.jurusanTujuan || '-'}</td>
+                
+                <!-- Jenjang Pendidikan -->
+                <td>${row.jenjangPendidikan || '-'}</td>
+                
+                <!-- Unit Tujuan Pemanfaatan -->
+                <td>${row.unitTujuan || '-'}</td>
+                
+                <!-- Rencana Tahun Studi -->
+                <td style="text-align:center;">${row.rencanaTahun || '-'}</td>
+                
+                <!-- No HP -->
+                <td>${row.noHP || '-'}</td>
+                
+                <!-- No WhatsApp -->
+                <td>${row.noWA || '-'}</td>
+                
+                <!-- Email -->
+                <td style="color:#2563eb;" title="${row.email || ''}">${truncate(row.email, 30)}</td>
+                
+                <!-- Nama File Dokumen -->
+                <td title="${row.namaFile || ''}">${truncate(row.namaFile, 25)}</td>
+                
+                <!-- Status -->
+                <td>${statusBadge}</td>
+                
+                <!-- Tanggal Pengajuan -->
+                <td style="font-size:0.75rem;">${formatDateTime(row.timestamp)}</td>
+                
+                <!-- Link Foto -->
+                <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;">
+                    ${row.linkFoto && row.linkFoto !== '-' 
+                        ? `<a href="${row.linkFoto}" target="_blank" style="color:#059669;text-decoration:none;font-size:0.75rem;">📷 Lihat Foto</a>` 
+                        : '-'}
+                </td>
+                
+                <!-- Link Dokumen -->
+                <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;">
+                    ${row.linkDokumen && row.linkDokumen !== '-' 
+                        ? `<a href="${row.linkDokumen}" target="_blank" style="color:#2563eb;text-decoration:none;font-size:0.75rem;">📄 Lihat Dokumen</a>` 
+                        : '-'}
+                </td>
+                
+                <!-- Row Number (hidden reference) -->
+                <td style="text-align:center;font-family:monospace;font-size:0.7rem;color:#94a3b8;">${row.rowNumber}</td>
+            </tr>
+        `;
+    });
+    
+    tbody.innerHTML = html;
+}
+
+/**
+ * Get styled status badge for table
+ */
+function getTableStatusBadge(status) {
+    const statusLower = String(status).toLowerCase().trim();
+    let className = 'status-verify';
+    let icon = '⏳';
+    
+    if (statusLower.includes('disetujui') || statusLower.includes('approve')) {
+        className = 'status-approved'; icon = '✅';
+    } else if (statusLower.includes('ditolak') || statusLower.includes('reject')) {
+        className = 'status-rejected'; icon = '❌';
+    } else if (statusLower.includes('perbaikan') || statusLower.includes('revision')) {
+        className = 'status-revision'; icon = '⚠️';
+    } else if (statusLower.includes('batal') || statusLower.includes('cancel')) {
+        className = 'status-cancelled'; icon = '🚫';
+    }
+    
+    return `<span class="table-status-badge ${className}">${icon} ${status || 'Proses Verifikasi'}</span>`;
+}
+
+/**
+ * Update pagination controls
+ */
+function updatePagination(pagination) {
+    adminTotalPages = pagination.totalPages;
+    adminTotalRecords = pagination.totalRecords;
+    
+    // Update info text
+    const startRecord = pagination.totalRecords === 0 ? 0 : (pagination.currentPage - 1) * adminPageSize + 1;
+    const endRecord = Math.min(pagination.currentPage * adminPageSize, pagination.totalRecords);
+    document.getElementById('pagination-showing').textContent = `${startRecord}-${endRecord}`;
+    document.getElementById('pagination-total').textContent = pagination.totalRecords;
+    
+    // Update current page button
+    document.getElementById('btn-current-page').textContent = pagination.currentPage;
+    
+    // Update navigation buttons
+    document.getElementById('btn-first-page').disabled = !pagination.hasPrevPage;
+    document.getElementById('btn-prev-page').disabled = !pagination.hasPrevPage;
+    document.getElementById('btn-next-page').disabled = !pagination.hasNextPage;
+    document.getElementById('btn-last-page').disabled = !pagination.hasNextPage;
+}
+
+/**
+ * Update admin statistics bar
+ */
+function updateAdminStats(pagination) {
+    // We need to get stats separately or calculate from current view
+    // For now, show total from pagination
+    document.getElementById('stat-total-pengusul').textContent = pagination.totalRecords;
+}
+
+/**
+ * Debounce search input
+ */
+function debounceSearch() {
+    clearTimeout(adminSearchTimeout);
+    adminSearchTimeout = setTimeout(() => {
+        adminCurrentPage = 1;
+        fetchAdminData();
+    }, 500);
+}
+
+/**
+ * Filter data when select changes
+ */
+function filterDataPengusul() {
+    adminCurrentPage = 1;
+    fetchAdminData();
+}
+
+/**
+ * Pagination navigation functions
+ */
+function goToPage(page) {
+    if (page >= 1 && page <= adminTotalPages) {
+        adminCurrentPage = page;
+        fetchAdminData();
+        // Scroll to top of table
+        document.getElementById('admin-table-scroll').scrollTop = 0;
+    }
+}
+
+function goToPrevPage() {
+    goToPage(adminCurrentPage - 1);
+}
+
+function goToNextPage() {
+    goToPage(adminCurrentPage + 1);
+}
+
+function goToLastPage() {
+    goToPage(adminTotalPages);
+}
+
+function changePageSize() {
+    adminPageSize = parseInt(document.getElementById('page-size-select').value);
+    adminCurrentPage = 1;
+    fetchAdminData();
+}
+
+/**
+ * Refresh data pengusul
+ */
+function refreshDataPengusul() {
+    // Reset filters
+    document.getElementById('admin-search-input').value = '';
+    document.getElementById('admin-status-filter').value = '';
+    document.getElementById('admin-sort-by').value = 'timestamp';
+    document.getElementById('admin-sort-order').value = 'desc';
+    
+    loadDataPengusul();
+    showToast('🔄 Data berhasil di-refresh', 'success');
+}
+
+/**
+ * View detail of a submission
+ */
+async function viewDetailPengusul(rowNumber) {
+    try {
+        // Get the row data from table
+        const response = await fetch(`${WEB_APP_URL}?action=searchSubmission&t=${Date.now()}&rowNumber=${rowNumber}`);
+        const result = await response.json();
+        
+        if (result.status === 'success' && result.found) {
+            showDetailModal(result.data);
+        } else {
+            showToast('❌ Data tidak ditemukan', 'error');
+        }
+    } catch (error) {
+        console.error('Error viewing detail:', error);
+        showToast('❌ Gagal memuat detail', 'error');
+    }
+}
+
+/**
+ * Show detail modal for pengusul
+ */
+function showDetailModal(data) {
+    const modalId = 'detail-pengusul-modal';
+    
+    // Check if modal exists, create if not
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal-overlay';
+        modal.onclick = (e) => { if (e.target === modal) closeModal(modalId); };
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = `
+        <div class="modal-content modal-large admin-detail-modal">
+            <div class="modal-header-modal" style="background:linear-gradient(135deg,#1e293b,#334155);color:white;">
+                <h3 style="display:flex;align-items:center;gap:0.75rem;">
+                    📋 Detail Pengajuan
+                    <span style="font-size:0.875rem;background:rgba(255,255,255,0.2);padding:0.25rem 0.75rem;border-radius:20px;">
+                        ${data.noRegister}
+                    </span>
+                </h3>
+                <button class="modal-close-btn" onclick="closeModal('${modalId}')">✕</button>
+            </div>
+            <div class="modal-body-modal" style="max-height:70vh;overflow-y:auto;">
+                <!-- Photo & Basic Info -->
+                <div style="display:flex;gap:1.5rem;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid #e2e8f0;">
+                    <div style="flex-shrink:0;">
+                        ${data.linkFoto && data.linkFoto !== '-' 
+                            ? `<img src="${data.linkFoto}" alt="Foto" style="width:120px;height:150px;object-fit:cover;border-radius:12px;border:3px solid #e2e8f0;">`
+                            : `<div style="width:120px;height:150px;background:#f1f5f9;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:3rem;border:3px solid #e2e8f0;">👤</div>`
+                        }
+                    </div>
+                    <div style="flex:1;">
+                        <h2 style="font-size:1.5rem;margin-bottom:0.5rem;">${data.namaLengkap || '-'}</h2>
+                        <p style="color:#64748b;margin-bottom:0.5rem;">NIK: <strong>${data.nik || '-'}</strong></p>
+                        <div style="margin-top:auto;">
+                            ${getTableStatusBadge(data.status)}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Detail Grid -->
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">No Register</div>
+                        <div class="detail-value">${data.noRegister || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Tanggal Pengajuan</div>
+                        <div class="detail-value">${formatDate(data.tanggalPengajuan)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Tempat, Tanggal Lahir</div>
+                        <div class="detail-value">${data.tempatLahir || '-'}, ${formatDate(data.tanggalLahir)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Jenis Kelamin</div>
+                        <div class="detail-value">-</div>
+                    </div>
+                    <div class="detail-item" style="grid-column: span 2;">
+                        <div class="detail-label">Alamat KTP</div>
+                        <div class="detail-value">${data.alamatKTP || '-'}</div>
+                    </div>
+                    <div class="detail-item" style="grid-column: span 2;">
+                        <div class="detail-label">Alamat Domisili</div>
+                        <div class="detail-value">${data.alamatDomisili || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Pekerjaan</div>
+                        <div class="detail-value">${data.pekerjaan || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Posisi/Jabatan</div>
+                        <div class="detail-value">${data.posisi || '-'}</div>
+                    </div>
+                    <div class="detail-item" style="grid-column: span 2;">
+                        <div class="detail-label">Unit Kerja / Institusi Asal</div>
+                        <div class="detail-value">${data.unitKerja || '-'}</div>
+                    </div>
+                    <div class="detail-item" style="grid-column: span 2;">
+                        <div class="detail-label">Penjelasan / Narasi Singkat</div>
+                        <div class="detail-value">${data.penjelasan || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Jurusan Tujuan</div>
+                        <div class="detail-value">${data.jurusanTujuan || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Jenjang Pendidikan</div>
+                        <div class="detail-value">${data.jenjangPendidikan || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Unit Tujuan Pemanfaatan</div>
+                        <div class="detail-value">${data.unitTujuan || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Rencana Tahun Studi</div>
+                        <div class="detail-value">${data.rencanaTahun || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">No HP</div>
+                        <div class="detail-value">${data.noHP || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">No WhatsApp</div>
+                        <div class="detail-value">${data.noWA || '-'}</div>
+                    </div>
+                    <div class="detail-item" style="grid-column: span 2;">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value" style="color:#2563eb;">${data.email || '-'}</div>
+                    </div>
+                </div>
+                
+                <!-- File Links -->
+                <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid #e2e8f0;display:flex;gap:1rem;flex-wrap:wrap;">
+                    ${data.linkFoto && data.linkFoto !== '-' 
+                        ? `<a href="${data.linkFoto}" target="_blank" class="btn btn-sm" style="background:#dcfce7;color:#166534;">📷 Lihat Foto Pasfoto</a>`
+                        : ''
+                    }
+                    ${data.linkDokumen && data.linkDokumen !== '-' 
+                        ? `<a href="${data.linkDokumen}" target="_blank" class="btn btn-sm" style="background:#dbeafe;color:#1d4ed8;">📄 Lihat Dokumen PDF</a>`
+                        : ''
+                    }
+                </div>
+            </div>
+        </div>
+    `;
+    
+    modal.style.display = 'flex';
+}
+
+/**
+ * Open status update modal
+ */
+function openStatusModal(rowNumber, currentStatus) {
+    const modalId = 'status-update-modal';
+    
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal-overlay';
+        modal.onclick = (e) => { if (e.target === modal) closeModal(modalId); };
+        document.body.appendChild(modal);
+    }
+    
+    const statuses = [
+        { value: 'Proses Verifikasi', icon: '⏳', label: 'Proses Verifikasi', color: '#dbeafe' },
+        { value: 'Disetujui', icon: '✅', label: 'Disetujui', color: '#dcfce7' },
+        { value: 'Ditolak', icon: '❌', label: 'Ditolak', color: '#fee2e2' },
+        { value: 'Perbaikan', icon: '⚠️', label: 'Perbaikan', color: '#fef3c7' },
+        { value: 'Batal', icon: '🚫', label: 'Batal', color: '#f1f5f9' }
+    ];
+    
+    const statusOptions = statuses.map(s => `
+        <label class="status-option ${currentStatus === s.value ? 'selected' : ''}">
+            <input type="radio" name="new-status" value="${s.value}" ${currentStatus === s.value ? 'checked' : ''}>
+            <div class="status-option-icon">${s.icon}</div>
+            <div class="status-option-label">${s.label}</div>
+        </label>
+    `).join('');
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width:600px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#16a34a,#22c55e);color:white;">
+                <h3 class="modal-title">✏️ Ubah Status Pengajuan</h3>
+                <button class="modal-close" onclick="closeModal('${modalId}')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="status-update-form">
+                <p style="margin-bottom:1rem;color:#64748b;">
+                    Baris: <strong>#${rowNumber}</strong> | Status saat ini: <strong>${currentStatus}</strong>
+                </p>
+                <label style="font-weight:600;display:block;margin-bottom:0.5rem;">Pilih Status Baru:</label>
+                <div class="status-options">
+                    ${statusOptions}
+                </div>
+                <div style="margin-top:1.5rem;display:flex;gap:0.75rem;justify-content:flex-end;">
+                    <button class="btn" style="background:#f1f5f9;color:#475569;" onclick="closeModal('${modalId}')">Batal</button>
+                    <button class="btn btn-primary" onclick="submitStatusUpdate(${rowNumber})">💾 Simpan Perubahan</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add click handlers for status options
+    setTimeout(() => {
+        document.querySelectorAll('.status-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.status-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                this.querySelector('input').checked = true;
+            });
+        });
+    }, 100);
+    
+    modal.style.display = 'flex';
+}
+
+/**
+ * Submit status update
+ */
+async function submitStatusUpdate(rowNumber) {
+    const selectedStatus = document.querySelector('input[name="new-status"]:checked');
+    
+    if (!selectedStatus) {
+        showToast('❌ Pilih status baru terlebih dahulu!', 'error');
+        return;
+    }
+    
+    const newStatus = selectedStatus.value;
+    
+    try {
+        const response = await fetch(WEB_APP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'adminUpdateStatus',
+                rowNumber: rowNumber,
+                newStatus: newStatus
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            showToast(`✅ ${result.message}`, 'success');
+            closeModal('status-update-modal');
+            fetchAdminData(); // Refresh table
+        } else {
+            throw new Error(result.message || 'Gagal mengubah status');
+        }
+        
+    } catch (error) {
+        console.error('Error updating status:', error);
+        showToast(`❌ Gagal mengubah status: ${error.message}`, 'error');
+    }
+}
+
+/**
+ * Confirm delete submission
+ */
+function confirmDeletePengusul(rowNumber, namaLengkap) {
+    const modalId = 'delete-confirm-modal';
+    
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal-overlay';
+        modal.onclick = (e) => { if (e.target === modal) closeModal(modalId); };
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width:450px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#dc2626,#ef4444);color:white;">
+                <h3 class="modal-title">🗑️ Konfirmasi Hapus Data</h3>
+                <button class="modal-close" onclick="closeModal('${modalId}')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div style="padding:1.5rem;">
+                <div style="text-align:center;margin-bottom:1.5rem;">
+                    <div style="font-size:3rem;margin-bottom:1rem;">⚠️</div>
+                    <p style="font-weight:600;font-size:1.125rem;margin-bottom:0.5rem;">Apakah Anda yakin ingin menghapus data ini?</p>
+                    <p style="color:#64748b;font-size:0.875rem;">Tindakan ini tidak dapat dibatalkan!</p>
+                </div>
+                <div style="background:#fef2f2;border:1px solid #fecaca;padding:1rem;border-radius:8px;margin-bottom:1.5rem;">
+                    <p style="font-size:0.875rem;"><strong>Nama:</strong> ${namaLengkap}</p>
+                    <p style="font-size:0.875rem;"><strong>Baris:</strong> #${rowNumber}</p>
+                </div>
+                <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+                    <button class="btn" style="background:#f1f5f9;color:#475569;" onclick="closeModal('${modalId}')">Batal</button>
+                    <button class="btn" style="background:#dc2626;color:white;" onclick="deletePengusul(${rowNumber})">🗑️ Ya, Hapus</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    modal.style.display = 'flex';
+}
+
+/**
+ * Delete submission
+ */
+async function deletePengusul(rowNumber) {
+    try {
+        const response = await fetch(WEB_APP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'deleteSubmission',
+                rowNumber: rowNumber
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            showToast(`✅ ${result.message}`, 'success');
+            closeModal('delete-confirm-modal');
+            fetchAdminData(); // Refresh table
+        } else {
+            throw new Error(result.message || 'Gagal menghapus data');
+        }
+        
+    } catch (error) {
+        console.error('Error deleting submission:', error);
+        showToast(`❌ Gagal menghapus: ${error.message}`, 'error');
+    }
+}
+
+/**
+ * Export data to CSV
+ */
+function exportDataPengusul() {
+    showToast('📥 Mempersiapkan export data...', 'info');
+    
+    // Create CSV content
+    const headers = ['No Register', 'Tanggal', 'NIK', 'Nama Lengkap', 'Jurusan', 'Jenjang', 'Unit Tujuan', 'Status'];
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+    csvContent += headers.join(',') + '\n';
+    
+    // Get visible rows from table
+    const rows = document.querySelectorAll('#pengusul-table-body tr[data-row-number]');
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 23) {
+            const rowData = [
+                cells[3].textContent, // No Register
+                cells[22].textContent, // Tgl Pengajuan
+                cells[4].textContent, // NIK
+                cells[5].textContent, // Nama
+                cells[15].textContent, // Jurusan
+                cells[16].textContent, // Jenjang
+                cells[17].textContent, // Unit
+                cells[22].textContent  // Status
+            ];
+            csvContent += rowData.map(cell => `"${cell.replace(/"/g, '""')}"`).join(',') + '\n';
+        }
+    });
+    
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `SIMBAKES_DataPengusul_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    
+    showToast('✅ Data berhasil di-export!', 'success');
+}
+
+/**
+ * Format date time for display
+ */
+function formatDateTime(dateStr) {
+    if (!dateStr) return '-';
+    try {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('id-ID', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch (e) {
+        return dateStr;
+    }
+}
+
+/**
+ * Escape HTML to prevent XSS
+ */
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML.replace(/"/g, '&quot;');
+}
+
+// Override showPage to load data when entering admin pages
+const originalShowPage = typeof showPage !== 'undefined' ? null : null;
+// We'll use event listener instead
+
 // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', () => {
     renderDashboard();
+    
+    // Observe page changes to load admin data
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.target.id === 'page-data-pengusul' && mutation.target.classList.contains('active')) {
+                loadDataPengusul();
+            }
+        });
+    });
+    
+    // Start observing all pages
+    document.querySelectorAll('.page').forEach(page => {
+        observer.observe(page, { attributes: true, attributeFilter: ['class'] });
+    });
 });
 </script>
 
