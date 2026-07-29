@@ -3578,13 +3578,123 @@
             </div>
         </div>
 
-        <!-- ===== ROADMAP PAGE ===== -->
+        <!-- ===== ROADMAP KEBUTUHAN PAGE v2.0 ===== -->
         <div class="page" id="page-roadmap">
-            <div class="page-header">
-                <h2>Roadmap Kebutuhan</h2>
-                <p>Peta kebutuhan beasiswa kesehatan nasional</p>
+            <div class="page-header" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:16px;padding:1.5rem 2rem;color:white;margin-bottom:1.5rem;">
+                <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+                    <div style="width:56px;height:56px;background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border-radius:14px;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.3);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" width="28" height="28"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                    </div>
+                    <div>
+                        <h2 style="margin:0;font-size:1.5rem;font-weight:700;">🗺️ Roadmap Kebutuhan Beasiswa</h2>
+                        <p style="margin:0.25rem 0 0 0;font-size:0.9rem;opacity:0.9;">Peta kebutuhan beasiswa kesehatan nasional dengan filter dinamis</p>
+                    </div>
+                </div>
             </div>
-            <div class="roadmap-grid" id="roadmap-cards"></div>
+
+            <!-- Filter Section - Elegant Cards -->
+            <div style="background:white;border-radius:16px;padding:1.5rem;margin-bottom:1.5rem;box-shadow:0 4px 15px rgba(102,126,234,0.15);border:1px solid #e2e8f0;">
+                <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2" width="22" height="22"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                    <h3 style="margin:0;font-size:1.1rem;font-weight:600;color:#667eea;">Filter Data Roadmap</h3>
+                </div>
+                
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;" id="roadmap-filter-container">
+                    <!-- Filter: Jurusan -->
+                    <div style="position:relative;">
+                        <label style="display:block;font-size:0.8rem;font-weight:600;color:#64748b;margin-bottom:0.35rem;text-transform:uppercase;letter-spacing:0.5px;">🎓 Jurusan</label>
+                        <select id="roadmap-filter-jurusan" onchange="applyRoadmapFilters()" style="width:100%;padding:0.65rem 1rem;border:2px solid #e2e8f0;border-radius:10px;font-size:0.875rem;background:#fafbff;color:#334155;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='#667eea'" onmouseout="this.style.borderColor='#e2e8f0'">
+                            <option value="">Semua Jurusan</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Filter: Perguruan Tinggi -->
+                    <div style="position:relative;">
+                        <label style="display:block;font-size:0.8rem;font-weight:600;color:#64748b;margin-bottom:0.35rem;text-transform:uppercase;letter-spacing:0.5px;">🏛️ Perguruan Tinggi</label>
+                        <select id="roadmap-filter-pt" onchange="applyRoadmapFilters()" style="width:100%;padding:0.65rem 1rem;border:2px solid #e2e8f0;border-radius:10px;font-size:0.875rem;background:#fafbff;color:#334155;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='#667eea'" onmouseout="this.style.borderColor='#e2e8f0'">
+                            <option value="">Semua PT</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Filter: Pekerjaan -->
+                    <div style="position:relative;">
+                        <label style="display:block;font-size:0.8rem;font-weight:600;color:#64748b;margin-bottom:0.35rem;text-transform:uppercase;letter-spacing:0.5px;">💼 Pekerjaan</label>
+                        <select id="roadmap-filter-pekerjaan" onchange="applyRoadmapFilters()" style="width:100%;padding:0.65rem 1rem;border:2px solid #e2e8f0;border-radius:10px;font-size:0.875rem;background:#fafbff;color:#334155;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='#667eea'" onmouseout="this.style.borderColor='#e2e8f0'">
+                            <option value="">Semua Pekerjaan</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Filter: Unit Pendayaguna -->
+                    <div style="position:relative;">
+                        <label style="display:block;font-size:0.8rem;font-weight:600;color:#64748b;margin-bottom:0.35rem;text-transform:uppercase;letter-spacing:0.5px;">🏥 Unit Pendayaguna</label>
+                        <select id="roadmap-filter-unit" onchange="applyRoadmapFilters()" style="width:100%;padding:0.65rem 1rem;border:2px solid #e2e8f0;border-radius:10px;font-size:0.875rem;background:#fafbff;color:#334155;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='#667eea'" onmouseout="this.style.borderColor='#e2e8f0'">
+                            <option value="">Semua Unit</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Filter: Status -->
+                    <div style="position:relative;">
+                        <label style="display:block;font-size:0.8rem;font-weight:600;color:#64748b;margin-bottom:0.35rem;text-transform:uppercase;letter-spacing:0.5px;">📊 Status</label>
+                        <select id="roadmap-filter-status" onchange="applyRoadmapFilters()" style="width:100%;padding:0.65rem 1rem;border:2px solid #e2e8f0;border-radius:10px;font-size:0.875rem;background:#fafbff;color:#334155;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='#667eea'" onmouseout="this.style.borderColor='#e2e8f0'">
+                            <option value="">Semua Status</option>
+                            <option value="Aktif">✅ Aktif</option>
+                            <option value="Perencanaan">📋 Perencanaan</option>
+                            <option value="Draft">📝 Draft</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Reset Filters Button -->
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;padding-top:1rem;border-top:1px dashed #e2e8f0;">
+                    <span id="roadmap-result-count" style="font-size:0.85rem;color:#64748b;font-weight:500;">Menampilkan 0 data</span>
+                    <button onclick="resetRoadmapFilters()" style="padding:0.5rem 1rem;background:linear-gradient(135deg,#f1f5f9,#e2e8f0);color:#475569;border:none;border-radius:8px;font-size:0.85rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:0.5rem;transition:all 0.2s;" onmouseover="this.style.background='linear-gradient(135deg,#e2e8f0,#cbd5e1)'" onmouseout="this.style.background='linear-gradient(135deg,#f1f5f9,#e2e8f0)'">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                        Reset Filter
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="roadmap-loading" style="text-align:center;padding:3rem;background:white;border-radius:16px;display:none;">
+                <div class="spinner" style="margin:0 auto 1rem;"></div>
+                <p style="color:#64748b;font-weight:500;">Memuat data roadmap...</p>
+            </div>
+
+            <!-- Data Table Container with Scroll -->
+            <div class="admin-table-wrapper" id="roadmap-table-wrapper" style="display:none;">
+                <div class="admin-table-scroll" id="roadmap-table-scroll" style="max-height:550px;">
+                    <table class="admin-table" id="roadmap-data-table" style="min-width:1200px;">
+                        <thead>
+                            <tr style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);">
+                                <th style="min-width:90px;border-radius:10px 0 0 0;">Kode</th>
+                                <th style="min-width:200px;">🎓 Jurusan</th>
+                                <th style="min-width:160px;">📚 Kualifikasi Awal</th>
+                                <th style="min-width:140px;">📖 Jenis Pendidikan</th>
+                                <th style="min-width:220px;">🏛️ Perguruan Tinggi</th>
+                                <th style="min-width:150px;">💼 Pekerjaan</th>
+                                <th style="min-width:110px;">📅 Tahun Mulai</th>
+                                <th style="min-width:220px;">🏥 Unit Pendayaguna</th>
+                                <th style="min-width:110px;border-radius:0 10px 0 0;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="roadmap-table-body">
+                            <!-- Data rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="roadmap-empty-state" style="text-align:center;padding:3rem;background:white;border-radius:16px;display:none;">
+                <div style="width:100px;height:100px;background:linear-gradient(135deg,#f3e8ff,#ede9fe);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+                    <span style="font-size:3rem;">🗺️</span>
+                </div>
+                <h3 style="color:#5b21b6;font-size:1.25rem;margin:0 0 0.5rem 0;">Tidak Ada Data Roadmap</h3>
+                <p style="color:#7c3aed;margin:0 0 1rem 0;">Tidak ada data yang sesuai dengan filter yang dipilih.</p>
+                <button onclick="resetRoadmapFilters()" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:10px;font-size:0.9rem;font-weight:600;cursor:pointer;">
+                    🔄 Reset & Tampilkan Semua
+                </button>
+            </div>
         </div>
 
         <!-- ===== PETUNJUK PAGE ===== -->
@@ -4085,7 +4195,7 @@
 // File pendukung: SIMBAKES_WebApp_Code.gs (Google Apps Script Code)
 // ============================================================
 
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxXlojiTVLeCJ8IVUsOKnwbmcwC2QWPExU854QO6ZwLvyHwvn7kHk8b3Y6lN1wVBSeHcw/exec'; // ← PASTE URL WEB APP DI SINI
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzya8PQ5laBaxheFXBr8BEdMMty_yZKOS4SJQtnYNkUY-NoqOcWxHNdgQXQVxWa3POa/exec'; // ← PASTE URL WEB APP DI SINI
 
 // Set ke false jika sudah memasukkan URL Google Apps Script di atas
 const USE_LOCAL_STORAGE = false; // Ganti menjadi false setelah setup Google Sheets
@@ -4745,7 +4855,7 @@ function searchStatus() {
 // ===== RENDER FUNCTIONS =====
 
 // ===== CONFIGURATION =====
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxXlojiTVLeCJ8IVUsOKnwbmcwC2QWPExU854QO6ZwLvyHwvn7kHk8b3Y6lN1wVBSeHcw/exec'; // Ganti dengan URL Web App Google Apps Script Anda
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzya8PQ5laBaxheFXBr8BEdMMty_yZKOS4SJQtnYNkUY-NoqOcWxHNdgQXQVxWa3POa/exec'; // Ganti dengan URL Web App Google Apps Script Anda
 
 // ===== DASHBOARD v3.0 FUNCTIONS =====
 
@@ -5213,29 +5323,322 @@ function renderDashboard_legacy() {
 }
 
 function renderRoadmap() {
-    const container = document.getElementById('roadmap-cards');
-    container.innerHTML = roadmapData.map(r => `
-        <div class="card">
-            <div class="card-header">
-                <span class="year-badge">${r.tahun}</span>
-                <span class="priority-badge ${getPriorityClass(r.prioritas)}">${r.prioritas}</span>
-            </div>
-            <div class="card-body">
-                <h4 style="font-size:1.125rem;font-weight:600;margin:0.5rem 0;">${r.bidangFokus}</h4>
-                <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin:0.5rem 0;">
-                    <span style="color:#64748b;">Target Penerima:</span>
-                    <strong>${r.targetPenerima} orang</strong>
-                </div>
-                <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin:0.5rem 0;">
-                    <span style="color:#64748b;">Alokasi Dana:</span>
-                    <strong>${r.alokasiDana}</strong>
-                </div>
-                <div style="padding-top:0.75rem;border-top:1px solid #f1f5f9;font-size:0.75rem;color:#64748b;">
-                    <strong>Sumber:</strong> ${r.sumberData}
-                </div>
-            </div>
-        </div>
-    `).join('');
+    // Load roadmap data from API when page is shown
+    loadRoadmapData();
+}
+
+// ===== ROADMAP KEBUTUHAN FUNCTIONS v2.0 =====
+
+// Store cached data and filter options
+let roadmapCachedData = null;
+let roadmapFilterOptions = null;
+
+/**
+ * Main function: Load Roadmap Data from API
+ */
+async function loadRoadmapData() {
+    const loadingEl = document.getElementById('roadmap-loading');
+    const tableWrapperEl = document.getElementById('roadmap-table-wrapper');
+    const emptyStateEl = document.getElementById('roadmap-empty-state');
+    
+    // Show loading
+    loadingEl.style.display = 'block';
+    tableWrapperEl.style.display = 'none';
+    emptyStateEl.style.display = 'none';
+    
+    try {
+        // Build URL with current filter values
+        let url = `${WEB_APP_URL}?action=getRoadmapData&t=${Date.now()}`;
+        
+        // Add current filter values
+        const jurusan = document.getElementById('roadmap-filter-jurusan').value;
+        const pt = document.getElementById('roadmap-filter-pt').value;
+        const pekerjaan = document.getElementById('roadmap-filter-pekerjaan').value;
+        const unit = document.getElementById('roadmap-filter-unit').value;
+        const status = document.getElementById('roadmap-filter-status').value;
+        
+        if (jurusan) url += `&jurusan=${encodeURIComponent(jurusan)}`;
+        if (pt) url += `&perguruanTinggi=${encodeURIComponent(pt)}`;
+        if (pekerjaan) url += `&pekerjaan=${encodeURIComponent(pekerjaan)}`;
+        if (unit) url += `&unitPendayaguna=${encodeURIComponent(unit)}`;
+        if (status) url += `&status=${encodeURIComponent(status)}`;
+        
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        // Hide loading
+        loadingEl.style.display = 'none';
+        
+        if (result.status === 'success') {
+            // Cache data and filter options for dropdowns
+            roadmapCachedData = result.data || [];
+            
+            // Populate filter dropdowns if not yet populated
+            if (result.filterOptions && !roadmapFilterOptions) {
+                roadmapFilterOptions = result.filterOptions;
+                populateRoadmapFilterDropdowns(result.filterOptions);
+            }
+            
+            // Render table or show empty state
+            if (result.data && result.data.length > 0) {
+                tableWrapperEl.style.display = 'block';
+                emptyStateEl.style.display = 'none';
+                renderRoadmapTable(result.data);
+                updateRoadmapResultCount(result.totalRecords);
+            } else {
+                tableWrapperEl.style.display = 'none';
+                emptyStateEl.style.display = 'block';
+                updateRoadmapResultCount(0);
+            }
+        } else {
+            throw new Error(result.message || 'Gagal memuat data');
+        }
+        
+    } catch (error) {
+        console.error('Error loading roadmap data:', error);
+        loadingEl.style.display = 'none';
+        emptyStateEl.style.display = 'block';
+        document.getElementById('roadmap-empty-state').querySelector('h3').textContent = 'Gagal Memuat Data';
+        document.getElementById('roadmap-empty-state').querySelector('p').textContent = error.message || 'Terjadi kesalahan saat memuat data. Silakan coba lagi.';
+    }
+}
+
+/**
+ * Populate filter dropdowns with unique values from API
+ */
+function populateRoadmapFilterDropdowns(options) {
+    // Populate Jurusan
+    const jurusanSelect = document.getElementById('roadmap-filter-jurusan');
+    options.jurusan.forEach(val => {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = val;
+        jurusanSelect.appendChild(opt);
+    });
+    
+    // Populate Perguruan Tinggi
+    const ptSelect = document.getElementById('roadmap-filter-pt');
+    options.perguruanTinggi.forEach(val => {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = val;
+        ptSelect.appendChild(opt);
+    });
+    
+    // Populate Pekerjaan
+    const pekerjaanSelect = document.getElementById('roadmap-filter-pekerjaan');
+    options.pekerjaan.forEach(val => {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = val;
+        pekerjaanSelect.appendChild(opt);
+    });
+    
+    // Populate Unit Pendayaguna
+    const unitSelect = document.getElementById('roadmap-filter-unit');
+    options.unitPendayguna.forEach(val => {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = val;
+        unitSelect.appendChild(opt);
+    });
+    
+    // Populate Status (already has default options, just add dynamic ones)
+    const statusSelect = document.getElementById('roadmap-filter-status');
+    options.status.forEach(val => {
+        // Check if option already exists
+        if (!Array.from(statusSelect.options).some(opt => opt.value === val)) {
+            const opt = document.createElement('option');
+            opt.value = val;
+            opt.textContent = getRoadmapStatusIcon(val) + ' ' + val;
+            statusSelect.appendChild(opt);
+        }
+    });
+}
+
+/**
+ * Get status icon/emoji for Roadmap status
+ */
+function getRoadmapStatusIcon(status) {
+    const s = String(status).toLowerCase().trim();
+    if (s.includes('aktif')) return '✅';
+    if (s.includes('perencanaan')) return '📋';
+    if (s.includes('draft')) return '📝';
+    if (s.includes('selesai')) return '🎉';
+    if (s.includes('ditunda')) return '⏸️';
+    if (s.includes('dibatalkan')) return '❌';
+    return '📊';
+}
+
+/**
+ * Apply filters and reload data
+ */
+function applyRoadmapFilters() {
+    loadRoadmapData();
+}
+
+/**
+ * Reset all filters to default
+ */
+function resetRoadmapFilters() {
+    document.getElementById('roadmap-filter-jurusan').value = '';
+    document.getElementById('roadmap-filter-pt').value = '';
+    document.getElementById('roadmap-filter-pekerjaan').value = '';
+    document.getElementById('roadmap-filter-unit').value = '';
+    document.getElementById('roadmap-filter-status').value = '';
+    
+    // Reload data without filters
+    loadRoadmapData();
+}
+
+/**
+ * Update result count display
+ */
+function updateRoadmapResultCount(count) {
+    const countEl = document.getElementById('roadmap-result-count');
+    countEl.textContent = `Menampilkan ${count} data`;
+}
+
+/**
+ * Render Roadmap Table with colorful rows
+ */
+function renderRoadmapTable(data) {
+    const tbody = document.getElementById('roadmap-table-body');
+    
+    let html = '';
+    data.forEach((row, index) => {
+        // Determine row colors based on index (alternating gradient effect)
+        const rowBgColors = [
+            'background:linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%);',
+            'background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);',
+            'background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);',
+            'background:linear-gradient(135deg,#fffbeb 0%,#fef3c7 100%);'
+        ];
+        const bgStyle = rowBgColors[index % rowBgColors.length];
+        
+        // Status badge styling
+        const statusBadge = getRoadmapStatusBadge(row.status);
+        
+        // Kode badge styling (colorful)
+        const kodeColors = [
+            {bg: '#667eea', color: 'white'},
+            {bg: '#f093fb', color: 'white'},
+            {bg: '#4facfe', color: 'white'},
+            {bg: '#43e97b', color: 'white'},
+            {bg: '#fa709a', color: 'white'}
+        ];
+        const kodeColor = kodeColors[index % kodeColors.length];
+        
+        html += `
+            <tr style="${bgStyle} border:none; transition:all 0.2s;" 
+                onmouseover="this.style.transform='scale(1.01)';this.style.boxShadow='0 4px 15px rgba(102,126,234,0.2)';"
+                onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none';">
+                <!-- Kode -->
+                <td style="text-align:center;vertical-align:middle;">
+                    <span style="display:inline-block;padding:0.35rem 0.75rem;background:${kodeColor.bg};color:${kodeColor.color};border-radius:8px;font-size:0.8rem;font-weight:700;font-family:monospace;letter-spacing:0.5px;">
+                        ${row.kode || '-'}
+                    </span>
+                </td>
+                
+                <!-- Jurusan -->
+                <td style="vertical-align:middle;">
+                    <div style="font-weight:600;color:#5b21b6;">${row.jurusan || '-'}</div>
+                </td>
+                
+                <!-- Kualifikasi Awal -->
+                <td style="vertical-align:middle;">
+                    <span style="padding:0.25rem 0.6rem;background:#ede9fe;color:#5b21b6;border-radius:6px;font-size:0.8rem;font-weight:500;">
+                        ${row.kualifikasiAwal || '-'}
+                    </span>
+                </td>
+                
+                <!-- Jenis Pendidikan -->
+                <td style="vertical-align:middle;">
+                    <div style="color:#6d28d9;font-weight:500;">${row.jenisPendidikan || '-'}</div>
+                </td>
+                
+                <!-- Perguruan Tinggi -->
+                <td style="vertical-align:middle;">
+                    <div style="color:#374151;font-weight:500;">${row.perguruanTinggi || '-'}</div>
+                </td>
+                
+                <!-- Pekerjaan -->
+                <td style="vertical-align:middle;">
+                    <span style="padding:0.25rem 0.6rem;background:#dbeafe;color:#1e40af;border-radius:6px;font-size:0.8rem;font-weight:500;">
+                        ${row.pekerjaan || '-'}
+                    </span>
+                </td>
+                
+                <!-- Tahun Mulai Studi -->
+                <td style="text-align:center;vertical-align:middle;">
+                    <span style="display:inline-flex;align-items:center;gap:0.35rem;padding:0.35rem 0.75rem;background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e;border-radius:8px;font-size:0.9rem;font-weight:700;">
+                        📅 ${row.tahunMulaiStudi || '-'}
+                    </span>
+                </td>
+                
+                <!-- Unit Pendayaguna -->
+                <td style="vertical-align:middle;">
+                    <div style="color:#047857;font-weight:500;">${row.unitPendayaguna || '-'}</div>
+                </td>
+                
+                <!-- Status -->
+                <td style="text-align:center;vertical-align:middle;">
+                    ${statusBadge}
+                </td>
+            </tr>
+        `;
+    });
+    
+    tbody.innerHTML = html;
+}
+
+/**
+ * Get styled status badge for Roadmap
+ */
+function getRoadmapStatusBadge(status) {
+    const statusLower = String(status).toLowerCase().trim();
+    let bgColor, textColor, icon, text;
+    
+    if (statusLower.includes('aktif')) {
+        bgColor = 'linear-gradient(135deg,#dcfce7,#bbf7d0)';
+        textColor = '#166534';
+        icon = '✅';
+        text = status || 'Aktif';
+    } else if (statusLower.includes('perencanaan')) {
+        bgColor = 'linear-gradient(135deg,#dbeafe,#bfdbfe)';
+        textColor = '#1e40af';
+        icon = '📋';
+        text = status || 'Perencanaan';
+    } else if (statusLower.includes('draft')) {
+        bgColor = 'linear-gradient(135deg,#fef3c7,#fde68a)';
+        textColor = '#92400e';
+        icon = '📝';
+        text = status || 'Draft';
+    } else if (statusLower.includes('selesai')) {
+        bgColor = 'linear-gradient(135deg,#d1fae5,#a7f3d0)';
+        textColor = '#065f46';
+        icon = '🎉';
+        text = status || 'Selesai';
+    } else if (statusLower.includes('ditunda')) {
+        bgColor = 'linear-gradient(135deg,#fed7aa,#fdba74)';
+        textColor = '#9a3412';
+        icon = '⏸️';
+        text = status || 'Ditunda';
+    } else if (statusLower.includes('dibatalkan') || statusLower.includes('batal')) {
+        bgColor = 'linear-gradient(135deg,#fee2e2,#fecaca)';
+        textColor = '#991b1b';
+        icon = '❌';
+        text = status || 'Dibatalkan';
+    } else {
+        bgColor = 'linear-gradient(135deg,#f3f4f6,#e5e7eb)';
+        textColor = '#374151';
+        icon = '📊';
+        text = status || 'Unknown';
+    }
+    
+    return `<span style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.5rem 1rem;background:${bgColor};color:${textColor};border-radius:20px;font-size:0.85rem;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+        ${icon} ${text}
+    </span>`;
 }
 
 function renderPengusulTable() {
