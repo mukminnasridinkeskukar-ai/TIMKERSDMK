@@ -2643,7 +2643,7 @@
             <!-- ===== RECENT SUBMISSIONS TABLE ===== -->
             <div class="dashboard-section">
                 <div class="section-header">
-                    <h3>📋 5 Data Masuk Terbaru</h3>
+                    <h3>📋 Data Pengajuan Terbaru</h3>
                     <span class="section-badge">Realtime</span>
                 </div>
                 <div class="table-container modern-table">
@@ -2668,6 +2668,8 @@
                         </tbody>
                     </table>
                 </div>
+                <!-- Pagination Controls for Recent Submissions -->
+                <div id="pagination-recent-submissions-container"></div>
             </div>
 
             <!-- ===== VISITOR STATISTICS ===== -->
@@ -2744,6 +2746,8 @@
                         </tbody>
                     </table>
                 </div>
+                <!-- Pagination Controls for Recent Visitors -->
+                <div id="pagination-recent-visitors-container"></div>
             </div>
         </div>
 
@@ -2784,6 +2788,8 @@
                             </tbody>
                         </table>
                     </div>
+                    <!-- Pagination Controls for Status Detail -->
+                    <div id="pagination-status-detail-container"></div>
                 </div>
             </div>
         </div>
@@ -3683,6 +3689,9 @@
                     </table>
                 </div>
             </div>
+            
+            <!-- Pagination Controls for Roadmap -->
+            <div id="pagination-roadmap-container"></div>
 
             <!-- Empty State -->
             <div id="roadmap-empty-state" style="text-align:center;padding:3rem;background:white;border-radius:16px;display:none;">
@@ -4195,7 +4204,7 @@
 // File pendukung: SIMBAKES_WebApp_Code.gs (Google Apps Script Code)
 // ============================================================
 
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxN2ntcaYL3Nxox23-EUrb1MfsVZxSvQy0-WlCEtZIAWz0dVOyFNdS6RyKmQjOG8qhSCQ/exec'; // ← PASTE URL WEB APP DI SINI
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytF0dH7AVlJprLTRKDGdb0rzYvoAzsqXmYX8W-KiGOlWE4kAtbKKebDxtEVqxdNgYygQ/exec'; // ← PASTE URL WEB APP DI SINI
 
 // Set ke false jika sudah memasukkan URL Google Apps Script di atas
 const USE_LOCAL_STORAGE = false; // Ganti menjadi false setelah setup Google Sheets
@@ -4855,7 +4864,7 @@ function searchStatus() {
 // ===== RENDER FUNCTIONS =====
 
 // ===== CONFIGURATION =====
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxN2ntcaYL3Nxox23-EUrb1MfsVZxSvQy0-WlCEtZIAWz0dVOyFNdS6RyKmQjOG8qhSCQ/exec'; // Ganti dengan URL Web App Google Apps Script Anda
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbytF0dH7AVlJprLTRKDGdb0rzYvoAzsqXmYX8W-KiGOlWE4kAtbKKebDxtEVqxdNgYygQ/exec'; // Ganti dengan URL Web App Google Apps Script Anda
 
 // ===== GOOGLE DRIVE PHOTO HELPER =====
 /**
@@ -5099,8 +5108,10 @@ function animateValue(elementId, endValue) {
 }
 
 /**
- * Fetch 5 data terbaru dari Google Sheets
+ * Fetch 5 data terbaru dari Google Sheets [WITH PAGINATION]
  */
+let cachedRecentSubmissions = [];
+
 async function fetchRecentSubmissions() {
     const tbody = document.getElementById('recent-submissions-body');
     
@@ -5109,24 +5120,13 @@ async function fetchRecentSubmissions() {
         const result = await response.json();
         
         if (result.status === 'success' && result.data.length > 0) {
-            tbody.innerHTML = result.data.map((item, index) => `
-                <tr>
-                    <td>
-                        ${item.linkFoto && item.linkFoto !== '-' ? 
-                            `<img src="${item.linkFoto}" alt="Foto" class="photo-cell" onerror="this.parentElement.innerHTML='<div class=\\'photo-placeholder-small\\'>👤</div>'">` : 
-                            `<div class="photo-placeholder-small">👤</div>`
-                        }
-                    </td>
-                    <td><strong>${item.namaLengkap || '-'}</strong></td>
-                    <td>${item.jurusanTujuan || '-'}</td>
-                    <td>${item.jenjangPendidikan || '-'}</td>
-                    <td>${item.unitTujuan || '-'}</td>
-                    <td>${getStatusBadge(item.status)}</td>
-                </tr>
-            `).join('');
+            // Cache all data for pagination
+            cachedRecentSubmissions = result.data;
+            renderRecentSubmissions();
             
             console.log(`✅ Loaded ${result.data.length} recent submissions`);
         } else {
+            cachedRecentSubmissions = [];
             tbody.innerHTML = `
                 <tr>
                     <td colspan="6" class="loading-cell">
@@ -5134,6 +5134,8 @@ async function fetchRecentSubmissions() {
                     </td>
                 </tr>
             `;
+            // Hide pagination when no data
+            document.getElementById('pagination-recent-submissions-container').innerHTML = '';
         }
     } catch (error) {
         console.error('❌ Error fetching recent submissions:', error);
@@ -5148,8 +5150,47 @@ async function fetchRecentSubmissions() {
 }
 
 /**
- * Tampilkan detail data berdasarkan status (popup modal)
+ * Render Recent Submissions with Pagination
  */
+function renderRecentSubmissions() {
+    const tbody = document.getElementById('recent-submissions-body');
+    const container = document.getElementById('pagination-recent-submissions-container');
+    
+    if (!cachedRecentSubmissions || cachedRecentSubmissions.length === 0) {
+        return;
+    }
+    
+    // Use PaginationManager to get paginated data
+    const paginatedResult = PaginationManager.paginate('recent-submissions', cachedRecentSubmissions);
+    
+    tbody.innerHTML = paginatedResult.data.map((item, index) => {
+        const rowNum = (paginatedResult.pageInfo.currentPage - 1) * 10 + index + 1;
+        return `
+            <tr>
+                <td>
+                    ${item.linkFoto && item.linkFoto !== '-' ? 
+                        `<img src="${item.linkFoto}" alt="Foto" class="photo-cell" onerror="this.parentElement.innerHTML='<div class=\\'photo-placeholder-small\\'>👤</div>'">` : 
+                        `<div class="photo-placeholder-small">👤</div>`
+                    }
+                </td>
+                <td><strong>${item.namaLengkap || '-'}</strong></td>
+                <td>${item.jurusanTujuan || '-'}</td>
+                <td>${item.jenjangPendidikan || '-'}</td>
+                <td>${item.unitTujuan || '-'}</td>
+                <td>${getStatusBadge(item.status)}</td>
+            </tr>
+        `;
+    }).join('');
+    
+    // Render pagination controls
+    container.innerHTML = PaginationManager.renderControls('recent-submissions');
+}
+
+/**
+ * Tampilkan detail data berdasarkan status (popup modal) [WITH PAGINATION]
+ */
+let cachedStatusDetail = [];
+
 async function showStatusDetail(statusFilter) {
     const modal = document.getElementById('status-detail-modal');
     const titleEl = document.getElementById('status-modal-title');
@@ -5181,6 +5222,9 @@ async function showStatusDetail(statusFilter) {
         </tr>
     `;
     
+    // Reset pagination when opening new status
+    PaginationManager.reset('status-detail');
+    
     try {
         const response = await fetch(`${WEB_APP_URL}?action=dataByStatus&status=${statusFilter}&t=${Date.now()}`);
         const result = await response.json();
@@ -5188,32 +5232,18 @@ async function showStatusDetail(statusFilter) {
         if (result.status === 'success') {
             countEl.textContent = result.count;
             
-            if (result.data.length > 0) {
-                tbody.innerHTML = result.data.map((item, index) => `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td><strong>${item.namaLengkap || '-'}</strong></td>
-                        <td>${item.jurusanTujuan || '-'}</td>
-                        <td>${item.jenjangPendidikan || '-'}</td>
-                        <td>${item.unitTujuan || '-'}</td>
-                        <td>${item.rencanaTahunStudi || '-'}</td>
-                    </tr>
-                `).join('');
-            } else {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="loading-cell">
-                            📭 Tidak ada data dengan status ini
-                        </td>
-                    </tr>
-                `;
-            }
+            // Cache data for pagination
+            cachedStatusDetail = result.data || [];
+            
+            // Render with pagination
+            renderStatusDetailPaginated();
         } else {
             throw new Error(result.message || 'Unknown error');
         }
     } catch (error) {
         console.error('Error fetching status detail:', error);
         countEl.textContent = '0';
+        cachedStatusDetail = [];
         tbody.innerHTML = `
             <tr>
                 <td colspan="6" class="loading-cell">
@@ -5221,7 +5251,48 @@ async function showStatusDetail(statusFilter) {
                 </td>
             </tr>
         `;
+        document.getElementById('pagination-status-detail-container').innerHTML = '';
     }
+}
+
+/**
+ * Render Status Detail with Pagination
+ */
+function renderStatusDetailPaginated() {
+    const tbody = document.getElementById('status-detail-body');
+    const container = document.getElementById('pagination-status-detail-container');
+    
+    if (!cachedStatusDetail || cachedStatusDetail.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="loading-cell">
+                    📭 Tidak ada data dengan status ini
+                </td>
+            </tr>
+        `;
+        container.innerHTML = '';
+        return;
+    }
+    
+    // Use PaginationManager
+    const paginatedResult = PaginationManager.paginate('status-detail', cachedStatusDetail);
+    
+    tbody.innerHTML = paginatedResult.data.map((item, index) => {
+        const rowNum = (paginatedResult.pageInfo.currentPage - 1) * 10 + index + 1;
+        return `
+            <tr>
+                <td>${rowNum}</td>
+                <td><strong>${item.namaLengkap || '-'}</strong></td>
+                <td>${item.jurusanTujuan || '-'}</td>
+                <td>${item.jenjangPendidikan || '-'}</td>
+                <td>${item.unitTujuan || '-'}</td>
+                <td>${item.rencanaTahunStudi || '-'}</td>
+            </tr>
+        `;
+    }).join('');
+    
+    // Render pagination controls
+    container.innerHTML = PaginationManager.renderControls('status-detail');
 }
 
 /**
@@ -5386,21 +5457,37 @@ function renderVisitorChart(chartData) {
 }
 
 /**
- * Render tabel pengunjung terakhir
+ * Render tabel pengunjung terakhir [WITH PAGINATION]
  */
+let cachedRecentVisitors = [];
+
 function renderRecentVisitorsTable(visitors) {
+    // Cache data for pagination
+    cachedRecentVisitors = visitors || [];
+    renderRecentVisitors();
+}
+
+/**
+ * Render Recent Visitors with Pagination
+ */
+function renderRecentVisitors() {
     const tbody = document.getElementById('recent-visitors-body');
+    const container = document.getElementById('pagination-recent-visitors-container');
     
-    if (!visitors || visitors.length === 0) {
+    if (!cachedRecentVisitors || cachedRecentVisitors.length === 0) {
         tbody.innerHTML = `
             <tr>
                 <td colspan="4" class="loading-cell">Belum ada data pengunjung</td>
             </tr>
         `;
+        container.innerHTML = '';
         return;
     }
     
-    tbody.innerHTML = visitors.map(v => {
+    // Use PaginationManager
+    const paginatedResult = PaginationManager.paginate('recent-visitors', cachedRecentVisitors);
+    
+    tbody.innerHTML = paginatedResult.data.map(v => {
         // Format waktu
         let timeDisplay = '-';
         if (v.timestamp) {
@@ -5417,6 +5504,9 @@ function renderRecentVisitorsTable(visitors) {
             </tr>
         `;
     }).join('');
+    
+    // Render pagination controls
+    container.innerHTML = PaginationManager.renderControls('recent-visitors');
 }
 
 // ===== LEGACY RENDER FUNCTIONS (kept for compatibility) =====
@@ -5615,6 +5705,9 @@ function resetRoadmapFilters() {
     document.getElementById('roadmap-filter-unit').value = '';
     document.getElementById('roadmap-filter-status').value = '';
     
+    // Reset pagination when resetting filters
+    PaginationManager.reset('roadmap');
+    
     // Reload data without filters
     loadRoadmapData();
 }
@@ -5628,13 +5721,29 @@ function updateRoadmapResultCount(count) {
 }
 
 /**
- * Render Roadmap Table with colorful rows
+ * Render Roadmap Table with colorful rows [WITH PAGINATION]
  */
 function renderRoadmapTable(data) {
     const tbody = document.getElementById('roadmap-table-body');
+    const container = document.getElementById('pagination-roadmap-container');
+    
+    if (!data || data.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" style="text-align:center;padding:2rem;color:#64748b;">
+                    📭 Tidak ada data roadmap
+                </td>
+            </tr>
+        `;
+        container.innerHTML = '';
+        return;
+    }
+    
+    // Use PaginationManager
+    const paginatedResult = PaginationManager.paginate('roadmap', data);
     
     let html = '';
-    data.forEach((row, index) => {
+    paginatedResult.data.forEach((row, index) => {
         // Determine row colors based on index (alternating gradient effect)
         const rowBgColors = [
             'background:linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%);',
@@ -5718,6 +5827,9 @@ function renderRoadmapTable(data) {
     });
     
     tbody.innerHTML = html;
+    
+    // Render pagination controls
+    container.innerHTML = PaginationManager.renderControls('roadmap');
 }
 
 /**
@@ -7243,6 +7355,228 @@ function escapeHtml(text) {
 // Override showPage to load data when entering admin pages
 const originalShowPage = typeof showPage !== 'undefined' ? null : null;
 // We'll use event listener instead
+
+// ============================================================
+// UNIVERSAL PAGINATION SYSTEM v2.0
+// Supports ALL tables with 10 rows per page default
+// ============================================================
+
+/**
+ * Universal Pagination Manager - Reusable for any table
+ */
+const PaginationManager = {
+    // Store pagination state for each table
+    states: {},
+    
+    /**
+     * Initialize pagination state for a table
+     * @param {string} tableId - Unique identifier for the table
+     * @param {number} pageSize - Number of rows per page (default: 10)
+     */
+    init(tableId, pageSize = 10) {
+        if (!this.states[tableId]) {
+            this.states[tableId] = {
+                currentPage: 1,
+                pageSize: pageSize,
+                totalRecords: 0,
+                totalPages: 0,
+                cachedData: []
+            };
+        }
+        return this.states[tableId];
+    },
+    
+    /**
+     * Get state for a table
+     */
+    getState(tableId) {
+        return this.states[tableId] || this.init(tableId);
+    },
+    
+    /**
+     * Set data and calculate pagination
+     * @param {string} tableId - Table identifier
+     * @param {Array} data - Full dataset
+     * @returns {Object} Paginated result {data, pageInfo}
+     */
+    paginate(tableId, data) {
+        const state = this.getState(tableId);
+        state.cachedData = data;
+        state.totalRecords = data.length;
+        state.totalPages = Math.ceil(data.length / state.pageSize);
+        
+        // Ensure current page is valid
+        if (state.currentPage > state.totalPages) {
+            state.currentPage = Math.max(1, state.totalPages);
+        }
+        
+        const startIndex = (state.currentPage - 1) * state.pageSize;
+        const endIndex = Math.min(startIndex + state.pageSize, data.length);
+        const paginatedData = data.slice(startIndex, endIndex);
+        
+        return {
+            data: paginatedData,
+            pageInfo: {
+                currentPage: state.currentPage,
+                totalPages: state.totalPages,
+                totalRecords: state.totalRecords,
+                pageSize: state.pageSize,
+                startRecord: data.length > 0 ? startIndex + 1 : 0,
+                endRecord: endIndex,
+                hasNextPage: state.currentPage < state.totalPages,
+                hasPrevPage: state.currentPage > 1
+            }
+        };
+    },
+    
+    /**
+     * Go to specific page
+     */
+    goToPage(tableId, page) {
+        const state = this.getState(tableId);
+        if (page >= 1 && page <= state.totalPages) {
+            state.currentPage = page;
+            return true;
+        }
+        return false;
+    },
+    
+    /**
+     * Next page
+     */
+    nextPage(tableId) {
+        const state = this.getState(tableId);
+        return this.goToPage(tableId, state.currentPage + 1);
+    },
+    
+    /**
+     * Previous page
+     */
+    prevPage(tableId) {
+        const state = this.getState(tableId);
+        return this.goToPage(tableId, state.currentPage - 1);
+    },
+    
+    /**
+     * First page
+     */
+    firstPage(tableId) {
+        return this.goToPage(tableId, 1);
+    },
+    
+    /**
+     * Last page
+     */
+    lastPage(tableId) {
+        const state = this.getState(tableId);
+        return this.goToPage(tableId, state.totalPages);
+    },
+    
+    /**
+     * Change page size
+     */
+    setPageSize(tableId, newSize) {
+        const state = this.getState(tableId);
+        state.pageSize = parseInt(newSize);
+        state.currentPage = 1;
+    },
+    
+    /**
+     * Reset to first page
+     */
+    reset(tableId) {
+        const state = this.getState(tableId);
+        state.currentPage = 1;
+    },
+    
+    /**
+     * Generate pagination controls HTML
+     * @param {string} tableId - Table identifier
+     * @returns {string} HTML string for pagination controls
+     */
+    renderControls(tableId) {
+        const state = this.getState(tableId);
+        const pageInfo = {
+            currentPage: state.currentPage,
+            totalPages: state.totalPages,
+            totalRecords: state.totalRecords,
+            hasNextPage: state.currentPage < state.totalPages,
+            hasPrevPage: state.currentPage > 1
+        };
+        
+        const startRecord = state.totalRecords > 0 ? (state.currentPage - 1) * state.pageSize + 1 : 0;
+        const endRecord = Math.min(state.currentPage * state.pageSize, state.totalRecords);
+        
+        return `
+            <div class="pagination-container" id="pagination-${tableId}">
+                <div class="pagination-info">
+                    Menampilkan <strong>${startRecord}-${endRecord}</strong> dari <strong>${pageInfo.totalRecords}</strong> data
+                </div>
+                <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+                    <div class="page-size-selector">
+                        <label>Tampilkan:</label>
+                        <select onchange="PaginationManager.handlePageSizeChange('${tableId}', this)" id="pagesize-${tableId}">
+                            <option value="10" ${state.pageSize == 10 ? 'selected' : ''}>10</option>
+                            <option value="25" ${state.pageSize == 25 ? 'selected' : ''}>25</option>
+                            <option value="50" ${state.pageSize == 50 ? 'selected' : ''}>50</option>
+                            <option value="100" ${state.pageSize == 100 ? 'selected' : ''}>100</option>
+                        </select>
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="btn-pagination" onclick="PaginationManager.firstPage('${tableId}'); PaginationManager.refreshTable('${tableId}');" 
+                            ${!pageInfo.hasPrevPage ? 'disabled' : ''} title="Halaman Pertama">⏮️</button>
+                        <button class="btn-pagination" onclick="PaginationManager.prevPage('${tableId}'); PaginationManager.refreshTable('${tableId}');" 
+                            ${!pageInfo.hasPrevPage ? 'disabled' : ''} title="Halaman Sebelumnya">◀️</button>
+                        <button class="btn-pagination active">${pageInfo.currentPage} / ${pageInfo.totalPages || 1}</button>
+                        <button class="btn-pagination" onclick="PaginationManager.nextPage('${tableId}'); PaginationManager.refreshTable('${tableId}');" 
+                            ${!pageInfo.hasNextPage ? 'disabled' : ''} title="Halaman Selanjutnya">▶️</button>
+                        <button class="btn-pagination" onclick="PaginationManager.lastPage('${tableId}'); PaginationManager.refreshTable('${tableId}');" 
+                            ${!pageInfo.hasNextPage ? 'disabled' : ''} title="Halaman Terakhir">⏭️</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+    
+    /**
+     * Handle page size change
+     */
+    handlePageSizeChange(tableId, selectElement) {
+        this.setPageSize(tableId, selectElement.value);
+        this.refreshTable(tableId);
+    },
+    
+    /**
+     * Refresh table data (to be called after page change)
+     * This will trigger the appropriate render function based on table ID
+     */
+    refreshTable(tableId) {
+        switch(tableId) {
+            case 'recent-submissions':
+                renderRecentSubmissions();
+                break;
+            case 'recent-visitors':
+                renderRecentVisitors();
+                break;
+            case 'status-detail':
+                if (typeof renderStatusDetailPaginated === 'function') {
+                    renderStatusDetailPaginated();
+                }
+                break;
+            case 'roadmap':
+                loadRoadmapData();
+                break;
+            default:
+                console.log(`Refresh handler not found for table: ${tableId}`);
+        }
+    }
+};
+
+// Initialize pagination for all tables
+PaginationManager.init('recent-submissions', 10);
+PaginationManager.init('recent-visitors', 10);
+PaginationManager.init('status-detail', 10);
+PaginationManager.init('roadmap', 10);
 
 // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', () => {
