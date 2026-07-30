@@ -11625,7 +11625,7 @@ function clearSearchSkJfk() {
 //   5. Set: Execute as=Me, Who has access=Anyone
 //   6. Deploy & copy URL deployment
 //   7. Paste URL di bawah ini:
-const VISITOR_TRACKER_URL = 'https://script.google.com/macros/s/AKfycbw2LlrRAlq795i2u7EaVAfNIscUCDTiG8ZxstR5ubCWfOXii5agmejPNFLqW4PvPOQP/exec'; // ✅ DEPLOYED!
+const VISITOR_TRACKER_URL = 'https://script.google.com/macros/s/AKfycbwj5fLsiBLXz1bz33gNqvuxmcDrNdAy8XwNOrluo5O-IKI8puzfhtpv-sN1uPAmKs7e/exec'; // ✅ DEPLOYED!
 
 // Konfigurasi Refresh Visitor Stats (REAL-TIME MODE - DATA ASLI!)
 const VISITOR_CONFIG = {
@@ -11893,7 +11893,8 @@ const VisitorTracker = {
     },
     
     /**
-     * recordVisitToServer() - Kirim visit ke server via POST
+     * recordVisitToServer() - Kirim visit ke server via GET (LEbih reliable!)
+     * ✅ FIXED: Menggunakan GET dengan query params, bukan POST
      */
     async recordVisitToServer() {
         // Cek session dulu (mencegah double count di tab sama)
@@ -11909,35 +11910,73 @@ const VisitorTracker = {
         }
         
         try {
-            // Deteksi country dulu
-            const country = await this.detectCountry();
+            console.log('[VisitorTracker] 🎯 Recording visit...');
             
-            // Kirim ke server via POST
-            const response = await fetch(this.apiUrl, {
-                method: 'POST',
-                mode: 'cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    action: 'visit',
-                    country: country,
-                    page: window.location.pathname,
-                    userAgent: navigator.userAgent,
-                    timestamp: new Date().toISOString()
-                })
+            // Deteksi country dulu (dengan timeout)
+            let country = 'Indonesia'; // Default
+            try {
+                country = await Promise.race([
+                    this.detectCountry(),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Geo timeout')), 3000))
+                ]);
+            } catch (geoError) {
+                console.warn('[VisitorTracker] Geo detection failed, using default:', geoError.message);
+            }
+            
+            // ✅ GUNAKAN GET REQUEST (lebih reliable untuk Google Apps Script!)
+            const visitData = {
+                action: 'visit',
+                country: country,
+                page: window.location.pathname || '/',
+                userAgent: navigator.userAgent ? navigator.userAgent.substring(0, 200) : '',
+                timestamp: new Date().toISOString(),
+                t: Date.now()
+            };
+            
+            // Build URL dengan query parameters
+            const queryParams = new URLSearchParams(visitData).toString();
+            const recordUrl = `${this.apiUrl}?${queryParams}`;
+            
+            console.log('[VisitorTracker] 📤 Sending visit data:', { country, page: visitData.page });
+            console.log('[VisitorTracker] 🔗 Record URL:', recordUrl.substring(0, 80) + '...');
+            
+            // Kirim dengan timeout 15 detik
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+            
+            const response = await fetch(recordUrl, {
+                method: 'GET',
+                mode: 'no-cors', // no-cors agar tidak diblokir CORS
+                signal: controller.signal
             });
             
-            if (response.ok) {
-                const result = await response.json();
-                if (result.success) {
-                    this.visitRecorded = true;
-                    sessionStorage.setItem('vt_visit_recorded', 'true');
-                    console.log('[VisitorTracker] Visit recorded to server:', result);
-                }
-            }
+            clearTimeout(timeoutId);
+            
+            // ✅ Dengan mode: 'no-cors', kita tidak bisa baca response
+            // Tapi asumsikan berhasil jika tidak ada error
+            this.visitRecorded = true;
+            sessionStorage.setItem('vt_visit_recorded', 'true');
+            sessionStorage.setItem('vt_visit_country', country);
+            sessionStorage.setItem('vt_visit_time', new Date().toISOString());
+            
+            console.log('[VisitorTracker] ✅ Visit recorded successfully!', { country });
+            
+            // ✅ Update tampilan online count setelah record
+            this.refreshOnlineCount();
+            
         } catch (error) {
-            console.warn('[VisitorTracker] Failed to record visit:', error.message);
+            console.error('[VisitorTracker] ❌ Failed to record visit:', error.message);
+            
+            // Retry sekali lagi setelah 2 detik
+            if (!this._retryAttempted) {
+                this._retryAttempted = true;
+                console.log('[VisitorTracker] 🔄 Retrying in 2 seconds...');
+                setTimeout(() => {
+                    this.recordVisitToServer();
+                }, 2000);
+            } else {
+                console.error('[VisitorTracker] ❌ Retry also failed');
+            }
         }
     },
     
@@ -12031,21 +12070,64 @@ const VisitorTracker = {
     },
     
     /**
-     * detectCountry() - Deteksi negara via ip-api.com
+     * detectCountry() - Deteksi negara (MULTI-SOURCE FALLBACK)
+     * ✅ FIXED: Support HTTPS dan multiple APIs
      */
     async detectCountry() {
-        try {
-            const response = await fetch('http://ip-api.com/json/?fields=status,country,countryCode');
-            if (response.ok) {
-                const data = await response.json();
-                if (data.status === 'success') {
-                    return data.country || 'Indonesia';
-                }
-            }
-        } catch (e) {
-            console.warn('[VisitorTracker] Geo detection failed');
+        // Cek cache dulu
+        const cachedCountry = sessionStorage.getItem('vt_detected_country');
+        if (cachedCountry) {
+            return cachedCountry;
         }
-        return 'Indonesia'; // Fallback
+        
+        const apis = [
+            // Source 1: ip-api.com (HTTP - bisa gagal di HTTPS sites)
+            { url: 'http://ip-api.com/json/?fields=status,country,countryCode', parser: (data) => ({ country: data.country, code: data.countryCode }) },
+            
+            // Source 2: ipapi.co (HTTPS backup)
+            { url: 'https://ipapi.co/json/', parser: (data) => ({ country: data.country_name, code: data.country_code }) },
+            
+            // Source 3: ipinfo.io (HTTPS backup)
+            { url: 'https://ipinfo.io/json', parser: (data) => ({ country: data.country, code: data.country }) }
+        ];
+        
+        for (const api of apis) {
+            try {
+                console.log('[VisitorTracker] 🌍 Trying geo API:', api.url.substring(0, 40));
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
+                
+                const response = await fetch(api.url, {
+                    method: 'GET',
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const result = api.parser(data);
+                    
+                    if (result && result.country) {
+                        console.log('[VisitorTracker] ✅ Country detected:', result.country, result.code);
+                        
+                        // Cache hasilnya
+                        sessionStorage.setItem('vt_detected_country', result.country);
+                        sessionStorage.setItem('vt_detected_country_code', result.code || '');
+                        
+                        return result.country;
+                    }
+                }
+            } catch (error) {
+                console.warn(`[VisitorTracker] ⚠️ Geo API failed:`, error.message);
+                continue; // Coba API berikutnya
+            }
+        }
+        
+        // Default jika semua gagal
+        console.warn('[VisitorTracker] ⚠️ All geo APIs failed, using default: Indonesia');
+        return 'Indonesia';
     },
     
     /**
