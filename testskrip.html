@@ -743,7 +743,222 @@
             cursor: not-allowed;
         }
 
-        /* ===== MODAL/POPUP ===== */
+        
+        /* ===== DATA CARD MODAL (POPUP FOTO) ===== */
+        .data-card-modal {
+            max-width: 800px;
+            width: 95%;
+        }
+
+        .data-card-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Photo Section */
+        .data-card-photo-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            min-height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .data-card-photo-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239ca3af' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .data-card-photo-wrapper {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .data-card-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .data-card-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .data-card-photo-placeholder {
+            font-size: 4rem;
+            color: #94a3b8;
+        }
+
+        .data-card-photo-label {
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Data Fields Grid */
+        .data-card-fields {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .data-card-fields {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .data-card-field {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1rem;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .data-card-field.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .data-card-field-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            margin-bottom: 0.375rem;
+        }
+
+        .data-card-field-value {
+            font-size: 0.9375rem;
+            color: #1e293b;
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        /* Status Badge in Card */
+        .data-card-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        /* CRUD Action Buttons at Bottom */
+        .data-card-actions {
+            display: flex;
+            gap: 0.75rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .data-card-actions .btn {
+            flex: 1;
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.25rem;
+            font-weight: 600;
+            border-radius: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            font-size: 0.9375rem;
+        }
+
+        .btn-action-edit {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .btn-action-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35);
+        }
+
+        .btn-action-delete {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .btn-action-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.35);
+        }
+
+        .btn-action-status {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .btn-action-status:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.35);
+        }
+
+        .btn-action-close {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .btn-action-close:hover {
+            background: #e2e8f0;
+        }
+
+        /* Clickable Row Indicator */
+        .clickable-row {
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+
+        .clickable-row:hover {
+            background-color: #f0f9ff !important;
+        }
+
+        .row-click-hint {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Roadmap Card Variant */
+        .roadmap-card-fields .data-card-field {
+            border-left-color: #8b5cf6;
+        }
+
+
+/* ===== MODAL/POPUP ===== */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -2107,8 +2322,6 @@
             display: flex;
             gap: 0.375rem;
             flex-wrap: nowrap;
-            position: relative;
-            z-index: 100;
         }
         
         .btn-crud {
@@ -2116,24 +2329,12 @@
             height: 32px;
             border: none;
             border-radius: 6px;
-            cursor: pointer !important;
+            cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
             font-size: 0.875rem;
-            pointer-events: auto !important;
-            position: relative;
-            z-index: 101;
-        }
-        
-        .btn-crud:hover {
-            transform: scale(1.1);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-        
-        .btn-crud:active {
-            transform: scale(0.95);
         }
         
         .btn-crud svg {
@@ -2181,314 +2382,6 @@
             color: white;
         }
         
-        /* ===== PHOTO CARD POPUP v1.0 ===== */
-        .photo-card-popup-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            animation: fadeIn 0.2s ease-out;
-        }
-        
-        .photo-card-popup {
-            background: white;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
-            animation: slideUp 0.3s ease-out;
-        }
-        
-        /* Photo Section */
-        .photo-card-photo-section {
-            position: relative;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 2rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 280px;
-        }
-        
-        .photo-card-photo-wrapper {
-            width: 180px;
-            height: 220px;
-            border-radius: 16px;
-            overflow: hidden;
-            background: white;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            position: relative;
-        }
-        
-        .photo-card-photo-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .photo-card-photo-placeholder {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            color: #94a3b8;
-        }
-        
-        .photo-card-photo-placeholder svg {
-            width: 64px;
-            height: 64px;
-            margin-bottom: 0.75rem;
-            opacity: 0.5;
-        }
-        
-        .photo-card-photo-placeholder span {
-            font-size: 0.8rem;
-            text-align: center;
-            padding: 0 1rem;
-        }
-        
-        .photo-card-close-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border: none;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            z-index: 10;
-        }
-        
-        .photo-card-close-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: rotate(90deg);
-        }
-        
-        /* Data Card Section */
-        .photo-card-data-section {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1.5rem;
-        }
-        
-        .photo-card-header {
-            text-align: center;
-            margin-bottom: 1.25rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #f1f5f9;
-        }
-        
-        .photo-card-name {
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 0.25rem;
-        }
-        
-        .photo-card-nik {
-            font-size: 0.9rem;
-            color: #64748b;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .photo-card-status-badge {
-            display: inline-block;
-            margin-top: 0.5rem;
-            padding: 0.375rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        .photo-card-info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.875rem;
-            margin-bottom: 1rem;
-        }
-        
-        .photo-card-info-item {
-            background: #f8fafc;
-            padding: 0.75rem;
-            border-radius: 10px;
-            border-left: 3px solid #667eea;
-        }
-        
-        .photo-card-info-label {
-            font-size: 0.7rem;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.25rem;
-        }
-        
-        .photo-card-info-value {
-            font-size: 0.85rem;
-            color: #1e293b;
-            font-weight: 500;
-            word-break: break-word;
-        }
-        
-        .photo-card-info-item.full-width {
-            grid-column: span 2;
-        }
-        
-        /* CRUD Section at Bottom */
-        .photo-card-crud-section {
-            padding: 1.25rem 1.5rem;
-            background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
-            border-top: 1px solid #e2e8f0;
-        }
-        
-        .photo-card-crud-title {
-            font-size: 0.75rem;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 0.75rem;
-            text-align: center;
-        }
-        
-        .photo-card-crud-buttons {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .photo-card-crud-btn {
-            flex: 1;
-            min-width: 120px;
-            padding: 0.75rem 1rem;
-            border: none;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            transition: all 0.2s;
-            pointer-events: auto !important;
-            z-index: 100 !important;
-            position: relative;
-        }
-        
-        .photo-card-crud-btn svg {
-            width: 18px;
-            height: 18px;
-            flex-shrink: 0;
-        }
-        
-        .photo-card-crud-btn.btn-view-card {
-            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-            color: #1d4ed8;
-        }
-        
-        .photo-card-crud-btn.btn-view-card:hover {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-        }
-        
-        .photo-card-crud-btn.btn-status-card {
-            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-            color: #15803d;
-        }
-        
-        .photo-card-crud-btn.btn-status-card:hover {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
-        }
-        
-        .photo-card-crud-btn.btn-delete-card {
-            background: linear-gradient(135deg, #fee2e2, #fecaca);
-            color: #dc2626;
-        }
-        
-        .photo-card-crud-btn.btn-delete-card:hover {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
-        }
-        
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        @keyframes slideUp {
-            from { 
-                opacity: 0;
-                transform: translateY(30px) scale(0.95);
-            }
-            to { 
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-        
-        /* Responsive */
-        @media (max-width: 640px) {
-            .photo-card-popup {
-                max-width: 100%;
-                max-height: 95vh;
-                border-radius: 16px;
-            }
-            
-            .photo-card-photo-section {
-                min-height: 220px;
-                padding: 1.5rem;
-            }
-            
-            .photo-card-photo-wrapper {
-                width: 140px;
-                height: 170px;
-            }
-            
-            .photo-card-info-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .photo-card-info-item.full-width {
-                grid-column: span 1;
-            }
-            
-            .photo-card-crud-buttons {
-                flex-direction: column;
-            }
-            
-            .photo-card-crud-btn {
-                min-width: unset;
-                width: 100%;
-            }
-        }
-
         /* Photo Cell in Table */
         .table-photo-cell {
             width: 60px;
@@ -2835,7 +2728,7 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10,17 15,12 10,7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                             Login
                         </button>
-                        <p class="hint-text">*********</p>
+                        <p class="hint-text">Default: admin123</p>
                     </div>
 
                     <div id="admin-menu" style="display:none;">
@@ -4663,6 +4556,58 @@
 <div class="toast" id="toast">
     <span id="toast-message">Message</span>
 </div>
+<!-- Data Card Modal (POPUP FOTO) for Pengusul -->
+<div class="modal-overlay" id="data-card-modal">
+    <div class="modal data-card-modal">
+        <div class="modal-header">
+            <h3 class="modal-title">📋 Kartu Data Pengusul</h3>
+            <button class="modal-close" onclick="closeDataCardModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="data-card-container" id="data-card-content">
+            <!-- Content will be dynamically inserted -->
+        </div>
+    </div>
+</div>
+
+<!-- Data Card Modal for Roadmap -->
+<div class="modal-overlay" id="roadmap-card-modal">
+    <div class="modal data-card-modal">
+        <div class="modal-header">
+            <h3 class="modal-title">🗺️ Kartu Data Roadmap</h3>
+            <button class="modal-close" onclick="closeRoadmapCardModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="data-card-container roadmap-card-fields" id="roadmap-card-content">
+            <!-- Content will be dynamically inserted -->
+        </div>
+    </div>
+</div>
+
+<!-- Status Change Modal (inside Data Card) -->
+<div class="modal-overlay" id="status-change-inner-modal">
+    <div class="modal" style="max-width:450px;">
+        <div class="modal-header">
+            <h3 class="modal-title">🔄 Ubah Status</h3>
+            <button class="modal-close" onclick="closeModal('status-change-inner-modal')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div id="status-change-content">
+            <!-- Dynamic content -->
+        </div>
+    </div>
+</div>
+
+
 
 <script>
 // ============================================================
@@ -4688,7 +4633,7 @@
 // File pendukung: SIMBAKES_WebApp_Code.gs (Google Apps Script Code)
 // ============================================================
 
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby9MBeiz8Bn-cuBySz8i317mlOniiynXZ6r1s5mSRAMrxkrGRmN1QlH4KYQm6m_Rl7T5w/exec'; // ← PASTE URL WEB APP DI SINI
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwflGlDqxkvj7ivVxv0dlw6WWraVGa7BUlkypCbgxsgEJxFSBstJdEticnrjOgd5GQNJQ/exec'; // ← PASTE URL WEB APP DI SINI
 
 // Set ke false jika sudah memasukkan URL Google Apps Script di atas
 const USE_LOCAL_STORAGE = false; // Ganti menjadi false setelah setup Google Sheets
@@ -4710,6 +4655,434 @@ let roadmapData = [
     { id: '4', tahun: '2025', bidangFokus: 'Reproduksi & Neonatal', targetPenerima: 120, alokasiDana: 'Rp 8 Miliar', prioritas: 'Sedang', sumberData: 'Kemenkes RI - Profil Kesehatan Indonesia 2023' },
     { id: '5', tahun: '2026', bidangFokus: 'Gizi & Stunting', targetPenerima: 200, alokasiDana: 'Rp 20 Miliar', prioritas: 'Sangat Tinggi', sumberData: 'SGA Survey - Status Gizi Indonesia 2024' }
 ];
+
+
+// ===== DEBOUNCE FUNCTIONS (Defined Early) =====
+
+
+
+function debounceSearch() {
+    clearTimeout(adminSearchTimeout);
+    adminSearchTimeout = setTimeout(() => {
+        if (typeof adminCurrentPage !== 'undefined') adminCurrentPage = 1;
+        if (typeof fetchAdminData === 'function') fetchAdminData();
+    }, 500);
+}
+
+function debounceSearchRoadmap() {
+    clearTimeout(roadmapSearchTimeout);
+    roadmapSearchTimeout = setTimeout(() => {
+        if (typeof roadmapCurrentPage !== 'undefined') roadmapCurrentPage = 1;
+        if (typeof fetchRoadmapData === 'function') fetchRoadmapData();
+    }, 500);
+}
+
+// ===== DATA CARD MODAL FUNCTIONS =====
+let currentCardData = null;
+let currentCardRowNumber = null;
+
+/**
+ * Open Data Card Modal for Pengusul (POPUP FOTO)
+ * Displays photo area + all data fields + CRUD buttons at bottom
+ */
+function openDataCardModal(rowNumber) {
+    currentCardRowNumber = rowNumber;
+    
+    // Get data from table row
+    const rowElement = document.querySelector(`tr[data-row-number="${rowNumber}"]`);
+    if (!rowElement) {
+        showToast('❌ Data tidak ditemukan', 'error');
+        return;
+    }
+    
+    const cells = rowElement.querySelectorAll('td');
+    if (cells.length < 10) {
+        showToast('❌ Data tidak lengkap', 'error');
+        return;
+    }
+    
+    // Extract data from cells
+    const data = {
+        rowNumber: rowNumber,
+        noRegister: cells[3]?.textContent?.trim() || '-',
+        nik: cells[4]?.textContent?.trim() || '-',
+        namaLengkap: cells[5]?.textContent?.trim() || '-',
+        tempatLahir: cells[6]?.textContent?.trim() || '-',
+        tanggalLahir: cells[7]?.textContent?.trim() || '-',
+        alamatKTP: cells[8]?.textContent?.trim() || '-',
+        alamatDomisili: cells[9]?.textContent?.trim() || '-',
+        lamaDomisili: cells[10]?.textContent?.trim() || '-',
+        pekerjaan: cells[11]?.textContent?.trim() || '-',
+        posisiJabatan: cells[12]?.textContent?.trim() || '-',
+        unitKerja: cells[13]?.textContent?.trim() || '-',
+        penjelasan: cells[14]?.textContent?.trim() || '-',
+        jurusanTujuan: cells[15]?.textContent?.trim() || '-',
+        jenjangPendidikan: cells[16]?.textContent?.trim() || '-',
+        unitTujuan: cells[17]?.textContent?.trim() || '-',
+        rencanaTahun: cells[18]?.textContent?.trim() || '-',
+        noHP: cells[19]?.textContent?.trim() || '-',
+        noWhatsApp: cells[20]?.textContent?.trim() || '-',
+        email: cells[21]?.textContent?.trim() || '-',
+        namaFileDokumen: cells[22]?.textContent?.trim() || '-',
+        status: cells[23]?.textContent?.trim() || '-',
+        tanggalPengajuan: cells[24]?.textContent?.trim() || '-',
+        linkFoto: cells[25]?.textContent?.trim() || '',
+        linkDokumen: cells[26]?.textContent?.trim() || ''
+    };
+    
+    currentCardData = data;
+    
+    // Build card HTML
+    const photoHtml = buildPhotoSection(data.linkFoto, data.namaLengkap);
+    const fieldsHtml = buildDataFields(data);
+    const actionsHtml = buildCrudActions(data);
+    
+    document.getElementById('data-card-content').innerHTML = 
+        photoHtml + fieldsHtml + actionsHtml;
+    
+    // Show modal
+    document.getElementById('data-card-modal').classList.add('active');
+}
+
+/**
+ * Open Data Card Modal for Roadmap
+ */
+function openRoadmapCardModal(index) {
+    const rowData = typeof roadmapAdminData !== 'undefined' ? roadmapAdminData[index] : null;
+    if (!rowData) {
+        showToast('❌ Data roadmap tidak ditemukan', 'error');
+        return;
+    }
+    
+    currentCardData = { index, rowData };
+    
+    // Build roadmap card
+    const cardHtml = buildRoadmapCard(rowData, index);
+    document.getElementById('roadmap-card-content').innerHTML = cardHtml;
+    document.getElementById('roadmap-card-modal').classList.add('active');
+}
+
+function buildPhotoSection(photoUrl, nama) {
+    const hasPhoto = photoUrl && photoUrl !== '-' && photoUrl.trim() !== '';
+    
+    if (hasPhoto) {
+        return `
+        <div class="data-card-photo-section">
+            <div class="data-card-photo-wrapper">
+                <div class="data-card-photo">
+                    <img src="${photoUrl}" alt="Foto ${nama}" onerror="this.parentElement.innerHTML='<div class=\'data-card-photo-placeholder\'>👤</div>'">
+                </div>
+                <div class="data-card-photo-label">Foto Pengusul</div>
+            </div>
+        </div>`;
+    } else {
+        return `
+        <div class="data-card-photo-section">
+            <div class="data-card-photo-wrapper">
+                <div class="data-card-photo">
+                    <div class="data-card-photo-placeholder">👤</div>
+                </div>
+                <div class="data-card-photo-label">Belum Ada Foto</div>
+            </div>
+        </div>`;
+    }
+}
+
+function buildDataFields(data) {
+    const statusClass = getStatusClassForCard(data.status);
+    
+    return `
+    <div class="data-card-fields">
+        <div class="data-card-field">
+            <div class="data-card-field-label">Nomor Register</div>
+            <div class="data-card-field-value"><strong>${data.noRegister}</strong></div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">Status</div>
+            <div class="data-card-field-value"><span class="data-card-status" style="${statusClass}">${data.status}</span></div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">NIK</div>
+            <div class="data-card-field-value">${data.nik}</div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">Nama Lengkap</div>
+            <div class="data-card-field-value"><strong>${data.namaLengkap}</strong></div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">Tempat, Tanggal Lahir</div>
+            <div class="data-card-field-value">${data.tempatLahir}, ${data.tanggalLahir}</div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">Pekerjaan / Jabatan</div>
+            <div class="data-card-field-value">${data.pekerjaan}<br><small>${data.posisiJabatan}</small></div>
+        </div>
+        <div class="data-card-field full-width">
+            <div class="data-card-field-label">Alamat KTP</div>
+            <div class="data-card-field-value">${data.alamatKTP}</div>
+        </div>
+        <div class="data-card-field full-width">
+            <div class="data-card-field-label">Alamat Domisili (Lama: ${data.lamaDomisili})</div>
+            <div class="data-card-field-value">${data.alamatDomisili}</div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">Unit Kerja</div>
+            <div class="data-card-field-value">${data.unitKerja}</div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">Jurusan Tujuan</div>
+            <div class="data-card-field-value">${data.jurusanTujuan}</div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">Jenjang Pendidikan</div>
+            <div class="data-card-field-value">${data.jenjangPendidikan}</div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">Unit Tujuan</div>
+            <div class="data-card-field-value">${data.unitTujuan}</div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">Rencana Tahun</div>
+            <div class="data-card-field-value">${data.rencanaTahun}</div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">Tanggal Pengajuan</div>
+            <div class="data-card-field-value">${data.tanggalPengajuan}</div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">No. HP / WhatsApp</div>
+            <div class="data-card-field-value">${data.noHP}<br>${data.noWhatsApp}</div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">Email</div>
+            <div class="data-card-field-value">${data.email}</div>
+        </div>
+        <div class="data-card-field full-width">
+            <div class="data-card-field-label">Penjelasan / Narasi</div>
+            <div class="data-card-field-value">${data.penjelasan}</div>
+        </div>
+    </div>`;
+}
+
+function buildCrudActions(data) {
+    return `
+    <div class="data-card-actions">
+        <button class="btn btn-action-edit" onclick="editFromCard()">
+            ✏️ Edit Data
+        </button>
+        <button class="btn btn-action-status" onclick="changeStatusFromCard()">
+            🔄 Ubah Status
+        </button>
+        <button class="btn btn-action-delete" onclick="deleteFromCard()">
+            🗑️ Hapus
+        </button>
+        <button class="btn btn-action-close" onclick="closeDataCardModal()">
+            ✖ Tutup
+        </button>
+    </div>`;
+}
+
+function buildRoadmapCard(rowData, index) {
+    const kode = rowData[0] || '-';
+    const jurusan = rowData[1] || '-';
+    const pt = rowData[2] || '-';
+    const prioritas = rowData[3] || '-';
+    const status = rowData[4] || '-';
+    const sumber = rowData[5] || '-';
+    const keterangan = rowData[6] || '-';
+    
+    const priorityColor = prioritas === 'Sangat Tinggi' ? '#ef4444' : prioritas === 'Tinggi' ? '#f59e0b' : '#3b82f6';
+    const statusClass = getStatusClassForCard(status);
+    
+    return `
+    <div class="data-card-photo-section" style="background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);">
+        <div class="data-card-photo-wrapper">
+            <div class="data-card-photo" style="background: white; width: 120px; height: 120px; font-size: 2.5rem;">
+                🗺️
+            </div>
+            <div class="data-card-photo-label"><strong>${kode}</strong> - ${jurusan}</div>
+        </div>
+    </div>
+    <div class="data-card-fields">
+        <div class="data-card-field">
+            <div class="data-card-field-label">Kode Roadmap</div>
+            <div class="data-card-field-value"><strong>${kode}</strong></div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">Status</div>
+            <div class="data-card-field-value"><span class="data-card-status" style="${statusClass}">${status}</span></div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">Jurusan / Program Studi</div>
+            <div class="data-card-field-value">${jurusan}</div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">Perguruan Tinggi</div>
+            <div class="data-card-field-value">${pt}</div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">Prioritas</div>
+            <div class="data-card-field-value"><span style="color:${priorityColor};font-weight:700;">${prioritas}</span></div>
+        </div>
+        <div class="data-card-field">
+            <div class="data-card-field-label">Sumber Data</div>
+            <div class="data-card-field-value"><small>${sumber}</small></div>
+        </div>
+        <div class="data-card-field full-width">
+            <div class="data-card-field-label">Keterangan</div>
+            <div class="data-card-field-value">${keterangan}</div>
+        </div>
+    </div>
+    <div class="data-card-actions">
+        <button class="btn btn-action-edit" onclick="editRoadmapFromCard(${index})">
+            ✏️ Edit Roadmap
+        </button>
+        <button class="btn btn-action-status" onclick="changeRoadmapStatusFromCard(${index})">
+            🔄 Ubah Status
+        </button>
+        <button class="btn btn-action-delete" onclick="deleteRoadmapFromCard(${index})">
+            🗑️ Hapus
+        </button>
+        <button class="btn btn-action-close" onclick="closeRoadmapCardModal()">
+            ✖ Tutup
+        </button>
+    </div>`;
+}
+
+function getStatusClassForCard(status) {
+    if (!status) return '';
+    const s = status.toLowerCase();
+    if (s.includes('setujui') || s === 'aktif' || s === 'selesai') return 'background:#dcfce7;color:#166534;';
+    if (s.includes('tolak') || s === 'non-aktif' || s === 'batal') return 'background:#fee2e2;color:#991b1b;';
+    if (s.includes('perbaikan') || s === 'pending') return 'background:#fef3c7;color:#92400e;';
+    if (s.includes('verifikasi')) return 'background:#dbeafe;color:#1e40af;';
+    return 'background:#f1f5f9;color:#475569;';
+}
+
+// CRUD Actions from Data Card
+function editFromCard() {
+    if (!currentCardData) return;
+    closeDataCardModal();
+    showToast('🔧 Fitur Edit akan dibuka...', 'info');
+    // TODO: Implement edit form
+}
+
+function deleteFromCard() {
+    if (!currentCardData) return;
+    if (confirm(`⚠️ Hapus data ${currentCardData.namaLengkap}?`)) {
+        if (typeof deletePengusul === 'function') {
+            deletePengusul(currentCardData.rowNumber);
+        }
+        closeDataCardModal();
+    }
+}
+
+function changeStatusFromCard() {
+    if (!currentCardData) return;
+    
+    const content = document.getElementById('status-change-content');
+    content.innerHTML = `
+        <p style="margin-bottom:1rem;color:#64748b;">Ubah status untuk: <strong>${currentCardData.namaLengkap}</strong></p>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1.5rem;">
+            <label style="padding:0.75rem;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='#3b82f6'" onmouseout="this.style.borderColor='#e2e8f0'">
+                <input type="radio" name="new-status" value="Disetujui" style="margin-right:0.5rem"> ✅ Disetujui
+            </label>
+            <label style="padding:0.75rem;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='#3b82f6'" onmouseout="this.style.borderColor='#e2e8f0'">
+                <input type="radio" name="new-status" value="Perbaikan" style="margin-right:0.5rem"> ⚠️ Perbaikan
+            </label>
+            <label style="padding:0.75rem;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='#3b82f6'" onmouseout="this.style.borderColor='#e2e8f0'">
+                <input type="radio" name="new-status" value="Ditolak" style="margin-right:0.5rem"> ❌ Ditolak
+            </label>
+            <label style="padding:0.75rem;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='#3b82f6'" onmouseout="this.style.borderColor='#e2e8f0'">
+                <input type="radio" name="new-status" value="Batal" style="margin-right:0.5rem"> 🚫 Batal
+            </label>
+        </div>
+        <div style="display:flex;gap:0.75rem;">
+            <button class="btn btn-secondary" style="flex:1;" onclick="closeModal('status-change-inner-modal')">Batal</button>
+            <button class="btn btn-primary" style="flex:1;" onclick="submitStatusChange()">Simpan Perubahan</button>
+        </div>
+    `;
+    
+    closeModal('data-card-modal');
+    document.getElementById('status-change-inner-modal').classList.add('active');
+}
+
+async function submitStatusChange() {
+    const selected = document.querySelector('input[name="new-status"]:checked');
+    if (!selected) {
+        showToast('⚠️ Pilih status baru!', 'error');
+        return;
+    }
+    
+    const newStatus = selected.value;
+    
+    try {
+        if (typeof apiFetch === 'function' && typeof WEB_APP_URL !== 'undefined') {
+            const result = await apiFetch(WEB_APP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'adminUpdateStatus',
+                    rowNumber: currentCardData.rowNumber,
+                    newStatus: newStatus,
+                    noRegister: currentCardData.noRegister
+                })
+            });
+            
+            if (result.success || result.status === 'success') {
+                showToast(`✅ Status berhasil diubah menjadi "${newStatus}"`, 'success');
+                closeModal('status-change-inner-modal');
+                if (typeof fetchAdminData === 'function') fetchAdminData();
+            } else {
+                throw new Error(result.message || 'Gagal mengubah status');
+            }
+        } else {
+            // Fallback for local mode
+            showToast(`✅ Status diubah ke "${newStatus}" (local mode)`, 'success');
+            closeModal('status-change-inner-modal');
+        }
+    } catch (error) {
+        console.error('Error updating status:', error);
+        showToast(`❌ Gagal mengubah status: ${error.message}`, 'error');
+    }
+}
+
+// Roadmap Card Actions
+function editRoadmapFromCard(index) {
+    closeRoadmapCardModal();
+    if (typeof openEditRoadmapModal === 'function') {
+        openEditRoadmapModal(index);
+    } else {
+        showToast('🔧 Fitur Edit Roadmap...', 'info');
+    }
+}
+
+async function deleteRoadmapFromCard(index) {
+    if (!confirm('⚠️ Hapus data roadmap ini?')) return;
+    
+    closeRoadmapCardModal();
+    if (typeof deleteRoadmap === 'function') {
+        await deleteRoadmap(index);
+    }
+}
+
+function changeRoadmapStatusFromCard(index) {
+    closeRoadmapCardModal();
+    showToast('🔄 Fitur Ubah Status Roadmap...', 'info');
+    // TODO: Implement roadmap status change
+}
+
+function closeDataCardModal() {
+    document.getElementById('data-card-modal').classList.remove('active');
+    currentCardData = null;
+    currentCardRowNumber = null;
+}
+
+function closeRoadmapCardModal() {
+    document.getElementById('roadmap-card-modal').classList.remove('active');
+    currentCardData = null;
+}
+
 
 // Store submitted applications for search
 let submittedApplications = JSON.parse(localStorage.getItem('simbakes_applications') || '[]');
@@ -4786,6 +5159,28 @@ function showPage(pageId) {
     }
     
     if (pageId === 'dashboard') renderDashboard();
+    // Make table rows clickable to open Data Card Modal
+    document.getElementById('pengusul-table-body')?.addEventListener('click', function(e) {
+        const row = e.target.closest('tr[data-row-number]');
+        if (row && !e.target.closest('button') && !e.target.closest('a')) {
+            const rowNum = row.getAttribute('data-row-number');
+            if (rowNum && typeof openDataCardModal === 'function') {
+                openDataCardModal(rowNum);
+            }
+        }
+    });
+    
+    // Make roadmap table rows clickable
+    document.getElementById('roadmap-table-body')?.addEventListener('click', function(e) {
+        const row = e.target.closest('tr[data-index]');
+        if (row && !e.target.closest('button') && !e.target.closest('a')) {
+            const idx = row.getAttribute('data-index');
+            if (idx && typeof openRoadmapCardModal === 'function') {
+                openRoadmapCardModal(parseInt(idx));
+            }
+        }
+    });
+
     if (pageId === 'roadmap') renderRoadmap();
     if (pageId === 'data-pengusul') loadDataPengusul();
     if (pageId === 'data-roadmap') loadDataRoadmap();
@@ -5348,7 +5743,7 @@ function searchStatus() {
 // ===== RENDER FUNCTIONS =====
 
 // ===== CONFIGURATION =====
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby9MBeiz8Bn-cuBySz8i317mlOniiynXZ6r1s5mSRAMrxkrGRmN1QlH4KYQm6m_Rl7T5w/exec'; // Ganti dengan URL Web App Google Apps Script Anda
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwflGlDqxkvj7ivVxv0dlw6WWraVGa7BUlkypCbgxsgEJxFSBstJdEticnrjOgd5GQNJQ/exec'; // Ganti dengan URL Web App Google Apps Script Anda
 
 // ===== ROBUST API FETCH WRAPPER v1.0 =====
 /**
@@ -7017,7 +7412,7 @@ let roadmapCurrentPage = 1;
 let roadmapPageSize = 10;
 let roadmapTotalPages = 0;
 let roadmapTotalRecords = 0;
-let roadmapSearchTimeout = null;
+
 
 /**
  * Initialize and load Roadmap data when page is shown
@@ -7320,16 +7715,7 @@ function updateRoadmapStats() {
     document.getElementById('stat-selesai-roadmap').textContent = roadmapAdminData.filter(r => r[8] === 'Selesai').length;
 }
 
-/**
- * Debounce search input for Roadmap
- */
-function debounceSearchRoadmap() {
-    clearTimeout(roadmapSearchTimeout);
-    roadmapSearchTimeout = setTimeout(() => {
-        roadmapCurrentPage = 1;
-        fetchRoadmapData();
-    }, 500);
-}
+// (moved to top of script)
 
 /**
  * Filter Roadmap data when select changes
@@ -7774,301 +8160,6 @@ async function deleteRoadmap(index) {
         btn.disabled = false;
         btn.innerHTML = originalText;
     }
-}
-
-// ===== PHOTO CARD POPUP v1.0 =====
-/**
- * Pop Up Foto/Kartu Data Lengkap dengan CRUD di Bagian Bawah
- * Fitur:
- * - Menampilkan foto besar (atau placeholder jika tidak ada)
- * - Kartu data lengkap pengusul
- * - Tombol CRUD (Lihat Detail, Ubah Status, Hapus) di paling bawah
- */
-
-// Global variable untuk menyimpan data popup saat ini
-let currentPhotoCardData = null;
-
-/**
- * Buka Photo Card Popup untuk Data Pengusul
- * @param {number} rowNumber - Nomor baris data
- * @param {object} rowData - Data lengkap (optional, jika sudah ada)
- */
-async function openPhotoCardPopup(rowNumber, rowData = null) {
-    console.log('📸 Opening Photo Card Popup for row:', rowNumber);
-    
-    // Jika data belum ada, fetch dari API
-    if (!rowData) {
-        try {
-            showToast('📸 Memuat data...', 'info');
-            const result = await apiFetch(`${WEB_APP_URL}?action=getAllSubmissions&t=${Date.now()}&limit=1000`);
-            
-            if (result.status === 'success' && result.data) {
-                rowData = result.data.find(item => item.rowNumber == rowNumber);
-                if (!rowData) {
-                    showToast('❌ Data tidak ditemukan', 'error');
-                    return;
-                }
-            } else {
-                throw new Error('Gagal mengambil data');
-            }
-        } catch (error) {
-            console.error('Error fetching data for photo card:', error);
-            showToast('❌ Gagal memuat data: ' + error.message, 'error');
-            return;
-        }
-    }
-    
-    // Simpan data ke global variable
-    currentPhotoCardData = { ...rowData, rowNumber };
-    
-    // Buat atau dapatkan modal
-    const modalId = 'photo-card-popup';
-    let modal = document.getElementById(modalId);
-    
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = modalId;
-        modal.className = 'photo-card-popup-overlay';
-        document.body.appendChild(modal);
-    }
-    
-    // Generate status badge style
-    const getStatusStyle = (status) => {
-        const s = String(status).toLowerCase();
-        if (s.includes('disetujui') || s.includes('approve')) {
-            return 'background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #15803d;';
-        } else if (s.includes('ditolak') || s.includes('reject')) {
-            return 'background: linear-gradient(135deg, #fee2e2, #fecaca); color: #dc2626;';
-        } else if (s.includes('perbaikan') || s.includes('revision')) {
-            return 'background: linear-gradient(135deg, #fef3c7, #fde68a); color: #b45309;';
-        } else if (s.includes('batal') || s.includes('cancel')) {
-            return 'background: linear-gradient(135deg, #f1f5f9, #e2e8f0); color: #475569;';
-        } else {
-            return 'background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1d4ed8;';
-        }
-    };
-    
-    // Generate photo HTML
-    const photoUrl = rowData.linkFoto && rowData.linkFoto !== '-' ? rowData.linkFoto : '';
-    const photoHtml = photoUrl ? `
-        <img src="${photoUrl}" alt="Foto ${rowData.namaLengkap || 'Pengusul'}" 
-             onerror="this.parentElement.innerHTML=\`<div class='photo-card-photo-placeholder'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg><span>Foto Tidak Tersedia</span></div>\`">
-    ` : `
-        <div class="photo-card-photo-placeholder">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-            </svg>
-            <span>Foto Tidak Tersedia</span>
-        </div>
-    `;
-    
-    // Render modal content
-    modal.innerHTML = `
-        <div class="photo-card-popup">
-            <!-- Close Button -->
-            <button class="photo-card-close-btn" onclick="closePhotoCardPopup()" title="Tutup">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-            </button>
-            
-            <!-- Photo Section -->
-            <div class="photo-card-photo-section">
-                <div class="photo-card-photo-wrapper">
-                    ${photoHtml}
-                </div>
-            </div>
-            
-            <!-- Data Section -->
-            <div class="photo-card-data-section">
-                <!-- Header -->
-                <div class="photo-card-header">
-                    <div class="photo-card-name">${escapeHtml(rowData.namaLengkap || '-')}</div>
-                    <div class="photo-card-nik">NIK: ${escapeHtml(rowData.nik || '-')}</div>
-                    <div class="photo-card-status-badge" style="${getStatusStyle(rowData.status)}">
-                        ${getTableStatusBadge(rowData.status)}
-                    </div>
-                </div>
-                
-                <!-- Info Grid -->
-                <div class="photo-card-info-grid">
-                    <div class="photo-card-info-item">
-                        <div class="photo-card-info-label">No Register</div>
-                        <div class="photo-card-info-value" style="color:#2563eb;font-weight:600;">${escapeHtml(rowData.noRegister || '-')}</div>
-                    </div>
-                    <div class="photo-card-info-item">
-                        <div class="photo-card-info-label">Tanggal Pengajuan</div>
-                        <div class="photo-card-info-value">${formatDateTime(rowData.timestamp)}</div>
-                    </div>
-                    <div class="photo-card-info-item">
-                        <div class="photo-card-info-label">Tempat Lahir</div>
-                        <div class="photo-card-info-value">${escapeHtml(rowData.tempatLahir || '-')}</div>
-                    </div>
-                    <div class="photo-card-info-item">
-                        <div class="photo-card-info-label">Tanggal Lahir</div>
-                        <div class="photo-card-info-value">${formatDate(rowData.tanggalLahir)}</div>
-                    </div>
-                    <div class="photo-card-info-item full-width">
-                        <div class="photo-card-info-label">Alamat KTP</div>
-                        <div class="photo-card-info-value">${escapeHtml(rowData.alamatKTP || '-')}</div>
-                    </div>
-                    <div class="photo-card-info-item full-width">
-                        <div class="photo-card-info-label">Alamat Domisili</div>
-                        <div class="photo-card-info-value">${escapeHtml(rowData.alamatDomisili || '-')} (${rowData.lamaDomisili || '-} tahun)</div>
-                    </div>
-                    <div class="photo-card-info-item">
-                        <div class="photo-card-info-label">Pekerjaan</div>
-                        <div class="photo-card-info-value">${escapeHtml(rowData.pekerjaan || '-')}</div>
-                    </div>
-                    <div class="photo-card-info-item">
-                        <div class="photo-card-info-label">Posisi/Jabatan</div>
-                        <div class="photo-card-info-value">${escapeHtml(rowData.posisi || '-')}</div>
-                    </div>
-                    <div class="photo-card-info-item full-width">
-                        <div class="photo-card-info-label">Unit Kerja</div>
-                        <div class="photo-card-info-value">${escapeHtml(rowData.unitKerja || '-')}</div>
-                    </div>
-                    <div class="photo-card-info-item full-width">
-                        <div class="photo-card-info-label">Jurusan Tujuan</div>
-                        <div class="photo-card-info-value">${escapeHtml(rowData.jurusanTujuan || '-')}</div>
-                    </div>
-                    <div class="photo-card-info-item">
-                        <div class="photo-card-info-label">Jenjang Pendidikan</div>
-                        <div class="photo-card-info-value">${escapeHtml(rowData.jenjangPendidikan || '-')}</div>
-                    </div>
-                    <div class="photo-card-info-item">
-                        <div class="photo-card-info-label">Rencana Tahun Studi</div>
-                        <div class="photo-card-info-value">${escapeHtml(rowData.rencanaTahun || '-')}</div>
-                    </div>
-                    <div class="photo-card-info-item">
-                        <div class="photo-card-info-label">No HP</div>
-                        <div class="photo-card-info-value">${escapeHtml(rowData.noHP || '-')}</div>
-                    </div>
-                    <div class="photo-card-info-item">
-                        <div class="photo-card-info-label">No WhatsApp</div>
-                        <div class="photo-card-info-value">${escapeHtml(rowData.noWA || '-')}</div>
-                    </div>
-                    <div class="photo-card-info-item full-width">
-                        <div class="photo-card-info-label">Email</div>
-                        <div class="photo-card-info-value" style="color:#2563eb;">${escapeHtml(rowData.email || '-')}</div>
-                    </div>
-                </div>
-                
-                <!-- File Links (jika ada) -->
-                ${(rowData.linkFoto && rowData.linkFoto !== '-') || (rowData.linkDokumen && rowData.linkDokumen !== '-') ? `
-                <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid #e2e8f0;display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;">
-                    ${rowData.linkFoto && rowData.linkFoto !== '-' 
-                        ? `<a href="${rowData.linkFoto}" target="_blank" style="padding:0.5rem 1rem;background:#dcfce7;color:#166534;border-radius:8px;text-decoration:none;font-size:0.8rem;font-weight:500;">📷 Lihat Foto</a>` 
-                        : ''}
-                    ${rowData.linkDokumen && rowData.linkDokumen !== '-' 
-                        ? `<a href="${rowData.linkDokumen}" target="_blank" style="padding:0.5rem 1rem;background:#dbeafe;color:#1d4ed8;border-radius:8px;text-decoration:none;font-size:0.8rem;font-weight:500;">📄 Lihat Dokumen</a>` 
-                        : ''}
-                </div>
-                ` : ''}
-            </div>
-            
-            <!-- CRUD Section (Bagian Paling Bawah) -->
-            <div class="photo-card-crud-section">
-                <div class="photo-card-crud-title">⚙️ Aksi / Tindakan</div>
-                <div class="photo-card-crud-buttons">
-                    <button class="photo-card-crud-btn btn-view-card" onclick="handlePhotoCardView()" id="pc-btn-view">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                            <circle cx="12" cy="12" r="3"/>
-                        </svg>
-                        Lihat Detail
-                    </button>
-                    <button class="photo-card-crud-btn btn-status-card" onclick="handlePhotoCardStatus()" id="pc-btn-status">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                        Ubah Status
-                    </button>
-                    <button class="photo-card-crud-btn btn-delete-card" onclick="handlePhotoCardDelete()" id="pc-btn-delete">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3,6 5,6 21,6"/>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                            <line x1="10" y1="11" x2="10" y2="17"/>
-                            <line x1="14" y1="11" x2="14" y2="17"/>
-                        </svg>
-                        Hapus Data
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Show modal
-    modal.style.display = 'flex';
-    
-    // Prevent body scroll
-    document.body.style.overflow = 'hidden';
-    
-    // Add click outside to close
-    modal.onclick = (e) => {
-        if (e.target === modal) {
-            closePhotoCardPopup();
-        }
-    };
-    
-    console.log('✅ Photo Card Popup opened successfully');
-}
-
-/**
- * Tutup Photo Card Popup
- */
-function closePhotoCardPopup() {
-    const modal = document.getElementById('photo-card-popup');
-    if (modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-        currentPhotoCardData = null;
-    }
-}
-
-/**
- * Handle tombol "Lihat Detail" dari Photo Card
- */
-function handlePhotoCardView() {
-    if (!currentPhotoCardData) return;
-    
-    // Tutup popup lalu buka detail modal
-    closePhotoCardPopup();
-    
-    // Panggil fungsi view detail yang sudah ada
-    setTimeout(() => {
-        viewDetailPengusul(currentPhotoCardData.rowNumber);
-    }, 300);
-}
-
-/**
- * Handle tombol "Ubah Status" dari Photo Card
- */
-function handlePhotoCardStatus() {
-    if (!currentPhotoCardData) return;
-    
-    // Tutup popup lalu buka status modal
-    closePhotoCardPopup();
-    
-    setTimeout(() => {
-        openStatusModal(currentPhotoCardData.rowNumber, currentPhotoCardData.status || '');
-    }, 300);
-}
-
-/**
- * Handle tombol "Hapus Data" dari Photo Card
- */
-function handlePhotoCardDelete() {
-    if (!currentPhotoCardData) return;
-    
-    // Tutup popup lalu buka delete confirmation
-    closePhotoCardPopup();
-    
-    setTimeout(() => {
-        confirmDeletePengusul(currentPhotoCardData.rowNumber, currentPhotoCardData.namaLengkap || 'Data');
-    }, 300);
 }
 
 // ===== HELPER FUNCTIONS =====
@@ -8766,7 +8857,7 @@ let adminCurrentPage = 1;
 let adminPageSize = 10;
 let adminTotalPages = 0;
 let adminTotalRecords = 0;
-let adminSearchTimeout = null;
+
 
 /**
  * Initialize and load Data Pengusul when page is shown
@@ -8887,23 +8978,21 @@ function renderAdminTable(data) {
             <tr data-row-number="${row.rowNumber}" data-foto="${row.linkFoto || '-'}" data-dokumen="${row.linkDokumen || '-'}">
                 <!-- CRUD Actions Column -->
                 <td>
-                    <div class="crud-actions" style="position:relative;z-index:10;">
-                        <button class="btn-crud btn-view" onclick="event.stopPropagation(); openPhotoCardPopup(${row.rowNumber})" title="Lihat Foto & Kartu Data" style="pointer-events:auto!important;cursor:pointer!important;">
+                    <div class="crud-actions">
+                        <button class="btn-crud btn-view" onclick="viewDetailPengusul(${row.rowNumber})" title="Lihat Detail">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>
-                        <button class="btn-crud btn-status" onclick="event.stopPropagation(); openStatusModal(${row.rowNumber}, '${escapeHtml(row.status)}')" title="Ubah Status" style="pointer-events:auto!important;cursor:pointer!important;">
+                        <button class="btn-crud btn-status" onclick="openStatusModal(${row.rowNumber}, '${escapeHtml(row.status)}')" title="Ubah Status">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                         </button>
-                        <button class="btn-crud btn-delete" onclick="event.stopPropagation(); confirmDeletePengusul(${row.rowNumber}, '${escapeHtml(row.namaLengkap)}')" title="Hapus Data" style="pointer-events:auto!important;cursor:pointer!important;">
+                        <button class="btn-crud btn-delete" onclick="confirmDeletePengusul(${row.rowNumber}, '${escapeHtml(row.namaLengkap)}')" title="Hapus Data">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                         </button>
                     </div>
                 </td>
                 
-                <!-- Photo (Clickable) -->
-                <td onclick="openPhotoCardPopup(${row.rowNumber})" style="cursor:pointer;" title="Klik untuk lihat Foto & Kartu Data">
-                    ${photoCell}
-                </td>
+                <!-- Photo -->
+                <td>${photoCell}</td>
                 
                 <!-- Row Number -->
                 <td style="text-align:center;font-weight:600;color:#64748b;">${rowNum}</td>
@@ -9072,16 +9161,7 @@ async function updateAdminStats(pagination) {
     }
 }
 
-/**
- * Debounce search input
- */
-function debounceSearch() {
-    clearTimeout(adminSearchTimeout);
-    adminSearchTimeout = setTimeout(() => {
-        adminCurrentPage = 1;
-        fetchAdminData();
-    }, 500);
-}
+// (moved to top of script)
 
 /**
  * Filter data when select changes
@@ -9849,24 +9929,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.page').forEach(page => {
         observer.observe(page, { attributes: true, attributeFilter: ['class'] });
     });
-    
-    // Keyboard shortcut: ESC to close popups/modals
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' || e.keyCode === 27) {
-            // Close Photo Card Popup
-            closePhotoCardPopup();
-            
-            // Close all modals
-            document.querySelectorAll('.modal-overlay[style*="display: flex"]').forEach(modal => {
-                modal.style.display = 'none';
-            });
-            
-            // Restore body scroll
-            document.body.style.overflow = '';
-        }
-    });
-    
-    console.log('✅ SIMBAKES Initialized - Photo Card Popup Ready');
 });
 </script>
 
