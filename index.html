@@ -11617,7 +11617,15 @@ function clearSearchSkJfk() {
  */
 
 // ⚠️ GANTI INI dengan URL VisitorProxy.gs Anda setelah deploy!
-const VISITOR_TRACKER_URL = 'https://script.google.com/macros/s/AKfycbwlIydBJQ5JXxkNX4PeUovKKgABIgO0oY2fuH0s6ItgAFh982iODXf5r9cR5cQ4k2L-zw/exec';
+// 📌 Cara mendapatkan URL:
+//   1. Buka https://script.google.com → New Project
+//   2. Copy isi file VisitorProxy.gs
+//   3. Paste ke editor, lalu Save (Ctrl+S)
+//   4. Deploy > New deployment > Web app
+//   5. Set: Execute as=Me, Who has access=Anyone
+//   6. Deploy & copy URL deployment
+//   7. Paste URL di bawah ini:
+const VISITOR_TRACKER_URL = 'https://script.google.com/macros/s/AKfycbzpPJsTzYF33UlXMCB0oPrw8XgWStncMRF73JrF1mG-wehpe8Y6VtgBx3jKK2WkcS9Y/exec'; // ← GANTI INI!
 
 // Konfigurasi Refresh Visitor Stats (REAL-TIME MODE - DATA ASLI!)
 const VISITOR_CONFIG = {
@@ -11717,12 +11725,19 @@ const VisitorTracker = {
         
         try {
             console.log('[VisitorTracker] 📡 Mengambil data real-time dari server...');
+            console.log('[VisitorTracker] 🔗 Endpoint:', this.apiUrl);
+            
+            // Timeout diperpanjang menjadi 15 detik untuk koneksi yang lebih stabil
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
             
             const response = await fetch(`${this.apiUrl}?action=all&t=${Date.now()}`, {
                 method: 'GET',
                 mode: 'cors',
-                signal: AbortSignal.timeout(10000) // 10 detik timeout
+                signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);
             
             if (!response.ok) throw new Error('Server error: ' + response.status);
             
@@ -11743,12 +11758,17 @@ const VisitorTracker = {
                 console.log('[VisitorTracker] ✅ Data REAL-TIME berhasil dimuat!');
                 console.log('[VisitorTracker] 📊 Total:', data.stats.totalVisits, '| Hari ini:', data.stats.todayVisits);
             } else {
-                throw new Error('Invalid server response');
+                throw new Error('Invalid server response: ' + JSON.stringify(data));
             }
             
         } catch (error) {
-            console.error('[VisitorTracker] ❌ Gagal load data:', error.message);
-            this.showWaitingForDeploy();
+            // Handle timeout secara spesifik
+            if (error.name === 'AbortError') {
+                console.error('[VisitorTracker] ⏱️ Koneksi timeout (server mungkin lambat atau tidak tersedia)');
+            } else {
+                console.error('[VisitorTracker] ❌ Gagal load data:', error.message);
+            }
+            this.showConnectionError(error);
         }
     },
     
@@ -11769,15 +11789,27 @@ const VisitorTracker = {
         if (countriesEl) countriesEl.textContent = '-';
         if (onlineEl) onlineEl.textContent = '-';
         
-        // Tampilkan pesan di countries list
+        // Tampilkan pesan instruksi deploy di countries list
         const countriesContainer = document.getElementById('countriesListContainer');
         if (countriesContainer) {
             countriesContainer.innerHTML = `
                 <div style="text-align: center; padding: 20px; color: #64748b;">
-                    <i class="fas fa-clock" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
-                    <p style="font-size: 12px; font-weight: 600; margin-bottom: 5px;">Menunggu Deploy Server</p>
-                    <p style="font-size: 11px; color: #94a3b8;">
-                        Deploy VisitorProxy.gs untuk melihat statistik real-time
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 32px; margin-bottom: 15px; display: block; color: #3b82f6;"></i>
+                    <p style="font-size: 13px; font-weight: 600; margin-bottom: 10px; color: #1e40af;">⚡ Setup Diperlukan</p>
+                    <div style="background: #fef3c7; border-left: 3px solid #f59e0b; padding: 12px; margin: 10px 0; text-align: left; border-radius: 4px;">
+                        <p style="font-size: 11px; font-weight: 600; color: #92400e; margin-bottom: 8px;">📋 Langkah Deploy:</p>
+                        <ol style="font-size: 10px; color: #78350f; padding-left: 18px; margin: 0; line-height: 1.6;">
+                            <li>Buka <a href="https://script.google.com" target="blank" style="color: #2563eb;">script.google.com</a> → New Project</li>
+                            <li>Copy seluruh kode dari file <b>VisitorProxy.gs</b></li>
+                            <li>Paste ke editor, lalu Save (Ctrl+S)</li>
+                            <li>Deploy → New deployment → Web app</li>
+                            <li>Set: <b>Execute as=Me</b>, <b>Who has access=Anyone</b></li>
+                            <li>Click <b>Deploy</b> & copy URL deployment</li>
+                            <li>Paste URL ke variabel <code style="background: #e5e7eb; padding: 1px 4px; border-radius: 3px;">VISITOR_TRACKER_URL</code> di HTML</li>
+                        </ol>
+                    </div>
+                    <p style="font-size: 10px; color: #94a3b8; margin-top: 10px;">
+                        📁 File: <code style="background: #e5e7eb; padding: 1px 4px; border-radius: 3px;">VisitorProxy.gs</code> (sudah include di download)
                     </p>
                 </div>
             `;
@@ -11792,8 +11824,53 @@ const VisitorTracker = {
                 ctx.font = '12px Inter, sans-serif';
                 ctx.fillStyle = '#94a3b8';
                 ctx.textAlign = 'center';
-                ctx.fillText('Menunggu data real-time...', canvas.width/2, canvas.height/2);
+                ctx.fillText('⚡ Deploy VisitorProxy untuk melihat chart', canvas.width/2, canvas.height/2);
             }
+        }
+    },
+    
+    /**
+     * showConnectionError() - Tampilkan error koneksi dengan solusi
+     */
+    showConnectionError(error) {
+        console.log('[VisitorTracker] ❌ Menampilkan error koneksi...');
+        
+        const totalEl = document.getElementById('totalVisitors');
+        const todayEl = document.getElementById('todayVisitors');
+        const countriesEl = document.getElementById('totalCountries');
+        const onlineEl = document.getElementById('onlineNow');
+        
+        // Tampilkan "?" sebagai indikator error
+        if (totalEl) totalEl.textContent = '?';
+        if (todayEl) todayEl.textContent = '?';
+        if (countriesEl) countriesEl.textContent = '?';
+        if (onlineEl) onlineEl.textContent = '?';
+        
+        // Tampilkan pesan error dengan solusi
+        const countriesContainer = document.getElementById('countriesListContainer');
+        if (countriesContainer) {
+            const isTimeout = error.name === 'AbortError';
+            const errorMsg = isTimeout ? 'Server terlalu lambat merespons' : error.message;
+            
+            countriesContainer.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #dc2626;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 32px; margin-bottom: 15px; display: block;"></i>
+                    <p style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">❌ Gagal Terhubung ke Server</p>
+                    <div style="background: #fee2e2; border-left: 3px solid #dc2626; padding: 12px; margin: 10px 0; text-align: left; border-radius: 4px;">
+                        <p style="font-size: 11px; font-weight: 600; color: #991b1b; margin-bottom: 5px;">Error: ${errorMsg}</p>
+                        <p style="font-size: 10px; color: #7f1d1d; margin: 0;">URL: <code style="word-break: break-all; background: #fecaca; padding: 1px 4px; border-radius: 3px;">${this.apiUrl}</code></p>
+                    </div>
+                    <div style="background: #dbeafe; border-left: 3px solid #2563eb; padding: 12px; margin: 10px 0; text-align: left; border-radius: 4px;">
+                        <p style="font-size: 11px; font-weight: 600; color: #1e40af; margin-bottom: 8px;">💡 Solusi:</p>
+                        <ul style="font-size: 10px; color: #1e3a8a; padding-left: 18px; margin: 0; line-height: 1.6;">
+                            <li>Pastikan URL deployment sudah benar</li>
+                            <li>Cek apakah Apps Script sudah di-deploy</li>
+                            <li>Pastikan akses di-set ke <b>"Anyone"</b></li>
+                            <li>Refresh halaman ini setelah deploy</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
         }
     },
     
