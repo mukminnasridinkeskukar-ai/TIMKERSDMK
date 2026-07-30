@@ -744,7 +744,497 @@
         }
 
         
-        /* ===== DATA CARD MODAL (POPUP FOTO) ===== */
+        
+        /* ===== ENHANCED ADMIN LOGIN SYSTEM ===== */
+        .login-page-overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e3a5f 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.4s, visibility 0.4s;
+        }
+
+        .login-page-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            animation: loginSlideUp 0.5s ease-out;
+        }
+
+        @keyframes loginSlideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2.5rem;
+            color: white;
+            box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);
+        }
+
+        .login-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: #64748b;
+            font-size: 0.9375rem;
+        }
+
+        .login-form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .login-form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-input-wrapper {
+            position: relative;
+        }
+
+        .login-input-wrapper svg {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            width: 18px;
+            height: 18px;
+            pointer-events: none;
+        }
+
+        .login-input {
+            width: 100%;
+            height: 48px;
+            padding: 0 14px 0 44px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .login-input:focus {
+            border-color: #059669;
+            box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            height: 52px;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.35);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .login-error.show {
+            display: flex;
+        }
+
+        .login-hint {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .login-hint p {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-credentials {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .credential-badge {
+            background: #f1f5f9;
+            padding: 0.375rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.6875rem;
+            color: #475569;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Admin Info Bar (after login) */
+        .admin-info-bar {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            margin-bottom: 0.75rem;
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .admin-info-bar.visible {
+            display: flex;
+        }
+
+        .admin-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+            font-weight: 700;
+        }
+
+        .admin-avatar.admin-full {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        .admin-avatar.operator {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .admin-details {
+            flex: 1;
+        }
+
+        .admin-name {
+            font-weight: 700;
+            color: #166534;
+            font-size: 0.9375rem;
+        }
+
+        .admin-role-badge {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .role-admin-badge {
+            background: #059669;
+            color: white;
+        }
+
+        .role-operator-badge {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .admin-session-time {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        /* Updated sidebar login form */
+        .admin-login-form-enhanced {
+            padding: 1rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .admin-login-form-enhanced input {
+            height: 38px;
+            border-radius: 8px;
+            border: 1.5px solid #e2e8f0;
+        }
+
+        .admin-login-form-enhanced input:focus {
+            border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+
+
+
+        /* ===== TOP RIGHT LOGIN BAR ===== */
+        .topbar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 280px; /* Sidebar width */
+            height: 60px;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 1.5rem;
+            gap: 1rem;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .topbar-login-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
+        }
+
+        .topbar-login-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
+        }
+
+        .topbar-user-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .topbar-user-info {
+            text-align: right;
+        }
+
+        .topbar-user-name {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .topbar-user-role {
+            font-size: 0.6875rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .topbar-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .topbar-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .topbar-avatar.admin { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+        .topbar-avatar.operator { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+
+        .topbar-logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.5rem 0.875rem;
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .topbar-logout-btn:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+        }
+
+        /* Topbar Dropdown Menu */
+        .topbar-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 220px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s;
+            z-index: 200;
+        }
+
+        .topbar-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .topbar-dropdown-header {
+            padding: 1rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .topbar-dropdown-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: 700;
+        }
+
+        .topbar-dropdown-name {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 0.9375rem;
+        }
+
+        .topbar-dropdown-email {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .topbar-dropdown-item {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            color: #475569;
+            cursor: pointer;
+            transition: background 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .topbar-dropdown-item:hover {
+            background: #f8fafc;
+        }
+
+        .topbar-dropdown-divider {
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .topbar-dropdown-item.danger {
+            color: #dc2626;
+        }
+
+        .topbar-dropdown-item.danger:hover {
+            background: #fef2f2;
+        }
+
+        /* Adjust main content for topbar */
+        .main-content {
+            margin-top: 60px; /* Space for fixed topbar */
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .topbar {
+                left: 0;
+                padding: 0 1rem;
+            }
+            
+            .topbar-user-info {
+                display: none;
+            }
+        }
+
+        /* Hide old sidebar login when using topbar */
+        .sidebar .admin-login-form-enhanced {
+            display: none !important;
+        }
+        
+        .sidebar .admin-info-bar {
+            display: none !important;
+        }
+
+
+/* ===== DATA CARD MODAL (POPUP FOTO) ===== */
         .data-card-modal {
             max-width: 800px;
             width: 95%;
@@ -2721,14 +3211,24 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" id="arrow-admin"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
                 <div class="nav-items" id="items-admin">
-                    <div class="admin-login-form" id="admin-login-form">
-                        <label>Password Admin</label>
-                        <input type="password" id="admin-password" placeholder="Masukkan password">
-                        <button class="btn-login-sidebar" onclick="adminLogin()">
+                    <div class="admin-login-form-enhanced" id="admin-login-form">
+                        <label style="font-size:0.75rem;color:#64748b;font-weight:600;display:block;margin-bottom:4px;">Username</label>
+                        <input type="text" id="sidebar-username" placeholder="Username" style="margin-bottom:8px;">
+                        <label style="font-size:0.75rem;color:#64748b;font-weight:600;display:block;margin-bottom:4px;">Password</label>
+                        <input type="password" id="sidebar-password" placeholder="Password">
+                        <button class="btn-login-sidebar" onclick="handleSidebarLogin()" style="margin-top:10px;height:34px;">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10,17 15,12 10,7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-                            Login
+                            Login Admin
                         </button>
-                        <p class="hint-text">Default: admin123</p>
+                    </div>
+
+                    <!-- Admin Info Bar (shown after login) -->
+                    <div class="admin-info-bar" id="admin-info-bar">
+                        <div class="admin-avatar" id="admin-avatar-icon">A</div>
+                        <div class="admin-details">
+                            <div class="admin-name" id="admin-display-name">Administrator<span class="admin-role-badge role-admin-badge" id="admin-role-badge">ADMIN</span></div>
+                            <div class="admin-session-time" id="admin-session-info">Session aktif</div>
+                        </div>
                     </div>
 
                     <div id="admin-menu" style="display:none;">
@@ -2755,8 +3255,110 @@
         </div>
     </aside>
 
+    
+<!-- Admin Login Page Overlay -->
+<div class="login-page-overlay hidden" id="login-page">
+    <div class="login-container">
+        <div class="login-header" style="position:relative;">
+            <button onclick="closeLoginPage()" style="position:absolute;top:-10px;right:-10px;width:36px;height:36px;border-radius:50%;border:none;background:#f1f5f9;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:1.25rem;" title="Tutup">×</button>
+            <div class="login-logo">🔐</div>
+            <h1 class="login-title">Panel Admin</h1>
+            <p class="login-subtitle">Login diperlukan untuk mengakses data administrasi</p>
+        </div>
+
+        <form id="admin-login-form-enhanced" onsubmit="return handleAdminLogin(event)">
+            <div class="login-form-group">
+                <label class="login-form-label">Username</label>
+                <div class="login-input-wrapper">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <input type="text" id="login-username" class="login-input" placeholder="Masukkan username" autocomplete="username" required>
+                </div>
+            </div>
+
+            <div class="login-form-group">
+                <label class="login-form-label">Password</label>
+                <div class="login-input-wrapper">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <input type="password" id="login-password" class="login-input" placeholder="Masukkan password" autocomplete="current-password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="login-btn" id="btn-admin-login">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10,17 15,12 10,7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                Masuk ke Panel Admin
+            </button>
+
+            <div class="login-error" id="login-error-msg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                <span id="login-error-text">Username atau password salah!</span>
+            </div>
+        </form>
+
+        <div class="login-hint">
+            <p>Demo Credentials:</p>
+            <div class="login-credentials">
+                <span class="credential-badge">👑 Admin: admin / aida2007##</span>
+                <span class="credential-badge">👤 Operator: operator / op123</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
     <!-- MAIN CONTENT AREA -->
     <main class="main-content">
+    <!-- TOP BAR - Login/Admin Area (Fixed Top Right) -->
+    <div class="topbar" id="topbar">
+        <!-- Login Button (shown when not logged in) -->
+        <button class="topbar-login-btn" id="topbar-login-btn" onclick="openTopbarLogin()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10,17 15,12 10,7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Login Admin
+        </button>
+
+        <!-- User Menu (shown when logged in) -->
+        <div class="topbar-user-menu" id="topbar-user-menu" style="display:none;">
+            <div class="topbar-user-info">
+                <div class="topbar-user-name" id="topbar-display-name">Administrator</div>
+                <div class="topbar-user-role" id="topbar-display-role">Super Admin</div>
+            </div>
+            
+            <div style="position:relative;">
+                <div class="topbar-avatar admin" id="topbar-avatar" onclick="toggleUserDropdown()">
+                    👑
+                </div>
+                
+                <!-- Dropdown Menu -->
+                <div class="topbar-dropdown" id="user-dropdown">
+                    <div class="topbar-dropdown-header">
+                        <div class="topbar-dropdown-avatar admin" id="dropdown-avatar">👑</div>
+                        <div>
+                            <div class="topbar-dropdown-name" id="dropdown-name">Administrator</div>
+                            <div class="topbar-dropdown-email" id="dropdown-role">Admin Full Access</div>
+                        </div>
+                    </div>
+                    
+                    <button class="topbar-dropdown-item" onclick="goToAdminPanel()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        Panel Admin
+                    </button>
+                    
+                    <button class="topbar-dropdown-item" onclick="refreshSession()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        Refresh Session
+                    </button>
+                    
+                    <div class="topbar-dropdown-divider"></div>
+                    
+                    <button class="topbar-dropdown-item danger" onclick="adminLogout()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
         
         <!-- ===== DASHBOARD PAGE v3.0 ===== -->
         <div class="page active" id="page-dashboard">
@@ -4633,7 +5235,7 @@
 // File pendukung: SIMBAKES_WebApp_Code.gs (Google Apps Script Code)
 // ============================================================
 
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwflGlDqxkvj7ivVxv0dlw6WWraVGa7BUlkypCbgxsgEJxFSBstJdEticnrjOgd5GQNJQ/exec'; // ← PASTE URL WEB APP DI SINI
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzaIJBHsTP1EgfTcQw5NJUy5h_E5tUciJKW6MnEqqhM6OahnWNVt5sfKgugFPs_JTkceg/exec'; // ← PASTE URL WEB APP DI SINI
 
 // Set ke false jika sudah memasukkan URL Google Apps Script di atas
 const USE_LOCAL_STORAGE = false; // Ganti menjadi false setelah setup Google Sheets
@@ -5084,6 +5686,398 @@ function closeRoadmapCardModal() {
 }
 
 
+
+
+// ===== ENHANCED ADMIN AUTHENTICATION SYSTEM WITH ROLES =====
+
+/**
+ * Admin Users Configuration
+ * - role: 'admin' (full access) | 'operator' (Data Pengusul only)
+ * - password: plain text (in production, use hashed passwords)
+ */
+const ADMIN_USERS = [
+    {
+        username: 'admin',
+        password: 'aida2007##',
+        name: 'Super Administrator',
+        role: 'admin',      // Full access to all menus
+        avatar: '👑'
+    },
+    {
+        username: 'operator',
+        password: 'op123',
+        name: 'Operator Data',
+        role: 'operator',   // Access to Data Pengusul only
+        avatar: '👤'
+    },
+    {
+        username: 'simbakes',
+        password: 'simbakes2024',
+        name: 'Admin SIMBAKES',
+        role: 'admin',
+        avatar: '🎓'
+    }
+];
+
+// Current admin session state
+let currentAdminUser = null;  // Stores current logged-in user object
+let adminSessionTimer = null; // Auto-logout timer
+const SESSION_DURATION = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
+
+/**
+ * Initialize authentication state from localStorage
+ * Call this on page load
+ */
+function initAuthState() {
+    const savedSession = localStorage.getItem('simbakes_admin_session');
+    
+    // Pastikan login page tetap tersembunyi saat load
+    // Login hanya diperlukan untuk Panel Admin saja!
+    const loginPage = document.getElementById('login-page');
+    if (loginPage) loginPage.classList.add('hidden');
+    
+    if (savedSession) {
+        try {
+            const sessionData = JSON.parse(savedSession);
+            
+            // Validate session is not expired
+            if (sessionData.timestamp && (Date.now() - sessionData.timestamp) < SESSION_DURATION) {
+                // Restore session
+                currentAdminUser = sessionData.user;
+                
+                // Update UI for logged-in state (sidebar admin menu)
+                showLoggedInUI(currentAdminUser);
+                
+                console.log('✅ Session restored for:', currentAdminUser.name);
+                return true;
+            } else {
+                // Session expired - tapi jangan tampilkan login page
+                console.log('⏰ Session expired, silakan login saat akses Panel Admin');
+                clearAuthState();
+            }
+        } catch (e) {
+            console.error('❌ Error parsing session:', e);
+            clearAuthState();
+        }
+    }
+    
+    // JANGAN tampilkan login page - user bisa akses menu lain bebas
+    return false;
+}
+
+/**
+ * Handle login from main login page overlay
+ */
+function handleAdminLogin(event) {
+    event.preventDefault();
+    
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    
+    return performAuthentication(username, password, 'main');
+}
+
+/**
+ * Handle login from sidebar form
+ */
+function handleSidebarLogin() {
+    const username = document.getElementById('sidebar-username').value.trim();
+    const password = document.getElementById('sidebar-password').value;
+    
+    performAuthentication(username, password, 'sidebar');
+}
+
+/**
+ * Core authentication logic
+ * @param {string} username 
+ * @param {string} password 
+ * @param {string} source - 'main' or 'sidebar'
+ * @returns {boolean} success status
+ */
+function performAuthentication(username, password, source) {
+    // Find user in database
+    const user = ADMIN_USERS.find(u => u.username.toLowerCase() === username.toLowerCase());
+    
+    // Show error element reference
+    const errorEl = document.getElementById('login-error-msg');
+    const errorTextEl = document.getElementById('login-error-text');
+    
+    if (!user) {
+        showError(errorEl, errorTextEl, 'Username tidak ditemukan!');
+        shakeElement(source === 'main' ? '.login-container' : '#admin-login-form');
+        return false;
+    }
+    
+    if (user.password !== password) {
+        showError(errorEl, errorTextEl, 'Password salah!');
+        shakeElement(source === 'main' ? '.login-container' : '#admin-login-form');
+        return false;
+    }
+    
+    // Authentication successful!
+    currentAdminUser = user;
+    
+    // Save session to localStorage
+    saveSession(user);
+    
+    // Update UI
+    showLoggedInUI(user);
+    
+    // Hide login page/elements
+    if (source === 'main') {
+        document.getElementById('login-page')?.classList.add('hidden');
+        // Clear form fields
+        document.getElementById('login-username').value = '';
+        document.getElementById('login-password').value = '';
+        hideError(errorEl);
+    } else {
+        document.getElementById('sidebar-username').value = '';
+        document.getElementById('sidebar-password').value = '';
+    }
+    
+    // Start session timer
+    startSessionTimer();
+    
+    showToast(`✅ Selamat datang, ${user.name}! (${user.role.toUpperCase()})`, 'success');
+    console.log(`✅ Logged in as: ${user.name} [${user.role}]`);
+    
+    return true;
+}
+
+/**
+ * Show UI elements for logged-in state
+ */
+function showLoggedInUI(user) {
+    // Hide login forms (sidebar)
+    document.getElementById('admin-login-form').style.display = 'none';
+    
+    // Show admin menu in sidebar
+    document.getElementById('admin-menu').style.display = 'block';
+    document.getElementById('admin-info-bar').classList.add('visible');
+    
+    // Update admin info bar content (sidebar)
+    document.getElementById('admin-avatar-icon').textContent = user.avatar;
+    document.getElementById('admin-avatar-icon').className = `admin-avatar ${user.role === 'admin' ? 'admin-full' : 'operator'}`;
+    document.getElementById('admin-display-name').innerHTML = `${user.name}<span class="admin-role-badge ${user.role === 'admin' ? 'role-admin-badge' : 'role-operator-badge'}">${user.role.toUpperCase()}</span>`;
+    
+    // Apply role-based menu visibility
+    applyRoleBasedAccess(user.role);
+    
+    // Update status badge in nav
+    document.getElementById('admin-status-badge').textContent = user.role === 'admin' ? 'Admin' : 'Operator';
+    document.getElementById('admin-status-badge').className = 'badge-online';
+    
+    // UPDATE TOPBAR (PojoK Kanan Atas)!
+    if (typeof updateTopbarAfterLogin === 'function') {
+        updateTopbarAfterLogin(user);
+    }
+}
+
+/**
+ * Apply role-based access control to menus
+ * @param {string} role - 'admin' or 'operator'
+ */
+function applyRoleBasedAccess(role) {
+    const roadmapNav = document.getElementById('nav-data-roadmap');
+    const roadmapPage = document.getElementById('page-data-roadmap');
+    
+    if (role === 'operator') {
+        // Operator can ONLY access Data Pengusul
+        // Hide Roadmap from navigation
+        if (roadmapNav) {
+            roadmapNav.style.display = 'none';
+            roadmapNav.setAttribute('data-hidden-for', 'operator');
+        }
+        
+        // If currently on Roadmap page, redirect to Pengusul
+        if (roadmapPage && roadmapPage.classList.contains('active')) {
+            showPage('data-pengusul');
+            showToast('ℹ️ Operator hanya dapat mengakses menu Data Pengusul', 'info');
+        }
+        
+        console.log('🔒 Operator mode: Roadmap menu hidden');
+    } else {
+        // Admin has full access - show all menus
+        if (roadmapNav) {
+            roadmapNav.style.display = '';
+            roadmapNav.removeAttribute('data-hidden-for');
+        }
+        
+        console.log('🔓 Admin mode: All menus visible');
+    }
+}
+
+/**
+ * Save session to localStorage
+ */
+function saveSession(user) {
+    const sessionData = {
+        user: user,
+        timestamp: Date.now(),
+        userAgent: navigator.userAgent
+    };
+    
+    localStorage.setItem('simbakes_admin_session', JSON.stringify(sessionData));
+}
+
+/**
+ * Clear authentication state
+ */
+function clearAuthState() {
+    currentAdminUser = null;
+    localStorage.removeItem('simbakes_admin_session');
+    
+    if (adminSessionTimer) {
+        clearTimeout(adminSessionTimer);
+        adminSessionTimer = null;
+    }
+}
+
+/**
+ * Logout function - enhanced with cleanup
+ */
+function adminLogout() {
+    const userName = currentAdminUser?.name || 'Admin';
+    
+    // Clear everything
+    clearAuthState();
+    
+    // Reset UI sidebar
+    document.getElementById('admin-login-form').style.display = 'block';
+    document.getElementById('admin-menu').style.display = 'none';
+    document.getElementById('admin-info-bar').classList.remove('visible');
+    document.getElementById('admin-status-badge').textContent = 'Login';
+    document.getElementById('admin-status-badge').className = 'badge-login';
+    
+    // JANGAN tampilkan login page overlay - biarkan user di dashboard
+    document.getElementById('login-page')?.classList.add('hidden');
+    
+    // RESET TOPBAR ke kondisi awal (tombol Login muncul lagi)
+    if (typeof resetTopbarAfterLogout === 'function') {
+        resetTopbarAfterLogout();
+    }
+    
+    // Navigate to dashboard (bisa diakses tanpa login)
+    showPage('dashboard');
+    
+    // Tampilkan semua menu yang mungkin disembunyikan (Roadmap untuk operator)
+    const roadmapNav = document.getElementById('nav-data-roadmap');
+    if (roadmapNav) {
+        roadmapNav.style.display = '';
+        roadmapNav.removeAttribute('data-hidden-for');
+    }
+    
+    showToast(`👋 Sampai jumpa, ${userName}!`, 'info');
+    console.log(`👋 Logged out: ${userName}`);
+}
+
+/**
+ * Check if user has specific permission
+ * @param {string} permission - 'roadmap' | 'full'
+ */
+function hasPermission(permission) {
+    if (!currentAdminUser) return false;
+    
+    if (currentAdminUser.role === 'admin') return true;
+    
+    // Operator permissions
+    if (permission === 'roadmap') return false;
+    
+    return true; // Default allow for other things
+}
+
+/**
+ * Get current user's role
+ */
+function getCurrentUserRole() {
+    return currentAdminUser?.role || null;
+}
+
+/**
+ * Check if user is logged in
+ */
+function isAdminAuthenticated() {
+    return currentAdminUser !== null;
+}
+
+/**
+ * Start auto-logout timer
+ */
+function startSessionTimer() {
+    if (adminSessionTimer) clearTimeout(adminSessionTimer);
+    
+    adminSessionTimer = setTimeout(() => {
+        showToast('⏰ Sesi Anda telah berakhir. Silakan login kembali.', 'error', 5000);
+        adminLogout();
+    }, SESSION_DURATION);
+    
+    // Update session info display
+    updateSessionInfo();
+}
+
+/**
+ * Update session info display
+ */
+function updateSessionInfo() {
+    const sessionInfoEl = document.getElementById('admin-session-info');
+    if (sessionInfoEl && currentAdminUser) {
+        const now = new Date();
+        sessionInfoEl.textContent = `Aktif sejak ${now.toLocaleTimeString('id-ID')}`;
+    }
+}
+
+/**
+ * Helper: Show error message
+ */
+function showError(element, textElement, message) {
+    if (element && textElement) {
+        textElement.textContent = message;
+        element.classList.add('show');
+    }
+}
+
+/**
+ * Helper: Hide error message
+ */
+function hideError(element) {
+    if (element) {
+        element.classList.remove('show');
+    }
+}
+
+/**
+ * Helper: Shake animation for invalid input
+ */
+function shakeElement(selector) {
+    const el = document.querySelector(selector);
+    if (!el) return;
+    
+    el.style.animation = 'none';
+    el.offsetHeight; // Trigger reflow
+    el.style.animation = 'shake 0.5s ease-in-out';
+    
+    setTimeout(() => {
+        el.style.animation = '';
+    }, 500);
+}
+
+// Add shake keyframe dynamically
+const shakeStyle = document.createElement('style');
+shakeStyle.textContent = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-10px); }
+        40%, 80% { transform: translateX(10px); }
+    }
+`;
+document.head.appendChild(shakeStyle);
+
+// Override original adminLogin function for backward compatibility
+function adminLogin() {
+    handleSidebarLogin();
+}
+
+
 // Store submitted applications for search
 let submittedApplications = JSON.parse(localStorage.getItem('simbakes_applications') || '[]');
 
@@ -5159,6 +6153,9 @@ function showPage(pageId) {
     }
     
     if (pageId === 'dashboard') renderDashboard();
+    
+    // Initialize Authentication System
+    initAuthState();
     // Make table rows clickable to open Data Card Modal
     document.getElementById('pengusul-table-body')?.addEventListener('click', function(e) {
         const row = e.target.closest('tr[data-row-number]');
@@ -5743,7 +6740,7 @@ function searchStatus() {
 // ===== RENDER FUNCTIONS =====
 
 // ===== CONFIGURATION =====
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwflGlDqxkvj7ivVxv0dlw6WWraVGa7BUlkypCbgxsgEJxFSBstJdEticnrjOgd5GQNJQ/exec'; // Ganti dengan URL Web App Google Apps Script Anda
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzaIJBHsTP1EgfTcQw5NJUy5h_E5tUciJKW6MnEqqhM6OahnWNVt5sfKgugFPs_JTkceg/exec'; // Ganti dengan URL Web App Google Apps Script Anda
 
 // ===== ROBUST API FETCH WRAPPER v1.0 =====
 /**
@@ -9911,6 +10908,229 @@ PaginationManager.init('recent-submissions', 10);
 PaginationManager.init('recent-visitors', 10);
 PaginationManager.init('status-detail', 10);
 PaginationManager.init('roadmap', 10);
+
+
+// ===== PAGE ACCESS PROTECTION (REVISED) =====
+// HANYA Panel Admin yang perlu login, menu lain BEBAS akses!
+document.addEventListener('DOMContentLoaded', function() {
+    // Intercept navigation to PROTECTED admin pages only
+    const originalShowPageFunc = window.showPage;
+    
+    if (typeof originalShowPageFunc === 'function') {
+        window.showPage = function(pageId) {
+            // DAFTAR HALAMAN YANG MEMERLUKAN LOGIN (Panel Admin saja!)
+            const adminProtectedPages = ['data-pengusul', 'data-roadmap'];
+            
+            // Cek apakah ini halaman admin yang diproteksi
+            if (adminProtectedPages.includes(pageId)) {
+                
+                // Jika belum login, tampilkan login page
+                if (typeof isAdminAuthenticated === 'function' && !isAdminAuthenticated()) {
+                    const loginPage = document.getElementById('login-page');
+                    if (loginPage) loginPage.classList.remove('hidden');
+                    
+                    if (typeof showToast === 'function') {
+                        showToast('🔐 Silakan login untuk mengakses Panel Admin', 'error', 3000);
+                    }
+                    
+                    // Jangan lanjut ke halaman admin
+                    return;
+                }
+                
+                // Sudah login, cek role-based access untuk Roadmap
+                if (pageId === 'data-roadmap' && typeof hasPermission === 'function' && !hasPermission('roadmap')) {
+                    if (typeof showToast === 'function') {
+                        showToast('🚫 Operator tidak memiliki akses ke Data Roadmap', 'error', 3000);
+                    }
+                    return;
+                }
+            }
+            
+            // Halaman LAIN (Dashboard, Form, Cek Status, Roadmap Public) 
+            // => TIDAK PERLU LOGIN, langsung buka!
+            
+            // Call original function
+            originalShowPageFunc.call(this, pageId);
+        };
+    }
+});
+
+
+
+
+// ===== LOGIN PAGE HELPER =====
+/**
+ * Tutup login page dan kembali ke halaman sebelumnya
+ * Dipanggil jika user ingin batal login
+ */
+function closeLoginPage() {
+    const loginPage = document.getElementById('login-page');
+    if (loginPage) loginPage.classList.add('hidden');
+    
+    // Kembali ke dashboard
+    showPage('dashboard');
+}
+
+/**
+ * Buka login page (dipanggil saat klik menu admin tanpa login)
+ */
+function showLoginPage() {
+    const loginPage = document.getElementById('login-page');
+    if (loginPage) loginPage.classList.remove('hidden');
+}
+
+
+
+
+// ===== TOPBAR LOGIN SYSTEM =====
+
+/**
+ * Open login modal/page from topbar button
+ */
+function openTopbarLogin() {
+    // Option 1: Show login page overlay
+    const loginPage = document.getElementById('login-page');
+    if (loginPage) {
+        loginPage.classList.remove('hidden');
+        
+        // Focus on username field
+        setTimeout(() => {
+            const usernameField = document.getElementById('login-username');
+            if (usernameField) usernameField.focus();
+        }, 300);
+    }
+}
+
+/**
+ * Toggle user dropdown menu
+ */
+function toggleUserDropdown() {
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('show');
+        
+        // Close dropdown when clicking outside
+        setTimeout(() => {
+            document.addEventListener('click', closeDropdownOnClickOutside);
+        }, 10);
+    }
+}
+
+/**
+ * Close dropdown when clicking outside
+ */
+function closeDropdownOnClickOutside(event) {
+    const dropdown = document.getElementById('user-dropdown');
+    const avatar = document.getElementById('topbar-avatar');
+    
+    if (dropdown && !dropdown.contains(event.target) && !avatar.contains(event.target)) {
+        dropdown.classList.remove('show');
+        document.removeEventListener('click', closeDropdownOnClickOutside);
+    }
+}
+
+/**
+ * Update TopBar UI after successful login
+ */
+function updateTopbarAfterLogin(user) {
+    // Hide login button
+    const loginBtn = document.getElementById('topbar-login-btn');
+    if (loginBtn) loginBtn.style.display = 'none';
+    
+    // Show user menu
+    const userMenu = document.getElementById('topbar-user-menu');
+    if (userMenu) userMenu.style.display = 'flex';
+    
+    // Update user info
+    const displayName = document.getElementById('topbar-display-name');
+    if (displayName) displayName.textContent = user.name;
+    
+    const displayRole = document.getElementById('topbar-display-role');
+    if (displayRole) {
+        displayRole.textContent = user.role === 'admin' ? 'Super Administrator' : 'Operator Data';
+    }
+    
+    // Update avatar
+    const avatar = document.getElementById('topbar-avatar');
+    if (avatar) {
+        avatar.textContent = user.avatar;
+        avatar.className = `topbar-avatar ${user.role}`;
+    }
+    
+    // Update dropdown info
+    const dropdownAvatar = document.getElementById('dropdown-avatar');
+    if (dropdownAvatar) {
+        dropdownAvatar.textContent = user.avatar;
+        dropdownAvatar.className = `topbar-dropdown-avatar ${user.role}`;
+    }
+    
+    const dropdownName = document.getElementById('dropdown-name');
+    if (dropdownName) dropdownName.textContent = user.name;
+    
+    const dropdownRole = document.getElementById('dropdown-role');
+    if (dropdownRole) {
+        dropdownRole.textContent = user.role === 'admin' ? 'Full Access - Admin' : 'Limited Access - Operator';
+    }
+    
+    console.log('✅ TopBar updated for:', user.name);
+}
+
+/**
+ * Reset TopBar UI after logout
+ */
+function resetTopbarAfterLogout() {
+    // Show login button
+    const loginBtn = document.getElementById('topbar-login-btn');
+    if (loginBtn) loginBtn.style.display = '';
+    
+    // Hide user menu
+    const userMenu = document.getElementById('topbar-user-menu');
+    if (userMenu) userMenu.style.display = 'none';
+    
+    // Close dropdown if open
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown) dropdown.classList.remove('show');
+}
+
+/**
+ * Navigate to Admin Panel from dropdown
+ */
+function goToAdminPanel() {
+    // Close dropdown
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown) dropdown.classList.remove('show');
+    
+    // Go to Data Pengusul page
+    if (typeof showPage === 'function') {
+        showPage('data-pengusul');
+    }
+}
+
+/**
+ * Refresh session info
+ */
+function refreshSession() {
+    // Close dropdown
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown) dropdown.classList.remove('show');
+    
+    // Update session time
+    updateSessionInfo();
+    
+    if (typeof showToast === 'function') {
+        showToast('🔄 Session refreshed', 'success', 2000);
+    }
+}
+
+// Close dropdown on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const dropdown = document.getElementById('user-dropdown');
+        if (dropdown) dropdown.classList.remove('show');
+    }
+});
+
+
 
 // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', () => {
