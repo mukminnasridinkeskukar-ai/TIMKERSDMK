@@ -6081,8 +6081,6 @@ function adminLogin() {
 // Store submitted applications for search
 let submittedApplications = JSON.parse(localStorage.getItem('simbakes_applications') || '[]');
 
-let isAdminLoggedIn = false;
-
 // File storage (v2.0 - Base64 for Google Drive upload)
 let uploadedPhoto = null;        // Base64 string for photo
 let uploadedPDFBase64 = null;    // Base64 string for PDF document
@@ -6146,10 +6144,33 @@ function showPage(pageId) {
     const navItem = document.getElementById('nav-' + pageId);
     if (navItem) navItem.classList.add('active');
     
-    if ((pageId === 'data-pengusul' || pageId === 'data-roadmap') && !isAdminLoggedIn) {
-        alert('Silakan login sebagai Admin terlebih dahulu!');
-        showPage('dashboard');
-        return;
+    // Cek autentikasi menggunakan SISTEM BARU (RBAC)
+    // Hanya Panel Admin yang perlu login!
+    const adminProtectedPages = ['data-pengusul', 'data-roadmap'];
+    if (adminProtectedPages.includes(pageId)) {
+        // Gunakan isAdminAuthenticated() dari sistem RBAC, bukan variabel lama!
+        if (typeof isAdminAuthenticated === 'function' && !isAdminAuthenticated()) {
+            // Tampilkan pesan dan buka login
+            if (typeof showToast === 'function') {
+                showToast('🔐 Silakan login untuk mengakses Panel Admin', 'error', 3000);
+            }
+            // Buka login page/topbar login
+            const loginPage = document.getElementById('login-page');
+            if (loginPage) loginPage.classList.remove('hidden');
+            // Kembali ke dashboard
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const dashboardPage = document.getElementById('page-dashboard');
+            if (dashboardPage) dashboardPage.classList.add('active');
+            return;
+        }
+        
+        // Cek role-based access untuk Roadmap (Operator tidak bisa akses)
+        if (pageId === 'data-roadmap' && typeof hasPermission === 'function' && !hasPermission('roadmap')) {
+            if (typeof showToast === 'function') {
+                showToast('🚫 Operator tidak memiliki akses ke Data Roadmap', 'error', 3000);
+            }
+            return;
+        }
     }
     
     if (pageId === 'dashboard') renderDashboard();
@@ -6183,18 +6204,15 @@ function showPage(pageId) {
     if (pageId === 'data-roadmap') loadDataRoadmap();
 }
 
-// ===== ADMIN AUTH =====
+// ===== ADMIN AUTH (LEGACY - Redirect to new system) =====
 function adminLogin() {
-    const password = document.getElementById('admin-password').value;
-    if (password === 'aida2007##') {
-        isAdminLoggedIn = true;
-        document.getElementById('admin-login-form').style.display = 'none';
-        document.getElementById('admin-menu').style.display = 'block';
-        document.getElementById('admin-status-badge').textContent = 'Online';
-        document.getElementById('admin-status-badge').className = 'badge-online';
-        document.getElementById('admin-password').value = '';
-    } else {
-        alert('Password salah! Gunakan password yang benar');
+    // Redirect ke sistem autentikasi baru (RBAC)
+    const username = document.getElementById('sidebar-username')?.value || 'admin';
+    const password = document.getElementById('admin-password')?.value || '';
+    
+    if (performAuthentication(username, password, 'sidebar')) {
+        // Login berhasil, navigasi ke data pengusul
+        setTimeout(() => showPage('data-pengusul'), 100);
     }
 }
 
@@ -10901,50 +10919,11 @@ PaginationManager.init('status-detail', 10);
 PaginationManager.init('roadmap', 10);
 
 
-// ===== PAGE ACCESS PROTECTION (REVISED) =====
-// HANYA Panel Admin yang perlu login, menu lain BEBAS akses!
-document.addEventListener('DOMContentLoaded', function() {
-    // Intercept navigation to PROTECTED admin pages only
-    const originalShowPageFunc = window.showPage;
-    
-    if (typeof originalShowPageFunc === 'function') {
-        window.showPage = function(pageId) {
-            // DAFTAR HALAMAN YANG MEMERLUKAN LOGIN (Panel Admin saja!)
-            const adminProtectedPages = ['data-pengusul', 'data-roadmap'];
-            
-            // Cek apakah ini halaman admin yang diproteksi
-            if (adminProtectedPages.includes(pageId)) {
-                
-                // Jika belum login, tampilkan login page
-                if (typeof isAdminAuthenticated === 'function' && !isAdminAuthenticated()) {
-                    const loginPage = document.getElementById('login-page');
-                    if (loginPage) loginPage.classList.remove('hidden');
-                    
-                    if (typeof showToast === 'function') {
-                        showToast('🔐 Silakan login untuk mengakses Panel Admin', 'error', 3000);
-                    }
-                    
-                    // Jangan lanjut ke halaman admin
-                    return;
-                }
-                
-                // Sudah login, cek role-based access untuk Roadmap
-                if (pageId === 'data-roadmap' && typeof hasPermission === 'function' && !hasPermission('roadmap')) {
-                    if (typeof showToast === 'function') {
-                        showToast('🚫 Operator tidak memiliki akses ke Data Roadmap', 'error', 3000);
-                    }
-                    return;
-                }
-            }
-            
-            // Halaman LAIN (Dashboard, Form, Cek Status, Roadmap Public) 
-            // => TIDAK PERLU LOGIN, langsung buka!
-            
-            // Call original function
-            originalShowPageFunc.call(this, pageId);
-        };
-    }
-});
+// ===== PAGE ACCESS PROTECTION NOTES =====
+// Proteksi halaman admin SUDAH TERINTEGRASI di dalam fungsi showPage() utama
+// - Menggunakan sistem RBAC: isAdminAuthenticated(), hasPermission()
+// - Hanya data-pengusul & data-roadmap yang diproteksi
+// - Menu lain (Dashboard, Form, dll) BEBAS akses tanpa login
 
 
 
