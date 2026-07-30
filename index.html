@@ -11616,18 +11616,20 @@ function clearSearchSkJfk() {
  * 3. Ganti VISITOR_TRACKER_URL di bawah ini
  */
 
-// ⚠️ GANTI INI dengan URL VisitorProxy.gs Anda!
-const VISITOR_TRACKER_URL = 'https://script.google.com/macros/s/AKfycbxj0nCjGdYlgkbDNIJ-032-ffo3SLuHggF2cyEi7vAvI7pllzZmP46Tr-GAM3HN9KR9bg/exec';
+// ⚠️ GANTI INI dengan URL VisitorProxy.gs Anda setelah deploy!
+const VISITOR_TRACKER_URL = 'https://script.google.com/macros/s/AKfycbwkJsKXmZstSKxHaXk34yPZ-EeO297SvuTvNV1idK_Gz08SCX-eQtVU6h3UIlxgjSprNg/exec';
 
-// Konfigurasi Refresh Visitor Stats
+// Konfigurasi Refresh Visitor Stats (REAL-TIME MODE - DATA ASLI!)
 const VISITOR_CONFIG = {
     REFRESH_INTERVAL: 3600000,      // 1 jam (3600000 ms) - Refresh data statistik
     ONLINE_UPDATE_INTERVAL: 180000, // 3 menit - Update jumlah online (simulasi)
     MIN_REFRESH_GAP: 300000,        // Minimal 5 menit antar refresh manual
-    // ⚠️ PERMANENT MODE: TIDAK ADA AUTO-CLEAN!
-    AUTO_CLEAN_ENABLED: false,      // Auto-clean DISABLED
-    DATA_RETENTION: 'PERMANENT',    // Data tersimpan selamanya
-    MAX_RECORDS: Infinity           // Tidak ada batasan jumlah record
+    // ⚠️ REAL-TIME MODE: Data asli dari pengunjung website!
+    USE_REAL_DATA: true,            // ✅ Gunakan data REAL (bukan demo)
+    AUTO_CLEAN_ENABLED: false,       // Auto-clean DISABLED
+    DATA_RETENTION: 'PERMANENT',     // Data tersimpan selamanya di Google Sheets
+    MAX_RECORDS: Infinity,           // Tidak ada batasan jumlah record
+    GOOGLE_SHEET_ID: '1Kb5zlIZJ3yrCLMTDtQpxwR-hQ7V1wJMIM9AygevLr3Q' // ID Sheets User
 };
 
 const VisitorTracker = {
@@ -11665,34 +11667,133 @@ const VisitorTracker = {
     },
     
     /**
-     * initialize() - Inisialisasi sistem tracking real-time
+     * initialize() - Inisialisasi sistem tracking (REAL-TIME MODE)
+     * ⚠️ HANYA menggunakan data asli dari server, TIDAK ada demo!
      */
     async initialize() {
-        console.log('[VisitorTracker] Initializing v2.1 (Smooth Refresh Mode)...');
+        console.log('[VisitorTracker] 🚀 Initializing v3.0 (REAL-TIME Mode)...');
+        console.log('[VisitorTracker] 📊 Google Sheets ID:', VISITOR_CONFIG.GOOGLE_SHEET_ID);
         
         try {
-            // 1. Record visit ke server
-            await this.recordVisitToServer();
+            // 1. Record visit ke server (non-blocking)
+            this.recordVisitToServer().catch(err => {
+                console.log('[VisitorTracker] Recording:', err.message);
+            });
             
-            // 2. Load data dari server (dengan animasi untuk pertama kali)
-            this.isInitialLoad = true;
-            await this.loadStatsFromServer();
+            // 2. Load data REAL dari server
+            await this.loadRealTimeData();
             
-            // 3. Setup auto-refresh (jarang, halus)
+            // 3. Setup auto-refresh
             this.setupAutoRefresh();
             
-            // 4. Listen for visibility changes (dengan throttle)
+            // 4. Listen for visibility changes
             document.addEventListener('visibilitychange', () => {
                 if (!document.hidden) {
                     this.throttledVisibilityRefresh();
                 }
             });
             
-            console.log('[VisitorTracker] Initialized successfully (Smooth Mode)');
+            console.log('[VisitorTracker] ✅ Real-Time mode active!');
             
         } catch (error) {
-            console.warn('[VisitorTracker] Server mode failed, using fallback:', error.message);
-            this.initializeFallback();
+            console.error('[VisitorTracker] Error:', error.message);
+            // Tampilkan status "menunggu" bukan data palsu
+            this.showWaitingForDeploy();
+            this.setupAutoRefresh();
+        }
+    },
+    
+    /**
+     * loadRealTimeData() - Load data ASLI dari server (NO DEMO!)
+     */
+    async loadRealTimeData() {
+        // Cek apakah URL sudah dikonfigurasi
+        if (this.apiUrl.includes('YOUR_VISITOR_TRACKER_ID')) {
+            console.warn('[VisitorTracker] ⏳ URL belum dikonfigurasi');
+            console.warn('[VisitorTracker] 📋 Silakan deploy VisitorProxy.gs dan masukkan URL');
+            this.showWaitingForDeploy();
+            return;
+        }
+        
+        try {
+            console.log('[VisitorTracker] 📡 Mengambil data real-time dari server...');
+            
+            const response = await fetch(`${this.apiUrl}?action=all&t=${Date.now()}`, {
+                method: 'GET',
+                mode: 'cors',
+                signal: AbortSignal.timeout(10000) // 10 detik timeout
+            });
+            
+            if (!response.ok) throw new Error('Server error: ' + response.status);
+            
+            const data = await response.json();
+            
+            if (data.success && data.stats) {
+                // ✅ Data real diterima!
+                this.cache = {
+                    stats: data.stats,
+                    countries: data.countries,
+                    chart: data.chart,
+                    lastFetch: new Date()
+                };
+                
+                // Tampilkan data REAL
+                this.displayAllData(data);
+                
+                console.log('[VisitorTracker] ✅ Data REAL-TIME berhasil dimuat!');
+                console.log('[VisitorTracker] 📊 Total:', data.stats.totalVisits, '| Hari ini:', data.stats.todayVisits);
+            } else {
+                throw new Error('Invalid server response');
+            }
+            
+        } catch (error) {
+            console.error('[VisitorTracker] ❌ Gagal load data:', error.message);
+            this.showWaitingForDeploy();
+        }
+    },
+    
+    /**
+     * showWaitingForDeploy() - Tampilkan status menunggu deploy (BUKAN demo!)
+     */
+    showWaitingForDeploy() {
+        console.log('[VisitorTracker] ⏳ Menampilkan status menunggu deploy...');
+        
+        const totalEl = document.getElementById('totalVisitors');
+        const todayEl = document.getElementById('todayVisitors');
+        const countriesEl = document.getElementById('totalCountries');
+        const onlineEl = document.getElementById('onlineNow');
+        
+        // Tampilkan "-" sebagai indikator menunggu
+        if (totalEl) totalEl.textContent = '-';
+        if (todayEl) todayEl.textContent = '-';
+        if (countriesEl) countriesEl.textContent = '-';
+        if (onlineEl) onlineEl.textContent = '-';
+        
+        // Tampilkan pesan di countries list
+        const countriesContainer = document.getElementById('countriesListContainer');
+        if (countriesContainer) {
+            countriesContainer.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #64748b;">
+                    <i class="fas fa-clock" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                    <p style="font-size: 12px; font-weight: 600; margin-bottom: 5px;">Menunggu Deploy Server</p>
+                    <p style="font-size: 11px; color: #94a3b8;">
+                        Deploy VisitorProxy.gs untuk melihat statistik real-time
+                    </p>
+                </div>
+            `;
+        }
+        
+        // Kosongkan chart atau tampilkan placeholder
+        const canvas = document.getElementById('visitorChart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.font = '12px Inter, sans-serif';
+                ctx.fillStyle = '#94a3b8';
+                ctx.textAlign = 'center';
+                ctx.fillText('Menunggu data real-time...', canvas.width/2, canvas.height/2);
+            }
         }
     },
     
@@ -11871,33 +11972,52 @@ const VisitorTracker = {
     },
     
     /**
-     * showDemoData() - Tampilkan data demo jika server tidak tersedia
+     * showDemoData() - Tampilkan data demo (SELALU BERFUNGSI!)
+     * Fungsi ini dijamin selalu menampilkan data yang bagus
      */
     showDemoData() {
+        console.log('[VisitorTracker] 📊 Menampilkan demo data...');
+        
+        // Pastikan elemen ada
         const totalEl = document.getElementById('totalVisitors');
         const todayEl = document.getElementById('todayVisitors');
         const countriesEl = document.getElementById('totalCountries');
         const onlineEl = document.getElementById('onlineNow');
         
-        if (totalEl) this.animateNumber(totalEl, 1247 + Math.floor(Math.random() * 50));
-        if (todayEl) this.animateNumber(todayEl, 25 + Math.floor(Math.random() * 15));
-        if (countriesEl) this.animateNumber(countriesEl, 5 + Math.floor(Math.random() * 5));
-        if (onlineEl) this.animateNumber(onlineEl, 3 + Math.floor(Math.random() * 6));
+        // Data demo yang realistis
+        const demoTotal = 1247 + Math.floor(Math.random() * 50);
+        const demoToday = 25 + Math.floor(Math.random() * 15);
+        const demoCountries = 5 + Math.floor(Math.random() * 5);
+        const demoOnline = 3 + Math.floor(Math.random() * 6);
         
-        // Demo countries
-        this.displayCountries({
-            'Indonesia': 892,
-            'Malaysia': 45,
-            'Singapore': 28,
-            'United States': 19,
-            'Japan': 12,
-            'Australia': 9,
-            'Saudi Arabia': 7,
-            'United Kingdom': 5
-        });
+        // Animasi angka dengan delay kecil untuk efek smooth
+        setTimeout(() => {
+            if (totalEl) this.animateNumber(totalEl, demoTotal);
+            if (todayEl) this.animateNumber(todayEl, demoToday);
+            if (countriesEl) this.animateNumber(countriesEl, demoCountries);
+            if (onlineEl) this.animateNumber(onlineEl, demoOnline);
+        }, 100);
         
-        // Demo chart
-        this.renderDemoChart();
+        // Demo countries - realistis untuk website Indonesia
+        setTimeout(() => {
+            this.displayCountries({
+                'Indonesia': 892,
+                'Malaysia': 45,
+                'Singapore': 28,
+                'United States': 19,
+                'Japan': 12,
+                'Australia': 9,
+                'Saudi Arabia': 7,
+                'United Kingdom': 5
+            });
+        }, 200);
+        
+        // Demo chart - pastikan selalu render
+        setTimeout(() => {
+            this.renderDemoChart();
+        }, 300);
+        
+        console.log('[VisitorTracker] ✅ Demo data ditampilkan!');
     },
     
     /**
@@ -12091,22 +12211,39 @@ const VisitorTracker = {
     },
     
     /**
-     * renderDemoChart() - Render grafik demo
+     * renderDemoChart() - Render grafik demo (SELALU BERFUNGSI!)
      */
     renderDemoChart() {
-        // Generate realistic demo data
-        const labels = [];
-        const values = [];
-        const today = new Date();
-        
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date(today);
-            date.setDate(date.getDate() - i);
-            labels.push(date.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric' }));
-            values.push(20 + Math.floor(Math.random() * 40));
+        try {
+            console.log('[VisitorTracker] 📈 Rendering demo chart...');
+            
+            // Generate realistic demo data untuk 7 hari terakhir
+            const labels = [];
+            const values = [];
+            const today = new Date();
+            
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                labels.push(date.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric' }));
+                // Data realistis: 20-60 pengunjung per hari
+                values.push(20 + Math.floor(Math.random() * 40));
+            }
+            
+            // Pastikan canvas ada
+            const canvas = document.getElementById('visitorChart');
+            if (!canvas) {
+                console.error('[VisitorTracker] Canvas tidak ditemukan!');
+                return;
+            }
+            
+            // Render chart
+            this.renderChartFromServer({ labels, values }, false);
+            console.log('[VisitorTracker] ✅ Demo chart berhasil dirender!');
+            
+        } catch (error) {
+            console.error('[VisitorTracker] Error rendering demo chart:', error);
         }
-        
-        this.renderChartFromServer({ labels, values });
     },
     
     /**
@@ -12152,11 +12289,36 @@ const VisitorTracker = {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize visitor tracking system (Real-Time Server Mode)
+    console.log('[VisitorTracker] 🌐 DOM Ready, starting Real-Time Tracker...');
+    console.log('[VisitorTracker] 📋 Mode: REAL-TIME (No Demo Data)');
+    
+    // Initialize visitor tracking system (REAL-TIME MODE)
     if (typeof VisitorTracker !== 'undefined') {
+        console.log('[VisitorTracker] ✅ Object found, initializing...');
+        
+        // Delay untuk memastikan DOM stabil
         setTimeout(() => {
-            VisitorTracker.initialize();
-        }, 600);
+            try {
+                VisitorTracker.initialize();
+            } catch (initError) {
+                console.error('[VisitorTracker] ❌ Init error:', initError);
+                VisitorTracker.showWaitingForDeploy();
+                VisitorTracker.setupAutoRefresh();
+            }
+        }, 800);
+    } else {
+        console.error('[VisitorTracker] ❌ Object not found!');
+    }
+});
+
+// Fallback: Cek status saat window load
+window.addEventListener('load', function() {
+    const totalEl = document.getElementById('totalVisitors');
+    if (totalEl && (totalEl.textContent === '0' || totalEl.textContent === '')) {
+        console.log('[VisitorTracker] Window load check - ensuring waiting state...');
+        if (typeof VisitorTracker !== 'undefined') {
+            VisitorTracker.showWaitingForDeploy();
+        }
     }
 });
 </script>
