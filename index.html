@@ -1013,6 +1013,39 @@ body {
     border-radius: 16px;
 }
 
+/* Permanent Storage Badge */
+.permanent-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    color: #7c3aed;
+    font-weight: 700;
+    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+    padding: 5px 12px;
+    border-radius: 16px;
+    border: 2px solid #c4b5fd;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    animation: permanentPulse 3s ease-in-out infinite;
+}
+
+.permanent-badge i {
+    font-size: 11px;
+    color: #7c3aed;
+}
+
+@keyframes permanentPulse {
+    0%, 100% { 
+        opacity: 1; 
+        transform: scale(1); 
+    }
+    50% { 
+        opacity: 0.8; 
+        transform: scale(1.02); 
+    }
+}
+
 .live-dot {
     width: 7px;
     height: 7px;
@@ -5137,13 +5170,19 @@ body {
             </div>
         </div>
         
-        <!-- Visitor Statistics Section - Real Time -->
+        <!-- Visitor Statistics Section - Real Time (PERMANENT STORAGE) -->
         <div class="visitor-stats-section" id="visitorStatsSection">
             <div class="visitor-stats-header">
                 <h3><i class="fas fa-chart-line"></i> Statistik Pengunjung Real-Time</h3>
-                <div class="live-indicator">
-                    <span class="live-dot"></span>
-                    <span>LIVE</span>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    <!-- Badge: PERMANENT STORAGE -->
+                    <div class="permanent-badge" title="Data disimpan permanen di server">
+                        <i class="fas fa-database"></i> PERMANEN
+                    </div>
+                    <div class="live-indicator">
+                        <span class="live-dot"></span>
+                        <span>LIVE</span>
+                    </div>
                 </div>
             </div>
             
@@ -5872,7 +5911,7 @@ body {
                 <!-- Loading State -->
                 <div id="photoLoadingState" style="display: none; text-align: center; padding: 60px 20px;">
                     <div style="width: 56px; height: 56px; border: 4px solid #e5e7eb; border-top-color: #22c55e; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 18px;"></div>
-                    <p style="color: #64748b; font-size: 15px; font-weight: 600;"><i class="fas fa-cloud-download-alt" style="margin-right: 8px;"></i>Memuat foto dari Database...</p>
+                    <p style="color: #64748b; font-size: 15px; font-weight: 600;"><i class="fas fa-cloud-download-alt" style="margin-right: 8px;"></i>Memuat foto dari Google Drive...</p>
                     <p style="color: #94a3b8; font-size: 12px; margin-top: 8px;" id="loadingProgressText">Menghubungkan ke server...</p>
                 </div>
                 
@@ -5913,7 +5952,7 @@ body {
                 <div id="photoEmptyState" style="display: none; text-align: center; padding: 50px 20px; background: #f8fafc; border-radius: 16px; border: 2px dashed #cbd5e1;">
                     <div style="font-size: 48px; margin-bottom: 12px;">📁</div>
                     <h4 style="color: #475569; margin: 0 0 8px; font-size: 16px;">Belum Ada Foto</h4>
-                    <p style="color: #94a3b8; font-size: 13px; margin: 0;">Database kosong atau tidak ada file gambar.</p>
+                    <p style="color: #94a3b8; font-size: 13px; margin: 0;">Folder Google Drive kosong atau tidak ada file gambar.</p>
                 </div>
 
                 <!-- Photo Grid Output - Dinamis dari Drive -->
@@ -7654,7 +7693,7 @@ body {
                     <i class="fas fa-download"></i> Download Dokumen SK JFK
                 </a>
                 <p style="margin-top: 12px; color: var(--gray-500); font-size: 12px;">
-                    <i class="fas fa-info-circle"></i> Dokumen akan terbuka di tab baru
+                    <i class="fas fa-info-circle"></i> Dokumen akan terbuka di tab baru (Google Drive)
                 </p>
             </div>
         </div>
@@ -9547,7 +9586,7 @@ async function loadGalleryPhotos() {
     // Show loading state
     galleryLoadInProgress = true;
     showPhotoState('loading');
-    showDriveStatus('info', '⏳ Menghubungkan ke Database...');
+    showDriveStatus('info', '⏳ Menghubungkan ke Google Drive...');
     document.getElementById('loadingProgressText').textContent = 'Mengakses Google Apps Script...';
     
     // Retry configuration
@@ -9563,7 +9602,7 @@ async function loadGalleryPhotos() {
             
             // Update progress text
             document.getElementById('loadingProgressText').textContent = 
-                attempt > 1 ? `Mencoba lagi (${attempt}/${MAX_RETRIES})...` : 'Memuat foto dari Database...';
+                attempt > 1 ? `Mencoba lagi (${attempt}/${MAX_RETRIES})...` : 'Memuat foto dari folder Drive...';
             
             // Fetch via Apps Script Proxy
             const photos = await fetchViaAppsScriptProxy();
@@ -9619,7 +9658,7 @@ async function loadGalleryPhotos() {
     }
     
     document.getElementById('errorMessage').innerHTML = errorMsg;
-    showDriveStatus('error', '❌ Gagal memuat foto dari Database');
+    showDriveStatus('error', '❌ Gagal memuat foto dari Drive');
     
     galleryLoadInProgress = false;
     updateRefreshButton(false);
@@ -11549,27 +11588,46 @@ function clearSearchSkJfk() {
 // ============================================
 
 /**
- * VisitorTracker v2.0 - Real-Time Server Analytics
+ * VisitorTracker v3.0 - Real-Time Server Analytics (PERMANENT STORAGE)
  * 
- * PERUBAHAN BESAR dari v1.0:
- * ❌ TIDAK lagi menggunakan localStorage (hanya 1 browser)
+ * ⚠️ FITUR UTAMA:
+ * ✅ Data disimpan PERMANEN di Google Sheets (TIDAK ADA AUTO-CLEAN!)
+ * ✅ Semua data pengunjung tersimpan SELAMANYA
+ * ✅ Tidak ada batas waktu retensi data
+ * ✅ Real-time statistics dari semua data historis
  * ✅ Menggunakan Google Apps Script Server (bisa dari MANAPUN)
- * ✅ Data tersinkronisasi REAL-TIME antar semua pengunjung
+ * 
+ * 📊 DATA YANG DISIMPAN:
+ * - Timestamp (waktu kunjungan)
+ * - Country (negara asal)
+ * - Page (halaman yang dikunjungi)
+ * - User Agent (browser info)
+ * - IP Hash (anonymized untuk privasi)
+ * 
+ * 🔒 KEAMANAN DATA:
+ * - Tidak ada auto-delete
+ * - Tidak ada auto-purge
+ * - Data hanya bisa dihapus MANUAL oleh admin
+ * - IP address di-hash (tidak disimpan asli)
  * 
  * CARA SETUP:
- * 1. Deploy file VisitorTracker.gs ke Google Apps Script
+ * 1. Deploy file VisitorProxy.gs ke Google Apps Script
  * 2. Copy URL deployment
  * 3. Ganti VISITOR_TRACKER_URL di bawah ini
  */
 
-// ⚠️ GANTI INI dengan URL VisitorTracker.gs Anda!
-const VISITOR_TRACKER_URL = 'https://script.google.com/macros/s/YOUR_VISITOR_TRACKER_ID/exec';
+// ⚠️ GANTI INI dengan URL VisitorProxy.gs Anda!
+const VISITOR_TRACKER_URL = 'https://script.google.com/macros/s/AKfycbxj0nCjGdYlgkbDNIJ-032-ffo3SLuHggF2cyEi7vAvI7pllzZmP46Tr-GAM3HN9KR9bg/exec';
 
 // Konfigurasi Refresh Visitor Stats
 const VISITOR_CONFIG = {
     REFRESH_INTERVAL: 3600000,      // 1 jam (3600000 ms) - Refresh data statistik
     ONLINE_UPDATE_INTERVAL: 180000, // 3 menit - Update jumlah online (simulasi)
-    MIN_REFRESH_GAP: 300000         // Minimal 5 menit antar refresh manual
+    MIN_REFRESH_GAP: 300000,        // Minimal 5 menit antar refresh manual
+    // ⚠️ PERMANENT MODE: TIDAK ADA AUTO-CLEAN!
+    AUTO_CLEAN_ENABLED: false,      // Auto-clean DISABLED
+    DATA_RETENTION: 'PERMANENT',    // Data tersimpan selamanya
+    MAX_RECORDS: Infinity           // Tidak ada batasan jumlah record
 };
 
 const VisitorTracker = {
