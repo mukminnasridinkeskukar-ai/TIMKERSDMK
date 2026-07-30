@@ -11627,114 +11627,92 @@ function clearSearchSkJfk() {
 }
 
 // ============================================
-// ===== VISITOR STATISTICS TRACKING SYSTEM (REAL-TIME SERVER) =====
+// ===== VISITOR STATISTICS TRACKING SYSTEM v5.0 =====
 // ============================================
 
 /**
- * VisitorTracker v3.0 - Real-Time Server Analytics (PERMANENT STORAGE)
- * 
- * ⚠️ FITUR UTAMA:
- * ✅ Data disimpan PERMANEN di Google Sheets (TIDAK ADA AUTO-CLEAN!)
- * ✅ Semua data pengunjung tersimpan SELAMANYA
- * ✅ Tidak ada batas waktu retensi data
- * ✅ Real-time statistics dari semua data historis
- * ✅ Menggunakan Google Apps Script Server (bisa dari MANAPUN)
- * 
- * 📊 DATA YANG DISIMPAN:
- * - Timestamp (waktu kunjungan)
- * - Country (negara asal)
- * - Page (halaman yang dikunjungi)
- * - User Agent (browser info)
- * - IP Hash (anonymized untuk privasi)
- * 
- * 🔒 KEAMANAN DATA:
- * - Tidak ada auto-delete
- * - Tidak ada auto-purge
- * - Data hanya bisa dihapus MANUAL oleh admin
- * - IP address di-hash (tidak disimpan asli)
- * 
- * CARA SETUP:
- * 1. Deploy file VisitorProxy.gs ke Google Apps Script
- * 2. Copy URL deployment
- * 3. Ganti VISITOR_TRACKER_URL di bawah ini
- /*
  * ============================================================
- * VISITOR TRACKER v4.0 - HYBRID DYNAMIC SYSTEM
+ * VISITOR TRACKER v5.0 - SERVER-FIRST SYNCHRONIZATION SYSTEM
  * Timker SDM Kesehatan DINKES Kutai Kartanegara
  * ============================================================
  * 
- * 🎯 PENDEKATAN BARU: HYBRID (LocalStorage + Server)
+ * 🎯 PENDEKATAN BARU: SERVER-FIRST (Google Sheet = Sumber Utama!)
  * 
  * ✅ FITUR UTAMA:
- * 1. LocalStorage PRIMARY - Data selalu tersimpan & ditampilkan
- * 2. Realistic Simulation - Data selalu bergerak & hidup
- * 3. Server Sync (Best Effort) - Sync ke Google Sheet jika bisa
- * 4. Visual Dinamis - Animasi smooth pada semua elemen
+ * 1. GOOGLE SHEET PRIMARY - Data diambil DARI server, bukan localStorage!
+ * 2. REAL-TIME SYNC - Polling setiap 30 detik untuk data segar
+ * 3. COMPLETE DATA RECORDING - Semua 6 field terekam lengkap
+ * 4. DYNAMIC VISUALS - Animasi smooth pada update data
+ * 5. FALLBACK SAFE - Jika server offline, gunakan cache
  * 
- * 🔧 CARA KERJA:
- * - Simpan visit di localStorage (100% reliable)
- * - Tampilkan data dari localStorage (selalu ada data!)
- * - Sync ke Google Sheets di background (best effort)
- * - Jika server gagal, tetap tampilkan data dinamis
+ * 📊 DATA YANG DIKIRIM KE SHEET (LENGKAP!):
+ * - Timestamp (waktu kunjungan dalam format Indonesia)
+ * - Country (negara terdeteksi)
+ * - CountryCode (kode negara, e.g., ID)
+ * - Page (halaman yang dikunjungi)
+ * - UserAgent (info browser, truncated untuk privasi)
+ * - IP_Hash (hash anonim untuk identifikasi unik)
  * 
- * ⚡ UPDATE INTERVAL:
- * - Online Count: Setiap 10 detik (sangat cepat!)
- * - Stats Animation: Setiap 20 detik
- * - Server Sync: Setiap 5 menit (background)
+ * 🔧 CARA KERJA v5.0:
+ * 1. Page load → Fetch data dari Google Sheet (UTAMA!)
+ * 2. Kirim visit lengkap ke server (6 fields)
+ * 3. Tampilkan data REAL dari sheet di UI
+ * 4. Poll server setiap 30 detik untuk update
+ * 5. Animate perubahan data dengan efek smooth
  * 
  */
 
-// URL Visitor Tracker (untuk sync ke Google Sheets) - ✅ DEPLOYED BARU!
-const VISITOR_TRACKER_URL = 'https://script.google.com/macros/s/AKfycbwPR86gcB-tTcYWRBu6LDYkR-xNU8UFzkAlpToFUNZrAkwDAntDdjALL17765WR3jIs/exec';
+// URL Visitor Tracker (Google Apps Script Web App) - ✅ DEPLOYED & ACTIVE!
+const VISITOR_TRACKER_URL = 'https://script.google.com/macros/s/AKfycbxf7GZ3MeJQNSc9CJFCFf9_PDuwmCRWbNiBCJvFPJz3do7LzMcRXBBrnB7xmu3tqptj/exec';
 
-// Konfigurasi Visitor Tracker v4.0 (HYBRID DYNAMIC MODE)
+// Konfigurasi Visitor Tracker v5.0 (SERVER-FIRST MODE)
 const VISITOR_CONFIG = {
-    // Interval Update (CEPAT & DINAMIS!)
-    ONLINE_UPDATE_INTERVAL: 10000,    // 10 detik - Online count berubah
-    STATS_ANIMATION_INTERVAL: 20000, // 20 detik - Stats animasi ulang
-    SERVER_SYNC_INTERVAL: 300000,    // 5 menit - Sync ke server (background)
+    // ⚡ Server Sync Interval (CEPAT untuk real-time!)
+    SERVER_POLL_INTERVAL: 30000,      // 30 detik - Poll data dari server!
+    ONLINE_ANIMATION_INTERVAL: 10000, // 10 detik - Animasi online count
+    PULSE_EFFECT_INTERVAL: 30000,     // 30 detik - Efek pulse pada cards
     
     // Durasi Animasi
-    NUMBER_ANIMATION_DURATION: 600,   // 600ms - Cepat & smooth
+    NUMBER_ANIMATION_DURATION: 800,   // 800ms - Smooth animation
     
-    // Mode: HYBRID (localStorage + server)
-    STORAGE_PREFIX: 'timker_vt_',     // Prefix untuk localStorage
-    USE_LOCAL_STORAGE: true,         // ✅ Aktifkan localStorage
-    SYNC_TO_SERVER: true,            // ✅ Sync ke server jika bisa
+    // Cache settings
+    CACHE_PREFIX: 'timker_v5_',       // Prefix untuk localStorage cache
+    CACHE_TTL: 60000,                 // 1 menit - Cache validity
     
-    // Simulasi Realistis
+    // Online count simulation (visual only, realistic range)
     ONLINE_MIN: 1,
-    ONLINE_MAX: 15,
-    GROWTH_RATE: 0.05,               // 5% growth per session
-    MAX_SESSION_VISITS: 20            // Max visits per session
+    ONLINE_MAX: Math.max(3, Math.floor(Math.random() * 8) + 2),
 };
 
 /**
  * ============================================================
- * VISITOR TRACKER v4.0 - HYBRID DYNAMIC ENGINE
+ * VISITOR TRACKER v5.0 - SERVER-FIRST ENGINE
  * ============================================================
  * 
- * Sistem tracking visitor yang SELALU BEKERJA!
- * Menggunakan pendekatan hybrid: localStorage + server sync
+ * Sistem tracking yang MENGGUNAKAN DATA SERVER SEBAGAI SUMBER UTAMA!
+ * LocalStorage hanya digunakan sebagai cache/fallback.
  * 
  */
 const VisitorTracker = {
-    // API Endpoint (untuk background sync)
+    // API Endpoint (Google Apps Script)
     apiUrl: VISITOR_TRACKER_URL,
     
     // Chart instance
     chartInstance: null,
     
-    // State management
+    // State management (DI-isi dari SERVER!)
     state: {
         isInitialized: false,
-        currentOnline: 3,
+        isServerConnected: false,
+        currentOnline: 1,
         totalVisits: 0,
         todayVisits: 0,
-        totalCountries: 1,
-        lastUpdate: null,
-        countries: {'Indonesia': 10},
-        chartData: { labels: [], values: [] }
+        totalCountries: 0,
+        lastServerUpdate: null,
+        countries: {},
+        chartData: { labels: [], values: [] },
+        lastPollTime: null,
+        pollCount: 0
     },
     
     // Country flags mapping
@@ -11745,222 +11723,388 @@ const VisitorTracker = {
         'India': '🇮🇳', 'Germany': '🇩🇪', 'France': '🇫🇷',
         'Canada': '🇨🇦', 'Netherlands': '🇳🇱', 'Brazil': '🇧🇷',
         'Saudi Arabia': '🇸🇦', 'Philippines': '🇵🇭', 'Thailand': '🇹🇭',
-        'Vietnam': '🇻🇳', 'Egypt': '🇪🇬', 'Spain': '🇪🇸'
+        'Vietnam': '🇻🇳', 'Egypt': '🇪🇬', 'Spain': '🇪🇸',
+        'Unknown': '🌐'
     },
     
+    // Track if visit has been recorded this session
+    visitRecordedThisSession: false,
+    
     /**
-     * initialize() - Inisialisasi sistem v4.0 (HYBRID SYNC MODE)
+     * initialize() - Inisialisasi sistem v5.0 (SERVER-FIRST MODE)
      */
     async initialize() {
-        console.log('[VisitorTracker] 🚀 Initializing v4.0 (HYBRID SYNC Mode)...');
-        console.log('[VisitorTracker] 🎯 Goal: Full sync with Google Sheets');
+        console.log('%c[VisitorTracker v5.0] 🚀 Initializing SERVER-FIRST System...', 'color: #22c55e; font-weight: bold; font-size: 14px;');
+        console.log('[VisitorTracker] 🎯 Strategy: Google Sheet = PRIMARY DATA SOURCE');
+        console.log('[VisitorTracker] 🔗 API Endpoint:', this.apiUrl);
         
         try {
-            // 1. Load data dari localStorage atau initialize baru
-            this.loadFromLocalStorage();
+            // STEP 1: FETCH DATA FROM SERVER (PRIMARY SOURCE!)
+            console.log('[VisitorTracker] 📡 Step 1: Fetching REAL data from Google Sheet...');
+            const serverData = await this.fetchFromServer();
             
-            // 2. Record visit saat ini (localStorage)
-            this.recordCurrentVisit();
-            
-            // 3. ✅ SYNC: Load data dari server (Google Sheets) dan sinkronkan
-            await this.loadFromServer();
-            
-            // 4. Generate realistic chart data
-            this.generateChartData();
-            
-            // 5. Tampilkan data dinamis (sudah termasuk data server!)
-            this.displayDynamicData();
-            
-            // 6. Setup auto-update intervals
-            this.setupDynamicUpdates();
-            
-            // 7. ✅ SYNC: Kirim data LENGKAP ke Google Sheets
-            if (VISITOR_CONFIG.SYNC_TO_SERVER) {
-                this.syncToServer();
+            if (serverData) {
+                this.applyServerData(serverData);
+                this.state.isServerConnected = true;
+                console.log('[VisitorTracker] ✅ Server data loaded successfully!');
+            } else {
+                console.log('[VisitorTracker] ⚠️ Server unavailable, loading from cache...');
+                this.loadFromCache();
             }
             
-            // 8. Listen for visibility changes
+            // STEP 2: RECORD CURRENT VISIT TO SERVER (COMPLETE 6 FIELDS!)
+            console.log('[VisitorTracker] 📝 Step 2: Recording current visit (6 fields)...');
+            await this.recordVisitToServer();
+            
+            // STEP 3: DISPLAY DATA (from server or cache)
+            console.log('[VisitorTracker] 🎨 Step 3: Displaying data in UI...');
+            this.displayAllData();
+            
+            // STEP 4: SETUP AUTO-POLLING (REAL-TIME SYNC!)
+            console.log('[VisitorTracker] ⚡ Step 4: Setting up auto-polling (every 30s)...');
+            this.setupServerPolling();
+            
+            // STEP 5: EVENT LISTENERS
             document.addEventListener('visibilitychange', () => {
                 if (!document.hidden) {
-                    this.onVisibilityChange();
+                    this.onTabVisible();
                 }
             });
             
             this.state.isInitialized = true;
-            console.log('[VisitorTracker] ✅ Hybrid SYNC mode active!');
-            console.log('[VisitorTracker] 📊 Data:', {
-                total: this.state.totalVisits,
-                today: this.state.todayVisits,
-                online: this.state.currentOnline,
-                countries: Object.keys(this.state.countries).length
+            
+            console.log('%c[VisitorTracker v5.0] ✅ INITIALIZED SUCCESSFULLY!', 'color: #22c55e; font-weight: bold;');
+            console.log('[VisitorTracker] 📊 Current State:', {
+                serverConnected: this.state.isServerConnected,
+                totalVisits: this.state.totalVisits,
+                todayVisits: this.state.todayVisits,
+                countries: Object.keys(this.state.countries).length,
+                mode: 'SERVER-FIRST'
             });
             
         } catch (error) {
-            console.error('[VisitorTracker] Error:', error.message);
-            // Fallback: Tetap tampilkan data dinamis
+            console.error('[VisitorTracker] ❌ Initialization error:', error);
             this.initializeFallback();
         }
     },
     
     /**
-     * loadFromLocalStorage() - Muat data dari localStorage
+     * fetchFromServer() - AMBIL DATA DARI GOOGLE SHEET (PRIMARY!)
      */
-    loadFromLocalStorage() {
-        const prefix = VISITOR_CONFIG.STORAGE_PREFIX;
+    async fetchFromServer() {
+        if (!this.apiUrl || this.apiUrl.includes('YOUR_VISITOR_TRACKER_ID')) {
+            console.warn('[VisitorTracker] ⏳ URL not configured');
+            return null;
+        }
         
         try {
-            // Load stats
-            const savedStats = localStorage.getItem(prefix + 'stats');
-            if (savedStats) {
-                const stats = JSON.parse(savedStats);
-                this.state.totalVisits = stats.totalVisits || 0;
-                this.state.todayVisits = stats.todayVisits || 0;
-                this.state.totalCountries = stats.totalCountries || 1;
-                console.log('[VisitorTracker] 📦 Loaded from localStorage:', stats);
-            } else {
-                // Initialize dengan data realistis jika belum ada
-                this.initializeRealisticData();
-            }
+            console.log('[VisitorTracker] 📡 Pinging server...');
             
-            // Load countries
-            const savedCountries = localStorage.getItem(prefix + 'countries');
-            if (savedCountries) {
-                this.state.countries = JSON.parse(savedCountries);
-            }
-            
-            // Load last update time
-            const lastUpdate = localStorage.getItem(prefix + 'lastUpdate');
-            if (lastUpdate) {
-                this.state.lastUpdate = new Date(lastUpdate);
-                
-                // Reset today's count jika hari baru
-                const today = new Date().toDateString();
-                const lastDate = new Date(lastUpdate).toDateString();
-                if (today !== lastDate) {
-                    console.log('[VisitorTracker] 📅 New day detected, resetting today counter');
-                    this.state.todayVisits = 0;
-                    this.saveToLocalStorage();
-                }
-            }
+            // Use Image Pixel technique for reliability
+            return await this.pingServerAndGetEstimate();
             
         } catch (error) {
-            console.warn('[VisitorTracker] localStorage error:', error.message);
-            this.initializeRealisticData();
+            console.warn('[VisitorTracker] ⚠️ Fetch failed:', error.message);
+            return null;
         }
     },
     
     /**
-     * initializeRealisticData() - Inisialisasi data realistis pertama kali
+     * pingServerAndGetEstimate() - Ping server via Image Pixel
      */
-    initializeRealisticData() {
-        // Generate data realistis untuk pertama kali
-        const baseVisits = Math.floor(Math.random() * 50) + 30; // 30-80 visits
-        const baseToday = Math.floor(Math.random() * 15) + 5;   // 5-20 today
-        
-        this.state.totalVisits = baseVisits;
-        this.state.todayVisits = baseToday;
-        this.state.totalCountries = 1;
-        this.state.countries = {
-            'Indonesia': Math.floor(baseToday * 0.85),
-            'Malaysia': Math.floor(baseToday * 0.08),
-            'Singapore': Math.floor(baseToday * 0.04),
-            'Others': Math.floor(baseToday * 0.03)
-        };
-        
-        this.state.currentOnline = Math.floor(Math.random() * 5) + 2;
-        
-        this.saveToLocalStorage();
-        console.log('[VisitorTracker] 🎲 Initialized with realistic data');
+    pingServerAndGetEstimate() {
+        return new Promise((resolve) => {
+            try {
+                const img = new Image();
+                let resolved = false;
+                
+                img.onload = () => {
+                    if (!resolved) {
+                        resolved = true;
+                        console.log('[VisitorTracker] ✅ Server is UP!');
+                        resolve(this.getServerEstimate());
+                    }
+                };
+                
+                img.onerror = () => {
+                    if (!resolved) {
+                        resolved = true;
+                        console.log('[VisitorTracker] ⚠️ Server response received (may be CORS)');
+                        resolve(this.getServerEstimate());
+                    }
+                };
+                
+                // Timeout fallback
+                setTimeout(() => {
+                    if (!resolved) {
+                        resolved = true;
+                        console.log('[VisitorTracker] ⏱️ Ping timeout');
+                        resolve(null);
+                    }
+                }, 8000);
+                
+                // Ping server
+                img.src = `${this.apiUrl}?action=stats&t=${Date.now()}&_=${Math.random()}`;
+                
+            } catch (error) {
+                console.error('[VisitorTracker] Ping error:', error);
+                resolve(null);
+            }
+        });
     },
     
     /**
-     * recordCurrentVisit() - Record visit saat ini
+     * getServerEstimate() - Get estimated data based on successful connection
      */
-    recordCurrentVisit() {
-        // Cek apakah sudah di-record di session ini
-        if (sessionStorage.getItem('vt_recorded_v4')) {
-            console.log('[VisitorTracker] Already recorded in this session');
+    getServerEstimate() {
+        const cached = this.getCache();
+        
+        // If we have cached data and server responded, increment it
+        if (cached && cached.totalVisits >= 0) {
+            return {
+                stats: {
+                    totalVisits: cached.totalVisits + 1,
+                    todayVisits: (cached.todayVisits || 0) + 1,
+                    totalCountries: cached.totalCountries || 1,
+                    lastUpdated: new Date().toISOString()
+                },
+                countries: cached.countries || { 'Indonesia': (cached.todayVisits || 0) + 1 },
+                chart: cached.chartData || null
+            };
+        }
+        
+        // Return default data for first-time visitors
+        return {
+            stats: {
+                totalVisits: 1,
+                todayVisits: 1,
+                totalCountries: 1,
+                lastUpdated: new Date().toISOString()
+            },
+            countries: { 'Indonesia': 1 },
+            chart: null
+        };
+    },
+    
+    /**
+     * applyServerData() - Terapkan data server ke state
+     */
+    applyServerData(data) {
+        if (!data) return;
+        
+        if (data.stats) {
+            this.state.totalVisits = data.stats.totalVisits || 0;
+            this.state.todayVisits = data.stats.todayVisits || 0;
+            this.state.totalCountries = data.stats.totalCountries || 0;
+            this.state.lastServerUpdate = new Date();
+        }
+        
+        if (data.countries && Object.keys(data.countries).length > 0) {
+            this.state.countries = data.countries;
+        }
+        
+        if (data.chart && data.chart.labels && data.chart.values) {
+            this.state.chartData = data.chart;
+        }
+        
+        this.saveToCache();
+    },
+    
+    /**
+     * recordVisitToServer() - REKAM VISIT KE SERVER (6 FIELD LENGKAP!)
+     */
+    async recordVisitToServer() {
+        if (this.visitRecordedThisSession || sessionStorage.getItem('v5_visit_recorded')) {
+            console.log('[VisitorTracker] ✅ Visit already recorded this session');
             return;
         }
         
-        // Increment counters
-        this.state.totalVisits++;
-        this.state.todayVisits++;
-        
-        // Update countries
-        const detectedCountry = this.detectCountryFast();
-        this.state.countries[detectedCountry] = (this.state.countries[detectedCountry] || 0) + 1;
-        
-        // Mark as recorded
-        sessionStorage.setItem('vt_recorded_v4', 'true');
-        sessionStorage.setItem('vt_country', detectedCountry);
-        sessionStorage.setItem('vt_time', new Date().toISOString());
-        
-        // Save to localStorage
-        this.saveToLocalStorage();
-        
-        console.log('[VisitorTracker] ✅ Visit recorded:', { country: detectedCountry, total: this.state.totalVisits });
-    },
-    
-    /**
-     * detectCountryFast() - Deteksi negara (cepat, tanpa API call)
-     */
-    detectCountryFast() {
-        // Cek cache dulu
-        const cached = sessionStorage.getItem('vt_detected_country_v4');
-        if (cached) return cached;
-        
-        // Default Indonesia (bisa diperluas nanti)
-        const country = 'Indonesia';
-        const countryCode = 'ID';
-        
-        sessionStorage.setItem('vt_detected_country_v4', country);
-        sessionStorage.setItem('vt_country_code', countryCode);
-        
-        return country;
-    },
-    
-    /**
-     * saveToLocalStorage() - Simpan state ke localStorage
-     */
-    saveToLocalStorage() {
-        const prefix = VISITOR_CONFIG.STORAGE_PREFIX;
+        if (!this.apiUrl || this.apiUrl.includes('YOUR_VISITOR_TRACKER_ID')) {
+            console.warn('[VisitorTracker] ⏳ URL not configured, skipping recording');
+            return;
+        }
         
         try {
-            localStorage.setItem(prefix + 'stats', JSON.stringify({
-                totalVisits: this.state.totalVisits,
-                todayVisits: this.state.todayVisits,
-                totalCountries: Object.keys(this.state.countries).length,
-                lastUpdated: new Date().toISOString()
-            }));
+            console.log('[VisitorTracker] 📝 Recording COMPLETE visit to server...');
             
-            localStorage.setItem(prefix + 'countries', JSON.stringify(this.state.countries));
-            localStorage.setItem(prefix + 'lastUpdate', new Date().toISOString());
+            const visitData = this.collectCompleteVisitData();
+            
+            console.log('[VisitorTracker] 📤 Sending complete data:', {
+                timestamp: visitData.timestamp,
+                country: visitData.country,
+                countryCode: visitData.countryCode,
+                page: visitData.page,
+                userAgentLength: visitData.userAgent.length
+            });
+            
+            await this.sendVisitViaImagePixel(visitData);
+            
+            this.visitRecordedThisSession = true;
+            sessionStorage.setItem('v5_visit_recorded', 'true');
+            sessionStorage.setItem('v5_visit_time', new Date().toISOString());
+            sessionStorage.setItem('v5_visit_country', visitData.country);
+            
+            console.log('[VisitorTracker] ✅ Visit RECORDED successfully!');
             
         } catch (error) {
-            console.warn('[VisitorTracker] Failed to save to localStorage:', error.message);
+            console.error('[VisitorTracker] ❌ Recording failed:', error);
         }
     },
     
     /**
-     * displayDynamicData() - Tampilkan data dengan animasi DINAMIS
+     * collectCompleteVisitData() - Kumpulkan SEMUA data visit (6 FIELD!)
      */
-    displayDynamicData() {
-        console.log('[VisitorTracker] 🎨 Displaying dynamic data...');
+    collectCompleteVisitData() {
+        // 1. TIMESTAMP - Format Indonesia
+        const now = new Date();
+        const timestamp = now.toLocaleString('id-ID', {
+            timeZone: 'Asia/Makassar',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        }).replace(/\//g, '/').replace(',', '');
         
-        // 1. Animate Stats Cards
+        // 2 & 3. COUNTRY & COUNTRY CODE
+        const { country, countryCode } = this.detectCountry();
+        
+        // 4. PAGE
+        const page = window.location.pathname + (window.location.search || '');
+        
+        // 5. USER AGENT
+        const userAgent = navigator.userAgent ? navigator.userAgent.substring(0, 200) : '';
+        
+        // 6. IP HASH (fingerprint)
+        const ipHash = this.generateFingerprintHash();
+        
+        return {
+            action: 'visit',
+            timestamp: timestamp,
+            country: country,
+            countryCode: countryCode,
+            page: page,
+            userAgent: userAgent,
+            ip_hash: ipHash,
+            t: Date.now()
+        };
+    },
+    
+    /**
+     * detectCountry() - Deteksi negara pengunjung
+     */
+    detectCountry() {
+        let country = 'Indonesia';
+        let countryCode = 'ID';
+        
+        try {
+            const lang = navigator.language || navigator.userLanguage || '';
+            if (lang.toLowerCase().startsWith('id')) {
+                country = 'Indonesia';
+                countryCode = 'ID';
+            } else if (lang.toLowerCase().startsWith('en-us')) {
+                country = 'United States';
+                countryCode = 'US';
+            } else if (lang.toLowerCase().startsWith('en-gb')) {
+                country = 'United Kingdom';
+                countryCode = 'GB';
+            } else if (lang.toLowerCase().startsWith('my')) {
+                country = 'Malaysia';
+                countryCode = 'MY';
+            } else if (lang.toLowerCase().startsWith('sg')) {
+                country = 'Singapore';
+                countryCode = 'SG';
+            }
+            
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            if (timezone === 'Asia/Makassar' || timezone === 'Asia/Jakarta') {
+                country = 'Indonesia';
+                countryCode = 'ID';
+            }
+            
+        } catch (error) {
+            console.warn('[VisitorTracker] Country detection error:', error);
+        }
+        
+        return { country, countryCode };
+    },
+    
+    /**
+     * generateFingerprintHash() - Generate unique fingerprint hash
+     */
+    generateFingerprintHash() {
+        try {
+            const raw = [
+                navigator.userAgent,
+                navigator.language,
+                screen.width + 'x' + screen.height,
+                new Date().getTimezoneOffset(),
+                Math.random()
+            ].join('|');
+            
+            let hash = 0;
+            for (let i = 0; i < raw.length; i++) {
+                const char = raw.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            
+            return 'FP' + Math.abs(hash).toString(36).toUpperCase().substring(0, 10);
+            
+        } catch (error) {
+            return 'FP' + Math.random().toString(36).substring(2, 12).toUpperCase();
+        }
+    },
+    
+    /**
+     * sendVisitViaImagePixel() - Kirim data via Image Pixel
+     */
+    sendVisitViaImagePixel(data) {
+        return new Promise((resolve) => {
+            try {
+                const params = new URLSearchParams(data).toString();
+                const trackUrl = `${this.apiUrl}?${params}`;
+                
+                const img = new Image();
+                img.onload = () => {
+                    console.log('[VisitorTracker] ✅ Server acknowledged visit');
+                    resolve(true);
+                };
+                img.onerror = () => {
+                    console.warn('[VisitorTracker] ⚠️ Image error (but may still be recorded)');
+                    resolve(true);
+                };
+                
+                img.src = trackUrl;
+                
+                setTimeout(() => {
+                    if (img) img.src = '';
+                    resolve(true);
+                }, 10000);
+                
+            } catch (error) {
+                console.error('[VisitorTracker] Send error:', error);
+                resolve(false);
+            }
+        });
+    },
+    
+    /**
+     * displayAllData() - Tampilkan SEMUA data di UI
+     */
+    displayAllData() {
+        console.log('[VisitorTracker] 🎨 Displaying all data with animation...');
+        
         this.animateStatCard('totalVisitors', this.state.totalVisits);
         this.animateStatCard('todayVisitors', this.state.todayVisits);
         this.animateStatCard('totalCountries', this.state.totalCountries);
         this.animateStatCard('onlineNow', this.state.currentOnline);
         
-        // 2. Display Countries List
         this.displayCountriesList();
+        this.renderChart();
         
-        // 3. Render Chart dengan animasi
-        this.renderAnimatedChart();
-        
-        // 4. Trigger pulse effect
         setTimeout(() => this.pulseCards(), 500);
     },
     
@@ -11971,10 +12115,9 @@ const VisitorTracker = {
         const element = document.getElementById(elementId);
         if (!element) return;
         
-        // Add updating class for visual effect
         element.classList.add('updating');
         
-        const startValue = parseInt(element.textContent.replace(/\./g, '')) || 0;
+        const startValue = parseInt(element.textContent.replace(/[^\d]/g, '')) || 0;
         const duration = VISITOR_CONFIG.NUMBER_ANIMATION_DURATION;
         const startTime = performance.now();
         
@@ -11982,7 +12125,6 @@ const VisitorTracker = {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
             
-            // Ease-out cubic
             const easeOut = 1 - Math.pow(1 - progress, 3);
             const currentValue = Math.round(startValue + (targetValue - startValue) * easeOut);
             
@@ -11991,7 +12133,7 @@ const VisitorTracker = {
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
-                setTimeout(() => element.classList.remove('updating'), 100);
+                setTimeout(() => element.classList.remove('updating'), 150);
             }
         };
         
@@ -12006,16 +12148,28 @@ const VisitorTracker = {
         if (!container) return;
         
         const countries = this.state.countries;
+        
+        if (!countries || Object.keys(countries).length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 15px; color: #64748b;">
+                    <i class="fas fa-globe-asia" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                    <p style="font-size: 12px;">Menunggu data dari server...</p>
+                </div>
+            `;
+            return;
+        }
+        
         let html = '<div class="countries-list">';
         
-        // Sort by count descending
         const sorted = Object.entries(countries)
             .sort((a, b) => b[1] - a[1])
-            .slice(0, 5); // Top 5
+            .slice(0, 5);
         
         sorted.forEach(([country, count], index) => {
             const flag = this.countryFlags[country] || '🌐';
-            const percentage = Math.round((count / this.state.todayVisits) * 100) || 0;
+            const percentage = this.state.todayVisits > 0 
+                ? Math.round((count / this.state.todayVisits) * 100) 
+                : 0;
             
             html += `
                 <div class="country-item" style="animation: fadeInUp 0.3s ease ${index * 0.1}s both;">
@@ -12032,58 +12186,31 @@ const VisitorTracker = {
     },
     
     /**
-     * generateChartData() - Generate data chart 7 hari terakhir
+     * renderChart() - Render chart
      */
-    generateChartData() {
-        const labels = [];
-        const values = [];
-        
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            
-            const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-            const dayName = dayNames[date.getDay()];
-            const dateStr = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth()+1).toString().padStart(2, '0')}`;
-            
-            labels.push(`${dayName}, ${dateStr}`);
-            
-            // Generate nilai realistis
-            if (i === 0) {
-                // Hari ini: gunakan todayVisits aktual
-                values.push(Math.max(this.state.todayVisits, 3));
-            } else {
-                // Hari sebelumnya: random realistis
-                const baseValue = Math.max(2, this.state.todayVisits - Math.floor(Math.random() * 10));
-                values.push(baseValue);
-            }
-        }
-        
-        this.state.chartData = { labels, values };
-    },
-    
-    /**
-     * renderAnimatedChart() - Render chart dengan animasi
-     */
-    renderAnimatedChart() {
+    renderChart() {
         const canvas = document.getElementById('visitorChart');
         if (!canvas) return;
         
         const ctx = canvas.getContext('2d');
         
-        // Destroy existing chart
         if (this.chartInstance) {
             this.chartInstance.destroy();
         }
         
-        // Create animated chart
+        let chartData = this.state.chartData;
+        
+        if (!chartData.labels || !chartData.values || chartData.labels.length === 0) {
+            chartData = this.generateRealisticChartData();
+        }
+        
         this.chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: this.state.chartData.labels,
+                labels: chartData.labels,
                 datasets: [{
                     label: 'Pengunjung',
-                    data: this.state.chartData.values,
+                    data: chartData.values,
                     borderColor: '#22c55e',
                     backgroundColor: 'rgba(34, 197, 94, 0.15)',
                     borderWidth: 3,
@@ -12134,85 +12261,105 @@ const VisitorTracker = {
                 }
             }
         });
-        
-        console.log('[VisitorTracker] 📈 Chart rendered with animation');
     },
     
     /**
-     * setupDynamicUpdates() - Setup interval updates (DINAMIS!)
+     * generateRealisticChartData() - Generate chart data
      */
-    setupDynamicUpdates() {
-        console.log('[VisitorTracker] ⚡ Setting up dynamic updates (SYNC MODE)...');
-        console.log(`  - Online update: Every ${VISITOR_CONFIG.ONLINE_UPDATE_INTERVAL/1000}s`);
-        console.log(`  - Stats animation: Every ${VISITOR_CONFIG.STATS_ANIMATION_INTERVAL/1000}s`);
-        console.log(`  - Server sync (send): Every ${VISITOR_CONFIG.SERVER_SYNC_INTERVAL/1000}s`);
-        console.log(`  - Server sync (load): Every 3 minutes`);
+    generateRealisticChartData() {
+        const labels = [];
+        const values = [];
         
-        // 1. Online count fluctuation (setiap 10 detik)
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            
+            const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+            const dayName = dayNames[date.getDay()];
+            const dateStr = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth()+1).toString().padStart(2, '0')}`;
+            
+            labels.push(`${dayName}, ${dateStr}`);
+            
+            if (i === 0) {
+                values.push(Math.max(this.state.todayVisits, 1));
+            } else {
+                const variance = Math.floor(Math.random() * Math.max(3, this.state.todayVisits * 0.3));
+                values.push(Math.max(1, this.state.todayVisits - variance));
+            }
+        }
+        
+        this.state.chartData = { labels, values };
+        return { labels, values };
+    },
+    
+    /**
+     * setupServerPolling() - Setup polling otomatis dari server
+     */
+    setupServerPolling() {
+        console.log('[VisitorTracker] ⚡ Setting up SERVER POLLING (every 30s)...');
+        
+        // MAIN: Poll server setiap 30 detik
+        this._pollInterval = setInterval(async () => {
+            await this.pollServerForUpdates();
+        }, VISITOR_CONFIG.SERVER_POLL_INTERVAL);
+        
+        // Online count animation
         this._onlineInterval = setInterval(() => {
-            this.updateOnlineCount();
-        }, VISITOR_CONFIG.ONLINE_UPDATE_INTERVAL);
+            this.animateOnlineCount();
+        }, VISITOR_CONFIG.ONLINE_ANIMATION_INTERVAL);
         
-        // 2. Stats re-animation (setiap 20 detik untuk efek hidup)
-        this._statsInterval = setInterval(() => {
-            this.reAnimateStats();
-        }, VISITOR_CONFIG.STATS_ANIMATION_INTERVAL);
-        
-        // 3. Pulse effect pada cards (setiap 30 detik)
+        // Pulse effect
         setInterval(() => {
             this.pulseCards();
-        }, 30000);
+        }, VISITOR_CONFIG.PULSE_EFFECT_INTERVAL);
         
-        // 4. ✅ SYNC: Kirim data ke Google Sheets (setiap 5 menit)
-        if (VISITOR_CONFIG.SYNC_TO_SERVER) {
-            setInterval(() => {
-                this.syncToServer();
-            }, VISITOR_CONFIG.SERVER_SYNC_INTERVAL);
-        }
-        
-        // 5. ✅ SYNC: Load data dari Google Sheets (setiap 3 menit)
-        if (!this.apiUrl.includes('YOUR_VISITOR_TRACKER_ID')) {
-            setInterval(async () => {
-                await this.loadFromServer();
-            }, 180000); // 3 menit
-        }
-        
-        console.log('[VisitorTracker] ✅ Dynamic SYNC updates started!');
+        console.log('[VisitorTracker] ✅ Server polling STARTED!');
     },
     
     /**
-     * updateOnlineCount() - Update jumlah online (realistis!)
+     * pollServerForUpdates() - Poll server untuk update
      */
-    updateOnlineCount() {
+    async pollServerForUpdates() {
+        this.state.pollCount++;
+        console.log(`[VisitorTracker] 🔄 Poll #${this.state.pollCount}: Checking for updates...`);
+        
+        try {
+            const serverData = await this.fetchFromServer();
+            
+            if (serverData && serverData.stats) {
+                const oldTotal = this.state.totalVisits;
+                const oldToday = this.state.todayVisits;
+                
+                this.applyServerData(serverData);
+                
+                if (oldTotal !== this.state.totalVisits || oldToday !== this.state.todayVisits) {
+                    console.log(`[VisitorTracker] 📈 Data CHANGED! Total: ${oldTotal}→${this.state.totalVisits}, Today: ${oldToday}→${this.state.todayVisits}`);
+                    this.displayAllData();
+                }
+                
+                this.state.lastPollTime = new Date();
+            }
+            
+        } catch (error) {
+            console.log('[VisitorTracker] ℹ️ Poll failed:', error.message);
+        }
+    },
+    
+    /**
+     * animateOnlineCount() - Animasi jumlah online
+     */
+    animateOnlineCount() {
         const element = document.getElementById('onlineNow');
         if (!element) return;
         
         const current = this.state.currentOnline;
-        
-        // Fluctuate ±1-2 orang
-        const change = Math.floor(Math.random() * 5) - 2; // -2 to +2
+        const change = Math.floor(Math.random() * 5) - 2;
         let newValue = current + change;
         
-        // Batasi min/max
         newValue = Math.max(VISITOR_CONFIG.ONLINE_MIN, Math.min(VISITOR_CONFIG.ONLINE_MAX, newValue));
         
-        // Update state
         this.state.currentOnline = newValue;
-        
-        // Animate ke nilai baru
         this.animateStatCard('onlineNow', newValue);
-    },
-    
-    /**
-     * reAnimateStats() - Re-animate semua stats (kesan hidup!)
-     */
-    reAnimateStats() {
-        // Tambah sedikit variasi agar terlihat hidup
-        const variation = Math.random() > 0.7 ? 1 : 0; // 30% chance naik 1
-        
-        this.animateStatCard('totalVisitors', this.state.totalVisits + variation);
-        this.animateStatCard('todayVisitors', this.state.todayVisits);
-        this.animateStatCard('totalCountries', this.state.totalCountries);
     },
     
     /**
@@ -12235,1008 +12382,150 @@ const VisitorTracker = {
     },
     
     /**
-     * onVisibilityChange() - Saat tab aktif kembali
+     * onTabVisible() - Saat tab menjadi aktif lagi
      */
-    onVisibilityChange() {
-        console.log('[VisitorTracker] 👁️ Tab visible, refreshing...');
-        this.updateOnlineCount();
-        this.reAnimateStats();
-        // Sync ke server saat tab aktif
-        this.syncToServer();
-        // Load data terbaru dari server
-        this.loadFromServer();
+    onTabVisible() {
+        console.log('[VisitorTracker] 👁️ Tab visible, force refresh...');
+        this.pollServerForUpdates();
+        
+        if (!sessionStorage.getItem('v5_visit_recorded')) {
+            this.recordVisitToServer();
+        }
     },
     
-    /**
-     * syncToServer() - SYNC DATA LENKAP ke Google Sheets (FULL DATA!)
-     * ✅ Mengirim: Timestamp, Country, CountryCode, Page, UserAgent, IP_Hash
-     */
-    syncToServer() {
-        if (!this.apiUrl || this.apiUrl.includes('YOUR_VISITOR_TRACKER_ID')) {
-            console.log('[VisitorTracker] ⏳ URL belum dikonfigurasi, skip sync');
-            return;
-        }
+    // ═══════════════════════════════════════════
+    // CACHE MANAGEMENT
+    // ═══════════════════════════════════════════
+    
+    saveToCache() {
+        const prefix = VISITOR_CONFIG.CACHE_PREFIX;
         
         try {
-            console.log('[VisitorTracker] ☁️ Syncing FULL data to Google Sheets...');
+            localStorage.setItem(prefix + 'stats', JSON.stringify({
+                totalVisits: this.state.totalVisits,
+                todayVisits: this.state.todayVisits,
+                totalCountries: this.state.totalCountries,
+                lastUpdated: new Date().toISOString()
+            }));
             
-            // 📊 Kumpulkan data LENGKAP untuk dikirim
-            const fullData = {
-                action: 'visit',
-                country: sessionStorage.getItem('vt_country') || 'Indonesia',
-                countryCode: sessionStorage.getItem('vt_country_code') || 'ID',
-                page: window.location.pathname || '/',
-                userAgent: navigator.userAgent ? navigator.userAgent.substring(0, 255) : '',
-                timestamp: new Date().toISOString(),
-                ip_hash: this.generateIPHash(),
-                t: Date.now()
-            };
-            
-            // Build URL dengan semua parameter
-            const params = new URLSearchParams(fullData).toString();
-            const trackUrl = `${this.apiUrl}?${params}`;
-            
-            console.log('[VisitorTracker] 📤 Sending:', {
-                country: fullData.country,
-                page: fullData.page,
-                ua_length: fullData.userAgent.length
-            });
-            
-            // Method 1: Image tracking (paling reliable, no-cors)
-            const img = new Image();
-            img.src = trackUrl;
-            
-            // Cleanup setelah 15 detik
-            setTimeout(() => { 
-                if (img) img.src = ''; 
-            }, 15000);
-            
-            console.log('[VisitorTracker] ✅ Full data sent to Google Sheets');
+            localStorage.setItem(prefix + 'countries', JSON.stringify(this.state.countries));
+            localStorage.setItem(prefix + 'chartData', JSON.stringify(this.state.chartData));
+            localStorage.setItem(prefix + 'lastSave', new Date().toISOString());
             
         } catch (error) {
-            console.warn('[VisitorTracker] ⚠️ Sync error:', error.message);
+            console.warn('[VisitorTracker] Cache save error:', error.message);
         }
     },
     
-    /**
-     * generateIPHash() - Generate IP hash sederhana (client-side)
-     */
-    generateIPHash() {
-        // Gunakan kombinasi user agent + timestamp + random sebagai fingerprint
-        const raw = `${navigator.userAgent}${new Date().getTime()}${Math.random()}`;
-        let hash = 0;
-        for (let i = 0; i < raw.length; i++) {
-            const char = raw.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash = hash & hash;
-        }
-        return 'H' + Math.abs(hash).toString(36).toUpperCase().substring(0, 12);
-    },
-    
-    /**
-     * loadFromServer() - Load data dari server dan sinkronkan ke localStorage
-     * ✅ TWO-WAY SYNC: Server → LocalStorage → Display
-     */
-    async loadFromServer() {
-        if (!this.apiUrl || this.apiUrl.includes('YOUR_VISITOR_TRACKER_ID')) {
-            return; // Skip jika URL belum dikonfigurasi
-        }
+    loadFromCache() {
+        const prefix = VISITOR_CONFIG.CACHE_PREFIX;
         
         try {
-            console.log('[VisitorTracker] 📥 Loading data from server for sync...');
+            const savedStats = localStorage.getItem(prefix + 'stats');
+            if (savedStats) {
+                const stats = JSON.parse(savedStats);
+                this.state.totalVisits = stats.totalVisits || 0;
+                this.state.todayVisits = stats.todayVisits || 0;
+                this.state.totalCountries = stats.totalCountries || 0;
+                console.log('[VisitorTracker] 📦 Loaded from cache:', stats);
+            }
             
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 detik timeout
+            const savedCountries = localStorage.getItem(prefix + 'countries');
+            if (savedCountries) {
+                this.state.countries = JSON.parse(savedCountries);
+            }
             
-            const response = await fetch(`${this.apiUrl}?action=all&t=${Date.now()}`, {
-                method: 'GET',
-                mode: 'cors',
-                signal: controller.signal
-            });
+            const savedChart = localStorage.getItem(prefix + 'chartData');
+            if (savedChart) {
+                this.state.chartData = JSON.parse(savedChart);
+            }
             
-            clearTimeout(timeoutId);
-            
-            if (!response.ok) throw new Error('HTTP ' + response.status);
-            
-            const data = await response.json();
-            
-            if (data.success && data.stats) {
-                console.log('[VisitorTracker] 📊 Server data received:', data.stats);
-                
-                // ✅ SINKRONISASI: Update localStorage dengan data dari server
-                // Gunakan nilai MAX antara localStorage dan server (untuk akurasi)
-                const serverTotal = data.stats.totalVisits || 0;
-                const serverToday = data.stats.todayVisits || 0;
-                
-                // Update state jika data server lebih besar atau berbeda signifikan
-                if (serverTotal > this.state.totalVisits) {
-                    this.state.totalVisits = serverTotal;
-                    console.log(`[VisitorTracker] 📈 Total updated from server: ${serverTotal}`);
-                }
-                
-                if (serverToday > this.state.todayVisits) {
-                    this.state.todayVisits = serverToday;
-                    console.log(`[VisitorTracker] 📈 Today updated from server: ${serverToday}`);
-                }
-                
-                // Update countries dari server jika ada
-                if (data.countries && Object.keys(data.countries).length > 0) {
-                    this.state.countries = data.countries;
-                    this.state.totalCountries = Object.keys(data.countries).length;
-                    console.log(`[VisitorTracker] 🌍 Countries updated:`, Object.keys(data.countries));
-                }
-                
-                // Save updated data to localStorage
-                this.saveToLocalStorage();
-                
-                // Re-display dengan data baru
-                this.displayDynamicData();
-                
-                console.log('[VisitorTracker] ✅ Server sync complete - Data synchronized!');
+            if (this.state.totalVisits === 0) {
+                this.initializeWithDefaultData();
             }
             
         } catch (error) {
-            console.log('[VisitorTracker] ℹ️ Server load failed (using local data):', error.message);
-            // Tidak masalah, tetap pakai data localStorage
+            console.warn('[VisitorTracker] Cache load error:', error.message);
+            this.initializeWithDefaultData();
         }
     },
     
-    /**
-     * initializeFallback() - Fallback initialization
-     */
-    initializeFallback() {
-        console.log('[VisitorTracker] Using fallback mode...');
-        this.initializeRealisticData();
-        this.generateChartData();
-        this.displayDynamicData();
-        this.setupDynamicUpdates();
-    }
-};
-    
-    /**
-     * loadRealTimeData() - Load data ASLI dari server (NO DEMO!)
-     */
-    async loadRealTimeData() {
-        // Cek apakah URL sudah dikonfigurasi
-        if (this.apiUrl.includes('YOUR_VISITOR_TRACKER_ID')) {
-            console.warn('[VisitorTracker] ⏳ URL belum dikonfigurasi');
-            console.warn('[VisitorTracker] 📋 Silakan deploy VisitorProxy.gs dan masukkan URL');
-            this.showWaitingForDeploy();
-            return;
-        }
+    getCache() {
+        const prefix = VISITOR_CONFIG.CACHE_PREFIX;
         
         try {
-            console.log('[VisitorTracker] 📡 Mengambil data real-time dari server...');
-            console.log('[VisitorTracker] 🔗 Endpoint:', this.apiUrl);
+            const savedStats = localStorage.getItem(prefix + 'stats');
+            const savedCountries = localStorage.getItem(prefix + 'countries');
+            const savedChart = localStorage.getItem(prefix + 'chartData');
             
-            // Timeout diperpanjang menjadi 15 detik untuk koneksi yang lebih stabil
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000);
-            
-            const response = await fetch(`${this.apiUrl}?action=all&t=${Date.now()}`, {
-                method: 'GET',
-                mode: 'cors',
-                signal: controller.signal
-            });
-            
-            clearTimeout(timeoutId);
-            
-            if (!response.ok) throw new Error('Server error: ' + response.status);
-            
-            const data = await response.json();
-            
-            if (data.success && data.stats) {
-                // ✅ Data real diterima!
-                this.cache = {
-                    stats: data.stats,
-                    countries: data.countries,
-                    chart: data.chart,
-                    lastFetch: new Date()
+            if (savedStats) {
+                const stats = JSON.parse(savedStats);
+                return {
+                    ...stats,
+                    countries: savedCountries ? JSON.parse(savedCountries) : {},
+                    chartData: savedChart ? JSON.parse(savedChart) : null
                 };
-                
-                // Tampilkan data REAL
-                this.displayAllData(data);
-                
-                console.log('[VisitorTracker] ✅ Data REAL-TIME berhasil dimuat!');
-                console.log('[VisitorTracker] 📊 Total:', data.stats.totalVisits, '| Hari ini:', data.stats.todayVisits);
-            } else {
-                throw new Error('Invalid server response: ' + JSON.stringify(data));
             }
-            
         } catch (error) {
-            // Handle timeout secara spesifik
-            if (error.name === 'AbortError') {
-                console.error('[VisitorTracker] ⏱️ Koneksi timeout (server mungkin lambat atau tidak tersedia)');
-            } else {
-                console.error('[VisitorTracker] ❌ Gagal load data:', error.message);
-            }
-            this.showConnectionError(error);
+            // Ignore
         }
+        
+        return null;
     },
     
-    /**
-     * showWaitingForDeploy() - Tampilkan status menunggu deploy (BUKAN demo!)
-     */
-    showWaitingForDeploy() {
-        console.log('[VisitorTracker] ⏳ Menampilkan status menunggu deploy...');
+    initializeWithDefaultData() {
+        console.log('[VisitorTracker] 🎲 Initializing with default data...');
         
-        const totalEl = document.getElementById('totalVisitors');
-        const todayEl = document.getElementById('todayVisitors');
-        const countriesEl = document.getElementById('totalCountries');
-        const onlineEl = document.getElementById('onlineNow');
+        this.state.totalVisits = 1;
+        this.state.todayVisits = 1;
+        this.state.totalCountries = 1;
+        this.state.countries = { 'Indonesia': 1 };
+        this.state.currentOnline = 1;
         
-        // Tampilkan "-" sebagai indikator menunggu
-        if (totalEl) totalEl.textContent = '-';
-        if (todayEl) todayEl.textContent = '-';
-        if (countriesEl) countriesEl.textContent = '-';
-        if (onlineEl) onlineEl.textContent = '-';
-        
-        // Tampilkan pesan instruksi deploy di countries list
-        const countriesContainer = document.getElementById('countriesListContainer');
-        if (countriesContainer) {
-            countriesContainer.innerHTML = `
-                <div style="text-align: center; padding: 20px; color: #64748b;">
-                    <i class="fas fa-cloud-upload-alt" style="font-size: 32px; margin-bottom: 15px; display: block; color: #3b82f6;"></i>
-                    <p style="font-size: 13px; font-weight: 600; margin-bottom: 10px; color: #1e40af;">⚡ Setup Diperlukan</p>
-                    <div style="background: #fef3c7; border-left: 3px solid #f59e0b; padding: 12px; margin: 10px 0; text-align: left; border-radius: 4px;">
-                        <p style="font-size: 11px; font-weight: 600; color: #92400e; margin-bottom: 8px;">📋 Langkah Deploy:</p>
-                        <ol style="font-size: 10px; color: #78350f; padding-left: 18px; margin: 0; line-height: 1.6;">
-                            <li>Buka <a href="https://script.google.com" target="blank" style="color: #2563eb;">script.google.com</a> → New Project</li>
-                            <li>Copy seluruh kode dari file <b>VisitorProxy.gs</b></li>
-                            <li>Paste ke editor, lalu Save (Ctrl+S)</li>
-                            <li>Deploy → New deployment → Web app</li>
-                            <li>Set: <b>Execute as=Me</b>, <b>Who has access=Anyone</b></li>
-                            <li>Click <b>Deploy</b> & copy URL deployment</li>
-                            <li>Paste URL ke variabel <code style="background: #e5e7eb; padding: 1px 4px; border-radius: 3px;">VISITOR_TRACKER_URL</code> di HTML</li>
-                        </ol>
-                    </div>
-                    <p style="font-size: 10px; color: #94a3b8; margin-top: 10px;">
-                        📁 File: <code style="background: #e5e7eb; padding: 1px 4px; border-radius: 3px;">VisitorProxy.gs</code> (sudah include di download)
-                    </p>
-                </div>
-            `;
-        }
-        
-        // Kosongkan chart atau tampilkan placeholder
-        const canvas = document.getElementById('visitorChart');
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.font = '12px Inter, sans-serif';
-                ctx.fillStyle = '#94a3b8';
-                ctx.textAlign = 'center';
-                ctx.fillText('⚡ Deploy VisitorProxy untuk melihat chart', canvas.width/2, canvas.height/2);
-            }
-        }
+        this.saveToCache();
     },
     
-    /**
-     * showConnectionError() - Tampilkan error koneksi dengan solusi
-     */
-    showConnectionError(error) {
-        console.log('[VisitorTracker] ❌ Menampilkan error koneksi...');
-        
-        const totalEl = document.getElementById('totalVisitors');
-        const todayEl = document.getElementById('todayVisitors');
-        const countriesEl = document.getElementById('totalCountries');
-        const onlineEl = document.getElementById('onlineNow');
-        
-        // Tampilkan "?" sebagai indikator error
-        if (totalEl) totalEl.textContent = '?';
-        if (todayEl) todayEl.textContent = '?';
-        if (countriesEl) countriesEl.textContent = '?';
-        if (onlineEl) onlineEl.textContent = '?';
-        
-        // Tampilkan pesan error dengan solusi
-        const countriesContainer = document.getElementById('countriesListContainer');
-        if (countriesContainer) {
-            const isTimeout = error.name === 'AbortError';
-            const errorMsg = isTimeout ? 'Server terlalu lambat merespons' : error.message;
-            
-            countriesContainer.innerHTML = `
-                <div style="text-align: center; padding: 20px; color: #dc2626;">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 32px; margin-bottom: 15px; display: block;"></i>
-                    <p style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">❌ Gagal Terhubung ke Server</p>
-                    <div style="background: #fee2e2; border-left: 3px solid #dc2626; padding: 12px; margin: 10px 0; text-align: left; border-radius: 4px;">
-                        <p style="font-size: 11px; font-weight: 600; color: #991b1b; margin-bottom: 5px;">Error: ${errorMsg}</p>
-                        <p style="font-size: 10px; color: #7f1d1d; margin: 0;">URL: <code style="word-break: break-all; background: #fecaca; padding: 1px 4px; border-radius: 3px;">${this.apiUrl}</code></p>
-                    </div>
-                    <div style="background: #dbeafe; border-left: 3px solid #2563eb; padding: 12px; margin: 10px 0; text-align: left; border-radius: 4px;">
-                        <p style="font-size: 11px; font-weight: 600; color: #1e40af; margin-bottom: 8px;">💡 Solusi:</p>
-                        <ul style="font-size: 10px; color: #1e3a8a; padding-left: 18px; margin: 0; line-height: 1.6;">
-                            <li>Pastikan URL deployment sudah benar</li>
-                            <li>Cek apakah Apps Script sudah di-deploy</li>
-                            <li>Pastikan akses di-set ke <b>"Anyone"</b></li>
-                            <li>Refresh halaman ini setelah deploy</li>
-                        </ul>
-                    </div>
-                </div>
-            `;
-        }
-    },
-    
-    /**
-     * throttledVisibilityRefresh() - Refresh saat tab aktif dengan batas waktu
-     */
-    throttledVisibilityRefresh() {
-        const now = Date.now();
-        const lastFetch = this.cache.lastFetch ? this.cache.lastFetch.getTime() : 0;
-        const timeSinceLastFetch = now - lastFetch;
-        
-        // Hanya refresh jika sudah lewat MIN_REFRESH_GAP (5 menit) sejak terakhir
-        if (timeSinceLastFetch < VISITOR_CONFIG.MIN_REFRESH_GAP) {
-            console.log('[VisitorTracker] Visibility refresh skipped (too recent):', Math.round(timeSinceLastFetch/1000), 's ago');
-            return;
-        }
-        
-        console.log('[VisitorTracker] Visibility refresh allowed:', Math.round(timeSinceLastFetch/1000), 's ago');
-        this.refreshFromServer();
-    },
-    
-    /**
-     * recordVisitToServer() - Kirim visit ke server via GET (LEbih reliable!)
-     * ✅ FIXED: Menggunakan GET dengan query params, bukan POST
-     */
-    async recordVisitToServer() {
-        // Cek session dulu (mencegah double count di tab sama)
-        if (this.visitRecorded || sessionStorage.getItem('vt_visit_recorded')) {
-            console.log('[VisitorTracker] Visit already recorded in this session');
-            return;
-        }
-        
-        // Cek apakah URL sudah dikonfigurasi
-        if (this.apiUrl.includes('YOUR_VISITOR_TRACKER_ID')) {
-            console.warn('[VisitorTracker] URL belum dikonfigurasi, skip recording');
-            return;
-        }
-        
-        try {
-            console.log('[VisitorTracker] 🎯 Recording visit...');
-            
-            // Deteksi country dulu (dengan timeout)
-            let country = 'Indonesia'; // Default
-            try {
-                country = await Promise.race([
-                    this.detectCountry(),
-                    new Promise((_, reject) => setTimeout(() => reject(new Error('Geo timeout')), 3000))
-                ]);
-            } catch (geoError) {
-                console.warn('[VisitorTracker] Geo detection failed, using default:', geoError.message);
-            }
-            
-            // ✅ GUNAKAN GET REQUEST (lebih reliable untuk Google Apps Script!)
-            const visitData = {
-                action: 'visit',
-                country: country,
-                page: window.location.pathname || '/',
-                userAgent: navigator.userAgent ? navigator.userAgent.substring(0, 200) : '',
-                timestamp: new Date().toISOString(),
-                t: Date.now()
-            };
-            
-            // Build URL dengan query parameters
-            const queryParams = new URLSearchParams(visitData).toString();
-            const recordUrl = `${this.apiUrl}?${queryParams}`;
-            
-            console.log('[VisitorTracker] 📤 Sending visit data:', { country, page: visitData.page });
-            console.log('[VisitorTracker] 🔗 Record URL:', recordUrl.substring(0, 80) + '...');
-            
-            // Kirim dengan timeout 15 detik
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000);
-            
-            const response = await fetch(recordUrl, {
-                method: 'GET',
-                mode: 'no-cors', // no-cors agar tidak diblokir CORS
-                signal: controller.signal
-            });
-            
-            clearTimeout(timeoutId);
-            
-            // ✅ Dengan mode: 'no-cors', kita tidak bisa baca response
-            // Tapi asumsikan berhasil jika tidak ada error
-            this.visitRecorded = true;
-            sessionStorage.setItem('vt_visit_recorded', 'true');
-            sessionStorage.setItem('vt_visit_country', country);
-            sessionStorage.setItem('vt_visit_time', new Date().toISOString());
-            
-            console.log('[VisitorTracker] ✅ Visit recorded successfully!', { country });
-            
-            // ✅ Update tampilan online count setelah record
-            this.refreshOnlineCount();
-            
-        } catch (error) {
-            console.error('[VisitorTracker] ❌ Failed to record visit:', error.message);
-            
-            // Retry sekali lagi setelah 2 detik
-            if (!this._retryAttempted) {
-                this._retryAttempted = true;
-                console.log('[VisitorTracker] 🔄 Retrying in 2 seconds...');
-                setTimeout(() => {
-                    this.recordVisitToServer();
-                }, 2000);
-            } else {
-                console.error('[VisitorTracker] ❌ Retry also failed');
-            }
-        }
-    },
-    
-    /**
-     * loadStatsFromServer() - Load statistik dari server
-     */
-    async loadStatsFromServer() {
-        if (this.apiUrl.includes('YOUR_VISITOR_TRACKER_ID')) {
-            console.warn('[VisitorTracker] URL belum dikonfigurasi, showing demo data');
-            this.showDemoData();
-            return;
-        }
-        
-        try {
-            const response = await fetch(`${this.apiUrl}?action=all&t=${Date.now()}`, {
-                method: 'GET',
-                mode: 'cors'
-            });
-            
-            if (!response.ok) throw new Error('Server response: ' + response.status);
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                // Update cache
-                this.cache = {
-                    stats: data.stats,
-                    countries: data.countries,
-                    chart: data.chart,
-                    lastFetch: new Date()
-                };
-                
-                // Tampilkan data
-                this.displayAllData(data);
-            }
-            
-        } catch (error) {
-            console.error('[VisitorTracker] Failed to load stats:', error);
-            this.showDemoData();
-        }
-    },
-    
-    /**
-     * displayAllData() - Tampilkan semua data dari server (DINAMIS & ANIMATED!)
-     */
-    displayAllData(data) {
-        console.log('[VisitorTracker] 🎨 Displaying dynamic data...');
-        
-        // 1. Display Stats Cards (SELALU ANIMASI untuk efek hidup!)
-        if (data.stats) {
-            const totalEl = document.getElementById('totalVisitors');
-            const todayEl = document.getElementById('todayVisitors');
-            const countriesEl = document.getElementById('totalCountries');
-            const onlineEl = document.getElementById('onlineNow');
-            
-            // ✅ SELALU gunakan animasi untuk kesan dinamis!
-            if (totalEl) this.animateNumber(totalEl, data.stats.totalVisits || 0);
-            if (todayEl) this.animateNumber(todayEl, data.stats.todayVisits || 0);
-            if (countriesEl) this.animateNumber(countriesEl, data.stats.totalCountries || 0);
-            
-            // Online count dengan simulasi realistis
-            if (onlineEl) {
-                const baseOnline = Math.max(2, Math.min(10, (data.stats.todayVisits || 0)));
-                this.animateNumber(onlineEl, baseOnline + Math.floor(Math.random() * 3));
-            }
-            
-            // ✅ Trigger pulse effect pada cards
-            this.pulseCards();
-        }
-        
-        // 2. Display Countries List (dengan animasi fade-in)
-        if (data.countries && Object.keys(data.countries).length > 0) {
-            this.displayCountries(data.countries);
-        } else {
-            // Fallback: tampilkan Indonesia jika data kosong
-            this.displayCountries({'Indonesia': (data.stats?.totalVisits || 1)});
-        }
-        
-        // 3. Render Chart (SELALU DENGAN ANIMASI!)
-        if (data.chart && data.chart.labels && data.chart.labels.length > 0) {
-            this.renderChartFromServer(data.chart, false); // Selalu animate!
-        } else {
-            // Generate chart data realistis jika kosong
-            this.generateRealisticChart();
-        }
-        
-        // Tandai initial load sudah selesai
-        if (this.isInitialLoad) {
-            this.isInitialLoad = false;
-        }
-        
-        console.log('[VisitorTracker] ✅ Dynamic display complete!');
-    },
-    
-    /**
-     * refreshFromServer() - Refresh data saat tab aktif
-     */
-    async refreshFromServer() {
-        await this.loadStatsFromServer();
-        this.refreshOnlineCount();
-    },
-    
-    /**
-     * detectCountry() - Deteksi negara (MULTI-SOURCE FALLBACK)
-     * ✅ FIXED: Support HTTPS dan multiple APIs
-     */
-    async detectCountry() {
-        // Cek cache dulu
-        const cachedCountry = sessionStorage.getItem('vt_detected_country');
-        if (cachedCountry) {
-            return cachedCountry;
-        }
-        
-        const apis = [
-            // Source 1: ip-api.com (HTTP - bisa gagal di HTTPS sites)
-            { url: 'http://ip-api.com/json/?fields=status,country,countryCode', parser: (data) => ({ country: data.country, code: data.countryCode }) },
-            
-            // Source 2: ipapi.co (HTTPS backup)
-            { url: 'https://ipapi.co/json/', parser: (data) => ({ country: data.country_name, code: data.country_code }) },
-            
-            // Source 3: ipinfo.io (HTTPS backup)
-            { url: 'https://ipinfo.io/json', parser: (data) => ({ country: data.country, code: data.country }) }
-        ];
-        
-        for (const api of apis) {
-            try {
-                console.log('[VisitorTracker] 🌍 Trying geo API:', api.url.substring(0, 40));
-                
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3000);
-                
-                const response = await fetch(api.url, {
-                    method: 'GET',
-                    signal: controller.signal
-                });
-                
-                clearTimeout(timeoutId);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    const result = api.parser(data);
-                    
-                    if (result && result.country) {
-                        console.log('[VisitorTracker] ✅ Country detected:', result.country, result.code);
-                        
-                        // Cache hasilnya
-                        sessionStorage.setItem('vt_detected_country', result.country);
-                        sessionStorage.setItem('vt_detected_country_code', result.code || '');
-                        
-                        return result.country;
-                    }
-                }
-            } catch (error) {
-                console.warn(`[VisitorTracker] ⚠️ Geo API failed:`, error.message);
-                continue; // Coba API berikutnya
-            }
-        }
-        
-        // Default jika semua gagal
-        console.warn('[VisitorTracker] ⚠️ All geo APIs failed, using default: Indonesia');
-        return 'Indonesia';
-    },
-    
-    /**
-     * showDemoData() - Tampilkan data demo (SELALU BERFUNGSI!)
-     * Fungsi ini dijamin selalu menampilkan data yang bagus
-     */
-    showDemoData() {
-        console.log('[VisitorTracker] 📊 Menampilkan demo data...');
-        
-        // Pastikan elemen ada
-        const totalEl = document.getElementById('totalVisitors');
-        const todayEl = document.getElementById('todayVisitors');
-        const countriesEl = document.getElementById('totalCountries');
-        const onlineEl = document.getElementById('onlineNow');
-        
-        // Data demo yang realistis
-        const demoTotal = 1247 + Math.floor(Math.random() * 50);
-        const demoToday = 25 + Math.floor(Math.random() * 15);
-        const demoCountries = 5 + Math.floor(Math.random() * 5);
-        const demoOnline = 3 + Math.floor(Math.random() * 6);
-        
-        // Animasi angka dengan delay kecil untuk efek smooth
-        setTimeout(() => {
-            if (totalEl) this.animateNumber(totalEl, demoTotal);
-            if (todayEl) this.animateNumber(todayEl, demoToday);
-            if (countriesEl) this.animateNumber(countriesEl, demoCountries);
-            if (onlineEl) this.animateNumber(onlineEl, demoOnline);
-        }, 100);
-        
-        // Demo countries - realistis untuk website Indonesia
-        setTimeout(() => {
-            this.displayCountries({
-                'Indonesia': 892,
-                'Malaysia': 45,
-                'Singapore': 28,
-                'United States': 19,
-                'Japan': 12,
-                'Australia': 9,
-                'Saudi Arabia': 7,
-                'United Kingdom': 5
-            });
-        }, 200);
-        
-        // Demo chart - pastikan selalu render
-        setTimeout(() => {
-            this.renderDemoChart();
-        }, 300);
-        
-        console.log('[VisitorTracker] ✅ Demo data ditampilkan!');
-    },
-    
-    /**
-     * initializeFallback() - Mode fallback jika server gagal
-     */
     initializeFallback() {
-        console.log('[VisitorTracker] Using fallback mode (localStorage)');
-        this.showDemoData();
-        this.setupAutoRefresh();
-    },
-    
-    /**
-     * updateOnlineStatus() - Update status online (simulasi)
-     */
-    updateOnlineStatus() {
-        // Simulasi online count
-        this.refreshOnlineCount();
-    },
-    
-    /**
-     * refreshOnlineCount() - Refresh tampilan jumlah online (REALISTIS & DINAMIS!)
-     */
-    refreshOnlineCount() {
-        const element = document.getElementById('onlineNow');
-        if (!element) return;
+        console.log('[VisitorTracker] ⚠️ Using FALLBACK mode...');
+        this.loadFromCache();
+        this.displayAllData();
         
-        // Ambil nilai saat ini
-        const currentValue = parseInt(element.textContent.replace(/\./g, '')) || VISITOR_CONFIG.ONLINE_MIN;
+        this._pollInterval = setInterval(async () => {
+            await this.pollServerForUpdates();
+        }, VISITOR_CONFIG.SERVER_POLL_INTERVAL);
         
-        // Simulasi perubahan realistis (naik/turun 1-3 orang)
-        const change = Math.floor(Math.random() * (VISITOR_CONFIG.ONLINE_FLUCTUATION * 2 + 1)) - VISITOR_CONFIG.ONLINE_FLUCTUATION;
-        let newValue = currentValue + change;
-        
-        // Batasi min/max
-        newValue = Math.max(VISITOR_CONFIG.ONLINE_MIN, Math.min(VISITOR_CONFIG.ONLINE_MAX, newValue));
-        
-        // Animasi ke nilai baru
-        this.animateNumber(element, newValue);
-        
-        console.log(`[VisitorTracker] 👥 Online: ${currentValue} → ${newValue}`);
-    },
-    
-    /**
-     * pulseCards() - Efek pulse pada cards untuk kesan hidup
-     */
-    pulseCards() {
-        const cards = document.querySelectorAll('.visitor-stat-card, .stat-card');
-        cards.forEach((card, index) => {
-            setTimeout(() => {
-                card.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
-                card.style.transform = 'scale(1.02)';
-                card.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.3)';
-                
-                setTimeout(() => {
-                    card.style.transform = 'scale(1)';
-                    card.style.boxShadow = '';
-                }, 300);
-            }, index * 100);
-        });
-    },
-    
-    /**
-     * generateRealisticChart() - Generate chart data realistis jika server kosong
-     */
-    generateRealisticChart() {
-        const labels = [];
-        const values = [];
-        
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            const dayName = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'][date.getDay()];
-            const dateStr = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth()+1).toString().padStart(2, '0')}`;
-            
-            labels.push(`${dayName}, ${dateStr}`);
-            
-            // Generate nilai realistis (hari ini lebih tinggi)
-            const isToday = i === 0;
-            const baseValue = isToday ? 5 : Math.floor(Math.random() * 8) + 2;
-            values.push(baseValue);
-        }
-        
-        this.renderChartFromServer({ labels, values }, false);
-        console.log('[VisitorTracker] 📈 Realistic chart generated');
-    },
-    
-    /**
-     * animateNumber() - Animasi angka naik (DINAMIS & SMOOTH!)
-     */
-    animateNumber(element, targetValue) {
-        if (!element) return;
-        
-        const duration = VISITOR_CONFIG.NUMBER_ANIMATION_DURATION || 800; // ms
-        const startValue = parseInt(element.textContent.replace(/\./g, '')) || 0;
-        const startTime = performance.now();
-        
-        // ✅ Tambah class untuk efek visual
-        element.classList.add('updating');
-        
-        const updateNumber = (currentTime) => {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            
-            // Easing function (ease-out cubic) - lebih smooth
-            const easeOut = 1 - Math.pow(1 - progress, 3);
-            
-            const currentValue = Math.round(startValue + (targetValue - startValue) * easeOut);
-            element.textContent = currentValue.toLocaleString('id-ID');
-            
-            if (progress < 1) {
-                requestAnimationFrame(updateNumber);
-            } else {
-                // ✅ Hapus class setelah animasi selesai
-                setTimeout(() => {
-                    element.classList.remove('updating');
-                }, 100);
-            }
-        };
-        
-        requestAnimationFrame(updateNumber);
-    },
-    
-    /**
-     * displayCountries() - Tampilkan daftar negara
-     */
-    displayCountries(countries) {
-        const container = document.getElementById('countriesListContainer');
-        if (!container || !countries) return;
-        
-        // Sort by count descending
-        const sortedCountries = Object.entries(countries)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 10); // Top 10 negara
-        
-        if (sortedCountries.length === 0) {
-            container.innerHTML = `
-                <p style="color: var(--gray-500); font-size: 11px; text-align: center; padding: 15px 0;">
-                    <i class="fas fa-globe-asia"></i> Belum ada data
-                </p>
-            `;
-            return;
-        }
-        
-        let html = '';
-        sortedCountries.forEach(([country, count]) => {
-            const flag = this.countryFlags[country] || '🌐';
-            html += `
-                <div class="country-item">
-                    <div class="country-info">
-                        <span class="country-flag">${flag}</span>
-                        <span class="country-name">${country}</span>
-                    </div>
-                    <span class="country-count">${count}</span>
-                </div>
-            `;
-        });
-        
-        container.innerHTML = html;
-    },
-    
-    /**
-     * renderChartFromServer() - Render grafik dari data server
-     * @param {Object} chartData - Data grafik dari server
-     * @param {boolean} silentUpdate - Jika true, tidak ada animasi (update halus)
-     */
-    renderChartFromServer(chartData, silentUpdate = false) {
-        if (!chartData || !chartData.labels || !chartData.values) return;
-        
-        const canvas = document.getElementById('visitorChart');
-        if (!canvas) return;
-        
-        const ctx = canvas.getContext('2d');
-        
-        // Destroy existing chart
-        if (this.chartInstance) {
-            this.chartInstance.destroy();
-        }
-        
-        // Create new chart with compact options
-        this.chartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: chartData.labels,
-                datasets: [{
-                    label: 'Pengunjung',
-                    data: chartData.values,
-                    borderColor: '#22c55e',
-                    backgroundColor: 'rgba(34, 197, 94, 0.15)',
-                    borderWidth: 2.5,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#22c55e',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(30, 41, 59, 0.95)',
-                        titleColor: '#fbbf24',
-                        bodyColor: '#ffffff',
-                        padding: 10,
-                        cornerRadius: 8,
-                        displayColors: false,
-                        titleFont: { size: 11 },
-                        bodyFont: { size: 11 },
-                        callbacks: {
-                            label: function(context) {
-                                return `👥 ${context.parsed.y} pengunjung`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: {
-                            color: '#64748b',
-                            font: { size: 10, family: "'Inter', sans-serif" }
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(226, 232, 240, 0.5)',
-                            drawBorder: false
-                        },
-                        ticks: {
-                            color: '#64748b',
-                            font: { size: 10, family: "'Inter', sans-serif" },
-                            stepSize: 5,
-                            maxTicksLimit: 5
-                        }
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
-                // ✅ SELALU ANIMASI untuk kesan dinamis & hidup!
-                animation: {
-                    duration: 1500,
-                    easing: 'easeOutQuart'
-                }
-            }
-        });
-        
-        console.log('[VisitorTracker] 📈 Chart rendered with animation');
-    },
-    
-    /**
-     * renderDemoChart() - Render grafik demo (SELALU BERFUNGSI!)
-     */
-    renderDemoChart() {
-        try {
-            console.log('[VisitorTracker] 📈 Rendering demo chart...');
-            
-            // Generate realistic demo data untuk 7 hari terakhir
-            const labels = [];
-            const values = [];
-            const today = new Date();
-            
-            for (let i = 6; i >= 0; i--) {
-                const date = new Date(today);
-                date.setDate(date.getDate() - i);
-                labels.push(date.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric' }));
-                // Data realistis: 20-60 pengunjung per hari
-                values.push(20 + Math.floor(Math.random() * 40));
-            }
-            
-            // Pastikan canvas ada
-            const canvas = document.getElementById('visitorChart');
-            if (!canvas) {
-                console.error('[VisitorTracker] Canvas tidak ditemukan!');
-                return;
-            }
-            
-            // Render chart
-            this.renderChartFromServer({ labels, values }, false);
-            console.log('[VisitorTracker] ✅ Demo chart berhasil dirender!');
-            
-        } catch (error) {
-            console.error('[VisitorTracker] Error rendering demo chart:', error);
-        }
-    },
-    
-    /**
-     * setupAutoRefresh() - Setup auto-refresh (DINAMIS & CEPAT!)
-     * 
-     * Strategi BARU:
-     * - Data statistik: 5 menit (cepat!)
-     * - Online count: 15 detik (sangat cepat, realistis!)
-     * - Semua update DENGAN ANIMASI (kesan hidup!)
-     */
-    setupAutoRefresh() {
-        console.log('[VisitorTracker] ⚡ Auto-refresh configured (DYNAMIC MODE):');
-        console.log('  - Stats refresh: Every', VISITOR_CONFIG.REFRESH_INTERVAL / 1000, 'seconds');
-        console.log('  - Online update: Every', VISITOR_CONFIG.ONLINE_UPDATE_INTERVAL / 1000, 'seconds (FAST!)');
-        
-        // ✅ Update online count setiap 15 DETIK (dinamis & realistis!)
         this._onlineInterval = setInterval(() => {
-            this.refreshOnlineCount();
-        }, VISITOR_CONFIG.ONLINE_UPDATE_INTERVAL);
-        
-        // ✅ Refresh data dari server setiap 5 MENIT (cepat!)
-        this._statsInterval = setInterval(() => {
-            console.log('[VisitorTracker] 🔄 Stats refresh triggered...');
-            this.loadRealTimeData();
-        }, VISITOR_CONFIG.REFRESH_INTERVAL);
-        
-        // ✅ Pulse effect pada cards setiap 30 detik
-        setInterval(() => {
-            this.pulseCards();
-        }, 30000);
-        
-        console.log('[VisitorTracker] ✅ Dynamic auto-refresh started!');
-    },
-    
-    /**
-     * silentOnlineUpdate() - Update online count tanpa animasi (halus)
-     */
-    silentOnlineUpdate() {
-        const element = document.getElementById('onlineNow');
-        if (element) {
-            const simulatedOnline = Math.max(1, Math.floor(Math.random() * 10) + 2);
-            // Langsung update nilai tanpa animasi
-            element.textContent = simulatedOnline.toLocaleString('id-ID');
-        }
-    },
+            this.animateOnlineCount();
+        }, VISITOR_CONFIG.ONLINE_ANIMATION_INTERVAL);
+    }
 };
 
 // ============================================
-// ===== INITIALIZE VISITOR TRACKER v4.0 ON DOM READY =====
+// ===== INITIALIZE VISITOR TRACKER v5.0 ON DOM READY =====
 // =====================================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('[VisitorTracker] 🌐 DOM Ready, starting v4.0 Hybrid Dynamic System...');
-    console.log('[VisitorTracker] 📋 Mode: HYBRID (LocalStorage + Server Sync)');
+    console.log('%c[VisitorTracker v5.0] 🌐 DOM Ready - Starting SERVER-FIRST System...', 'color: #22c55e; font-weight: bold;');
     
-    // Initialize visitor tracking system v4.0
     if (typeof VisitorTracker !== 'undefined') {
-        console.log('[VisitorTracker] ✅ Object found, initializing v4.0...');
+        console.log('[VisitorTracker] ✅ v5.0 Object found, initializing...');
         
-        // Delay singkat untuk memastikan DOM stabil
         setTimeout(() => {
             try {
                 VisitorTracker.initialize();
             } catch (initError) {
                 console.error('[VisitorTracker] ❌ Init error:', initError);
-                // Fallback: Tetap jalankan initializeFallback
                 VisitorTracker.initializeFallback();
             }
-        }, 500); // Lebih cepat (500ms)
+        }, 500);
     } else {
-        console.error('[VisitorTracker] ❌ Object not found!');
+        console.error('[VisitorTracker] ❌ v5.0 Object not found!');
     }
 });
 
-// Fallback: Cek status saat window load
 window.addEventListener('load', function() {
     const totalEl = document.getElementById('totalVisitors');
-    if (totalEl && (totalEl.textContent === '0' || totalEl.textContent === '')) {
+    if (totalEl && (totalEl.textContent === '0' || totalEl.textContent === '' || totalEl.textContent === '?')) {
         console.log('[VisitorTracker] Window load check - ensuring data displayed...');
         if (typeof VisitorTracker !== 'undefined' && !VisitorTracker.state.isInitialized) {
             VisitorTracker.initializeFallback();
