@@ -5745,11 +5745,6 @@ function initAuthState() {
                 // Restore session
                 currentAdminUser = sessionData.user;
                 
-                // SYNC: Also set old variable for backward compatibility
-                if (typeof isAdminLoggedIn !== 'undefined') {
-                    isAdminLoggedIn = true;
-                }
-                
                 // Update UI for logged-in state (sidebar admin menu)
                 showLoggedInUI(currentAdminUser);
                 
@@ -5821,11 +5816,6 @@ function performAuthentication(username, password, source) {
     
     // Authentication successful!
     currentAdminUser = user;
-    
-    // SYNC: Also set old variable for backward compatibility
-    if (typeof isAdminLoggedIn !== 'undefined') {
-        isAdminLoggedIn = true;
-    }
     
     // Save session to localStorage
     saveSession(user);
@@ -5951,11 +5941,6 @@ function adminLogout() {
     
     // Clear everything
     clearAuthState();
-    
-    // SYNC: Also reset old variable
-    if (typeof isAdminLoggedIn !== 'undefined') {
-        isAdminLoggedIn = false;
-    }
     
     // Reset UI sidebar
     document.getElementById('admin-login-form').style.display = 'block';
@@ -6161,45 +6146,10 @@ function showPage(pageId) {
     const navItem = document.getElementById('nav-' + pageId);
     if (navItem) navItem.classList.add('active');
     
-    // Check if trying to access admin pages
-    const adminPages = ['data-pengusul', 'data-roadmap'];
-    if (adminPages.includes(pageId)) {
-        // Use NEW authentication check (isAdminAuthenticated)
-        const isAuthenticated = typeof isAdminAuthenticated === 'function' 
-            ? isAdminAuthenticated() 
-            : (typeof currentAdminUser !== 'undefined' && currentAdminUser !== null);
-        
-        if (!isAuthenticated) {
-            // Show login page instead of alert
-            const loginPage = document.getElementById('login-page');
-            if (loginPage) {
-                loginPage.classList.remove('hidden');
-                if (typeof showToast === 'function') {
-                    showToast('🔐 Silakan login untuk mengakses Panel Admin', 'error', 3000);
-                }
-            } else {
-                // Fallback to alert if no login page
-                alert('Silakan login sebagai Admin terlebih dahulu!');
-            }
-            
-            // Don't navigate away from current page
-            // Just return without changing page
-            return;
-        }
-        
-        // Check role-based access for roadmap
-        if (pageId === 'data-roadmap') {
-            const hasAccess = typeof hasPermission === 'function' 
-                ? hasPermission('roadmap')
-                : true; // Default allow if function doesn't exist
-            
-            if (!hasAccess) {
-                if (typeof showToast === 'function') {
-                    showToast('🚫 Operator tidak memiliki akses ke Data Roadmap', 'error', 3000);
-                }
-                return;
-            }
-        }
+    if ((pageId === 'data-pengusul' || pageId === 'data-roadmap') && !isAdminLoggedIn) {
+        alert('Silakan login sebagai Admin terlebih dahulu!');
+        showPage('dashboard');
+        return;
     }
     
     if (pageId === 'dashboard') renderDashboard();
@@ -6246,15 +6196,6 @@ function adminLogin() {
     } else {
         alert('Password salah! Gunakan password yang benar');
     }
-}
-
-function adminLogout() {
-    isAdminLoggedIn = false;
-    document.getElementById('admin-login-form').style.display = 'block';
-    document.getElementById('admin-menu').style.display = 'none';
-    document.getElementById('admin-status-badge').textContent = 'Login';
-    document.getElementById('admin-status-badge').className = 'badge-login';
-    showPage('dashboard');
 }
 
 // ===== FILE HANDLING =====
