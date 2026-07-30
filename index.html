@@ -5872,7 +5872,7 @@ body {
                 <!-- Loading State -->
                 <div id="photoLoadingState" style="display: none; text-align: center; padding: 60px 20px;">
                     <div style="width: 56px; height: 56px; border: 4px solid #e5e7eb; border-top-color: #22c55e; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 18px;"></div>
-                    <p style="color: #64748b; font-size: 15px; font-weight: 600;"><i class="fas fa-cloud-download-alt" style="margin-right: 8px;"></i>Memuat foto dari Database...</p>
+                    <p style="color: #64748b; font-size: 15px; font-weight: 600;"><i class="fas fa-cloud-download-alt" style="margin-right: 8px;"></i>Memuat foto dari Google Drive...</p>
                     <p style="color: #94a3b8; font-size: 12px; margin-top: 8px;" id="loadingProgressText">Menghubungkan ke server...</p>
                 </div>
                 
@@ -9227,7 +9227,7 @@ const DRIVE_FOLDER_ID = '1rxvJ0z5PxQ1WAms8udLA462sIIcBUOeB';
 
 // Ganti dengan URL Apps Script Anda setelah deploy
 // Format: https://script.google.com/macros/s/XXXXX/exec
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyeMEJxbHIfTpuAbs8mOBa6kO5XoSN0jCtJvMav67OK23ZMkEI-ikZk0ZoBTvHy9QEcOQ/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKzdgc_Umpgh5Sa-8sa0fYgn_sD4mTRmqO_myrwskMcLMgw2e6W3BA79Pt8bDOseIZMA/exec';
 
 /**
  * Global variable untuk menyimpan data foto dari Google Drive
@@ -9497,7 +9497,7 @@ async function loadGalleryPhotos() {
     // Show loading state
     galleryLoadInProgress = true;
     showPhotoState('loading');
-    showDriveStatus('info', '⏳ Menghubungkan ke Database...');
+    showDriveStatus('info', '⏳ Menghubungkan ke Google Drive...');
     document.getElementById('loadingProgressText').textContent = 'Mengakses Google Apps Script...';
     
     // Retry configuration
@@ -9513,7 +9513,7 @@ async function loadGalleryPhotos() {
             
             // Update progress text
             document.getElementById('loadingProgressText').textContent = 
-                attempt > 1 ? `Mencoba lagi (${attempt}/${MAX_RETRIES})...` : 'Memuat foto dari database...';
+                attempt > 1 ? `Mencoba lagi (${attempt}/${MAX_RETRIES})...` : 'Memuat foto dari folder Drive...';
             
             // Fetch via Apps Script Proxy
             const photos = await fetchViaAppsScriptProxy();
@@ -9524,7 +9524,7 @@ async function loadGalleryPhotos() {
                 renderPhotoGallery(photos);
                 updateStatsBar(photos);
                 showPhotoState('data');
-                showDriveStatus('success', `✅ ${photos.length} foto berhasil dimuat dari ${countUniqueFolders(photos)} database`);
+                showDriveStatus('success', `✅ ${photos.length} foto berhasil dimuat dari ${countUniqueFolders(photos)} folder`);
                 
                 // Update timestamp
                 const now = new Date();
@@ -9614,7 +9614,7 @@ function getDeployInstructionsShort() {
  */
 async function fetchViaAppsScriptProxy() {
     try {
-        const url = `${APPS_SCRIPT_URL}?folderId=${DRIVE_FOLDER_ID}&maxFiles=200&t=${Date.now()}`;
+        const url = `${APPS_SCRIPT_URL}?folderId=${DRIVE_FOLDER_ID}&maxFiles=10000&t=${Date.now()}`;
         
         const response = await fetch(url, {
             method: 'GET',
@@ -11513,7 +11513,7 @@ function clearSearchSkJfk() {
  */
 
 // ⚠️ GANTI INI dengan URL VisitorTracker.gs Anda!
-const VISITOR_TRACKER_URL = 'https://script.google.com/macros/s/AKfycbxu0yA0JTc9c6Za8kwO20fiKXuZjK9bZ9pCZSCpigV3XUHlzrFOh-yAjZYCj9XKWaF2FQ/exec';
+const VISITOR_TRACKER_URL = 'https://script.google.com/macros/s/YOUR_VISITOR_TRACKER_ID/exec';
 
 // Konfigurasi Refresh Visitor Stats
 const VISITOR_CONFIG = {
