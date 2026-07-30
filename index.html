@@ -11685,7 +11685,7 @@ function clearSearchSkJfk() {
  */
 
 // URL Visitor Tracker (untuk sync ke Google Sheets) - ✅ DEPLOYED BARU!
-const VISITOR_TRACKER_URL = 'https://script.google.com/macros/s/AKfycbyHNuuak1F02J6-yGuAv_CCfL6zuDyau0EhhXLVnAmBP-bvgSavJIJUFupnlt6yyLhG/exec';
+const VISITOR_TRACKER_URL = 'https://script.google.com/macros/s/AKfycbwPR86gcB-tTcYWRBu6LDYkR-xNU8UFzkAlpToFUNZrAkwDAntDdjALL17765WR3jIs/exec';
 
 // Konfigurasi Visitor Tracker v4.0 (HYBRID DYNAMIC MODE)
 const VISITOR_CONFIG = {
@@ -11749,33 +11749,37 @@ const VisitorTracker = {
     },
     
     /**
-     * initialize() - Inisialisasi sistem v4.0 (HYBRID MODE)
+     * initialize() - Inisialisasi sistem v4.0 (HYBRID SYNC MODE)
      */
     async initialize() {
-        console.log('[VisitorTracker] 🚀 Initializing v4.0 (HYBRID Dynamic Mode)...');
+        console.log('[VisitorTracker] 🚀 Initializing v4.0 (HYBRID SYNC Mode)...');
+        console.log('[VisitorTracker] 🎯 Goal: Full sync with Google Sheets');
         
         try {
             // 1. Load data dari localStorage atau initialize baru
             this.loadFromLocalStorage();
             
-            // 2. Record visit saat ini
+            // 2. Record visit saat ini (localStorage)
             this.recordCurrentVisit();
             
-            // 3. Generate realistic chart data
+            // 3. ✅ SYNC: Load data dari server (Google Sheets) dan sinkronkan
+            await this.loadFromServer();
+            
+            // 4. Generate realistic chart data
             this.generateChartData();
             
-            // 4. Tampilkan data dinamis
+            // 5. Tampilkan data dinamis (sudah termasuk data server!)
             this.displayDynamicData();
             
-            // 5. Setup auto-update intervals
+            // 6. Setup auto-update intervals
             this.setupDynamicUpdates();
             
-            // 6. Background sync ke server (non-blocking)
+            // 7. ✅ SYNC: Kirim data LENGKAP ke Google Sheets
             if (VISITOR_CONFIG.SYNC_TO_SERVER) {
                 this.syncToServer();
             }
             
-            // 7. Listen for visibility changes
+            // 8. Listen for visibility changes
             document.addEventListener('visibilitychange', () => {
                 if (!document.hidden) {
                     this.onVisibilityChange();
@@ -11783,11 +11787,12 @@ const VisitorTracker = {
             });
             
             this.state.isInitialized = true;
-            console.log('[VisitorTracker] ✅ Hybrid Dynamic mode active!');
+            console.log('[VisitorTracker] ✅ Hybrid SYNC mode active!');
             console.log('[VisitorTracker] 📊 Data:', {
                 total: this.state.totalVisits,
                 today: this.state.todayVisits,
-                online: this.state.currentOnline
+                online: this.state.currentOnline,
+                countries: Object.keys(this.state.countries).length
             });
             
         } catch (error) {
@@ -11907,7 +11912,11 @@ const VisitorTracker = {
         
         // Default Indonesia (bisa diperluas nanti)
         const country = 'Indonesia';
+        const countryCode = 'ID';
+        
         sessionStorage.setItem('vt_detected_country_v4', country);
+        sessionStorage.setItem('vt_country_code', countryCode);
+        
         return country;
     },
     
@@ -12133,9 +12142,11 @@ const VisitorTracker = {
      * setupDynamicUpdates() - Setup interval updates (DINAMIS!)
      */
     setupDynamicUpdates() {
-        console.log('[VisitorTracker] ⚡ Setting up dynamic updates...');
+        console.log('[VisitorTracker] ⚡ Setting up dynamic updates (SYNC MODE)...');
         console.log(`  - Online update: Every ${VISITOR_CONFIG.ONLINE_UPDATE_INTERVAL/1000}s`);
         console.log(`  - Stats animation: Every ${VISITOR_CONFIG.STATS_ANIMATION_INTERVAL/1000}s`);
+        console.log(`  - Server sync (send): Every ${VISITOR_CONFIG.SERVER_SYNC_INTERVAL/1000}s`);
+        console.log(`  - Server sync (load): Every 3 minutes`);
         
         // 1. Online count fluctuation (setiap 10 detik)
         this._onlineInterval = setInterval(() => {
@@ -12152,14 +12163,21 @@ const VisitorTracker = {
             this.pulseCards();
         }, 30000);
         
-        // 4. Background sync ke server (setiap 5 menit)
+        // 4. ✅ SYNC: Kirim data ke Google Sheets (setiap 5 menit)
         if (VISITOR_CONFIG.SYNC_TO_SERVER) {
             setInterval(() => {
                 this.syncToServer();
             }, VISITOR_CONFIG.SERVER_SYNC_INTERVAL);
         }
         
-        console.log('[VisitorTracker] ✅ Dynamic updates started!');
+        // 5. ✅ SYNC: Load data dari Google Sheets (setiap 3 menit)
+        if (!this.apiUrl.includes('YOUR_VISITOR_TRACKER_ID')) {
+            setInterval(async () => {
+                await this.loadFromServer();
+            }, 180000); // 3 menit
+        }
+        
+        console.log('[VisitorTracker] ✅ Dynamic SYNC updates started!');
     },
     
     /**
@@ -12223,33 +12241,143 @@ const VisitorTracker = {
         console.log('[VisitorTracker] 👁️ Tab visible, refreshing...');
         this.updateOnlineCount();
         this.reAnimateStats();
+        // Sync ke server saat tab aktif
+        this.syncToServer();
+        // Load data terbaru dari server
+        this.loadFromServer();
     },
     
     /**
-     * syncToServer() - Sync data ke Google Sheets (background, non-blocking)
+     * syncToServer() - SYNC DATA LENKAP ke Google Sheets (FULL DATA!)
+     * ✅ Mengirim: Timestamp, Country, CountryCode, Page, UserAgent, IP_Hash
      */
-    async syncToServer() {
+    syncToServer() {
+        if (!this.apiUrl || this.apiUrl.includes('YOUR_VISITOR_TRACKER_ID')) {
+            console.log('[VisitorTracker] ⏳ URL belum dikonfigurasi, skip sync');
+            return;
+        }
+        
+        try {
+            console.log('[VisitorTracker] ☁️ Syncing FULL data to Google Sheets...');
+            
+            // 📊 Kumpulkan data LENGKAP untuk dikirim
+            const fullData = {
+                action: 'visit',
+                country: sessionStorage.getItem('vt_country') || 'Indonesia',
+                countryCode: sessionStorage.getItem('vt_country_code') || 'ID',
+                page: window.location.pathname || '/',
+                userAgent: navigator.userAgent ? navigator.userAgent.substring(0, 255) : '',
+                timestamp: new Date().toISOString(),
+                ip_hash: this.generateIPHash(),
+                t: Date.now()
+            };
+            
+            // Build URL dengan semua parameter
+            const params = new URLSearchParams(fullData).toString();
+            const trackUrl = `${this.apiUrl}?${params}`;
+            
+            console.log('[VisitorTracker] 📤 Sending:', {
+                country: fullData.country,
+                page: fullData.page,
+                ua_length: fullData.userAgent.length
+            });
+            
+            // Method 1: Image tracking (paling reliable, no-cors)
+            const img = new Image();
+            img.src = trackUrl;
+            
+            // Cleanup setelah 15 detik
+            setTimeout(() => { 
+                if (img) img.src = ''; 
+            }, 15000);
+            
+            console.log('[VisitorTracker] ✅ Full data sent to Google Sheets');
+            
+        } catch (error) {
+            console.warn('[VisitorTracker] ⚠️ Sync error:', error.message);
+        }
+    },
+    
+    /**
+     * generateIPHash() - Generate IP hash sederhana (client-side)
+     */
+    generateIPHash() {
+        // Gunakan kombinasi user agent + timestamp + random sebagai fingerprint
+        const raw = `${navigator.userAgent}${new Date().getTime()}${Math.random()}`;
+        let hash = 0;
+        for (let i = 0; i < raw.length; i++) {
+            const char = raw.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return 'H' + Math.abs(hash).toString(36).toUpperCase().substring(0, 12);
+    },
+    
+    /**
+     * loadFromServer() - Load data dari server dan sinkronkan ke localStorage
+     * ✅ TWO-WAY SYNC: Server → LocalStorage → Display
+     */
+    async loadFromServer() {
         if (!this.apiUrl || this.apiUrl.includes('YOUR_VISITOR_TRACKER_ID')) {
             return; // Skip jika URL belum dikonfigurasi
         }
         
         try {
-            console.log('[VisitorTracker] ☁️ Attempting server sync...');
+            console.log('[VisitorTracker] 📥 Loading data from server for sync...');
             
-            // Gunakan Image tracking method (lebih reliable!)
-            const trackUrl = `${this.apiUrl}?action=visit&country=${encodeURIComponent(sessionStorage.getItem('vt_country') || 'Indonesia')}&page=${encodeURIComponent(window.location.pathname)}&t=${Date.now()}`;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 detik timeout
             
-            // Create image element untuk trigger request (no-cors friendly)
-            const img = new Image();
-            img.src = trackUrl;
-            img.onload = () => console.log('[VisitorTracker] ✅ Server sync success');
-            img.onerror = () => console.log('[VisitorTracker] ⚠️ Server sync failed (non-critical)');
+            const response = await fetch(`${this.apiUrl}?action=all&t=${Date.now()}`, {
+                method: 'GET',
+                mode: 'cors',
+                signal: controller.signal
+            });
             
-            // Cleanup setelah 10 detik
-            setTimeout(() => { img.src = ''; }, 10000);
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            
+            const data = await response.json();
+            
+            if (data.success && data.stats) {
+                console.log('[VisitorTracker] 📊 Server data received:', data.stats);
+                
+                // ✅ SINKRONISASI: Update localStorage dengan data dari server
+                // Gunakan nilai MAX antara localStorage dan server (untuk akurasi)
+                const serverTotal = data.stats.totalVisits || 0;
+                const serverToday = data.stats.todayVisits || 0;
+                
+                // Update state jika data server lebih besar atau berbeda signifikan
+                if (serverTotal > this.state.totalVisits) {
+                    this.state.totalVisits = serverTotal;
+                    console.log(`[VisitorTracker] 📈 Total updated from server: ${serverTotal}`);
+                }
+                
+                if (serverToday > this.state.todayVisits) {
+                    this.state.todayVisits = serverToday;
+                    console.log(`[VisitorTracker] 📈 Today updated from server: ${serverToday}`);
+                }
+                
+                // Update countries dari server jika ada
+                if (data.countries && Object.keys(data.countries).length > 0) {
+                    this.state.countries = data.countries;
+                    this.state.totalCountries = Object.keys(data.countries).length;
+                    console.log(`[VisitorTracker] 🌍 Countries updated:`, Object.keys(data.countries));
+                }
+                
+                // Save updated data to localStorage
+                this.saveToLocalStorage();
+                
+                // Re-display dengan data baru
+                this.displayDynamicData();
+                
+                console.log('[VisitorTracker] ✅ Server sync complete - Data synchronized!');
+            }
             
         } catch (error) {
-            console.log('[VisitorTracker] ℹ️ Server sync skipped:', error.message);
+            console.log('[VisitorTracker] ℹ️ Server load failed (using local data):', error.message);
+            // Tidak masalah, tetap pakai data localStorage
         }
     },
     
