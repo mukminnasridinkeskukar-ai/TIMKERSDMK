@@ -1934,6 +1934,34 @@
             border-color: #3b82f6;
         }
         
+        /* Connection Test Button */
+        .btn-connection-test {
+            padding: 0.625rem 1.25rem;
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+        
+        .btn-connection-test:hover {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            border-color: #86efac;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(22, 101, 52, 0.15);
+        }
+        
+        .btn-connection-test:active {
+            transform: translateY(0);
+        }
+        
         .admin-stats-bar {
             display: flex;
             gap: 1rem;
@@ -4015,6 +4043,9 @@
                     <option value="desc">Terbaru</option>
                     <option value="asc">Terlama</option>
                 </select>
+                <button class="btn btn-connection-test" onclick="showConnectionStatus()" title="Test Koneksi ke Server">
+                    🔗 Test Koneksi
+                </button>
             </div>
 
             <!-- Table Container with Scroll -->
@@ -4170,6 +4201,9 @@
                 </select>
                 <button class="btn btn-primary btn-sm" style="background:linear-gradient(135deg,#667eea,#764ba2);" onclick="openRoadmapAddModal()">
                     ➕ Tambah Data Baru
+                </button>
+                <button class="btn btn-connection-test" onclick="showConnectionStatus()" title="Test Koneksi ke Server">
+                    🔗 Test Koneksi
                 </button>
             </div>
 
@@ -4332,7 +4366,7 @@
 // File pendukung: SIMBAKES_WebApp_Code.gs (Google Apps Script Code)
 // ============================================================
 
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx4Yt9Z4jBk3AUd5Z0SvbZNK4Q_tCKROvf0Y5VtxiuEiFql2QS3QVH4hOdW1uPgz_nA8A/exec'; // ← PASTE URL WEB APP DI SINI
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby9MBeiz8Bn-cuBySz8i317mlOniiynXZ6r1s5mSRAMrxkrGRmN1QlH4KYQm6m_Rl7T5w/exec'; // ← PASTE URL WEB APP DI SINI
 
 // Set ke false jika sudah memasukkan URL Google Apps Script di atas
 const USE_LOCAL_STORAGE = false; // Ganti menjadi false setelah setup Google Sheets
@@ -4992,7 +5026,308 @@ function searchStatus() {
 // ===== RENDER FUNCTIONS =====
 
 // ===== CONFIGURATION =====
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx4Yt9Z4jBk3AUd5Z0SvbZNK4Q_tCKROvf0Y5VtxiuEiFql2QS3QVH4hOdW1uPgz_nA8A/exec'; // Ganti dengan URL Web App Google Apps Script Anda
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby9MBeiz8Bn-cuBySz8i317mlOniiynXZ6r1s5mSRAMrxkrGRmN1QlH4KYQm6m_Rl7T5w/exec'; // Ganti dengan URL Web App Google Apps Script Anda
+
+// ===== ROBUST API FETCH WRAPPER v1.0 =====
+/**
+ * API Fetch Wrapper dengan timeout, retry, dan error handling yang kuat
+ * Solusi untuk masalah net::ERR_FAILED dan koneksi Google Apps Script
+ */
+const APIConfig = {
+    timeout: 45000,           // 45 detik timeout (Google Apps Script bisa lambat)
+    maxRetries: 3,            // Maksimal 3x retry
+    retryDelay: 1000,         // Delay awal 1 detik (akan meningkat exponential)
+    connectionStatus: 'unknown', // unknown, connected, error
+    lastError: null
+};
+
+/**
+ * Fetch dengan timeout
+ */
+function fetchWithTimeout(url, options = {}, timeout = APIConfig.timeout) {
+    return new Promise((resolve, reject) => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+        
+        fetch(url, { ...options, signal: controller.signal })
+            .then(response => {
+                clearTimeout(timeoutId);
+                resolve(response);
+            })
+            .catch(error => {
+                clearTimeout(timeoutId);
+                reject(error);
+            });
+    });
+}
+
+/**
+ * Delay helper untuk retry
+ */
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Robust API Fetch - Main function untuk semua panggilan API
+ * Fitur:
+ * - Automatic retry (3x) dengan exponential backoff
+ * - Timeout handling
+ * - Error classification (network, timeout, server, parse)
+ * - Connection status tracking
+ * - Detailed error messages
+ */
+async function apiFetch(url, options = {}, isRetry = false) {
+    let lastError = null;
+    
+    for (let attempt = 1; attempt <= APIConfig.maxRetries; attempt++) {
+        try {
+            console.log(`🌐 API Request (attempt ${attempt}/${APIConfig.maxRetries}):`, url.substring(0, 80) + '...');
+            
+            const response = await fetchWithTimeout(url, options);
+            
+            // Cek HTTP status
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText || 'Server Error'}`);
+            }
+            
+            // Parse JSON response
+            const data = await response.json();
+            
+            // Update connection status
+            APIConfig.connectionStatus = 'connected';
+            APIConfig.lastError = null;
+            
+            console.log('✅ API Response:', data.status || 'OK');
+            return data;
+            
+        } catch (error) {
+            lastError = error;
+            console.warn(`⚠️ API Attempt ${attempt} failed:`, error.message);
+            
+            // Classify error type
+            const errorType = classifyError(error);
+            
+            // Jika ini error yang tidak bisa di-retry, langsung throw
+            if (errorType === 'abort' || errorType === 'invalid_url') {
+                throw createEnhancedError(error, errorType, attempt);
+            }
+            
+            // Wait sebelum retry (exponential backoff)
+            if (attempt < APIConfig.maxRetries) {
+                const waitTime = APIConfig.retryDelay * Math.pow(2, attempt - 1);
+                console.log(`⏳ Retrying in ${waitTime}ms...`);
+                await delay(waitTime);
+            }
+        }
+    }
+    
+    // Semua retry gagal
+    APIConfig.connectionStatus = 'error';
+    APIConfig.lastError = lastError;
+    throw createEnhancedError(lastError, classifyError(lastError), APIConfig.maxRetries);
+}
+
+/**
+ * Klasifikasi jenis error untuk handling yang tepat
+ */
+function classifyError(error) {
+    if (!error) return 'unknown';
+    
+    const msg = error.message.toLowerCase();
+    
+    // Network errors
+    if (msg.includes('failed to fetch') || msg.includes('networkerror') || msg.includes('net::err_failed')) {
+        return 'network';
+    }
+    if (msg.includes('aborted') || msg.includes('timeout')) {
+        return 'abort';
+    }
+    if (msg.includes('cors')) {
+        return 'cors';
+    }
+    if (msg.includes('http 4') || msg.includes('http 5')) {
+        return 'server';
+    }
+    if (msg.includes('json') || msg.includes('parse')) {
+        return 'parse';
+    }
+    if (msg.includes('url') || msg.includes('invalid')) {
+        return 'invalid_url';
+    }
+    
+    return 'unknown';
+}
+
+/**
+ * Buat enhanced error object dengan detail lebih lengkap
+ */
+function createEnhancedError(originalError, errorType, attempt) {
+    const enhanced = new Error(getUserFriendlyErrorMessage(originalError, errorType));
+    enhanced.originalError = originalError;
+    enhanced.errorType = errorType;
+    enhanced.attempt = attempt;
+    enhanced.isNetworkError = errorType === 'network' || errorType === 'cors' || errorType === 'abort';
+    return enhanced;
+}
+
+/**
+ * Generate user-friendly error message berdasarkan jenis error
+ */
+function getUserFriendlyErrorMessage(error, errorType) {
+    switch (errorType) {
+        case 'network':
+            return 'Koneksi ke server gagal. Periksa koneksi internet Anda atau pastikan URL Web App sudah benar.';
+        case 'cors':
+            return 'Error CORS: Server tidak mengizinkan akses. Pastikan Web App di-deploy dengan "Who has access: Anyone".';
+        case 'abort':
+        case 'timeout':
+            return 'Request terlalu lambat (timeout). Server mungkin sedang sibuk. Silakan coba lagi.';
+        case 'server':
+            return `Server error: ${error.message}. Silakan coba beberapa saat lagi.`;
+        case 'parse':
+            return 'Data dari server tidak valid. Mungkin ada perubahan format data.';
+        case 'invalid_url':
+            return 'URL Web App tidak valid. Periksa konfigurasi WEB_APP_URL.';
+        default:
+            return error.message || 'Terjadi kesalahan tidak diketahui. Silakan coba lagi.';
+    }
+}
+
+/**
+ * Test koneksi ke Web App
+ * Returns: { success: boolean, message: string, latency: number }
+ */
+async function testConnection() {
+    const startTime = Date.now();
+    
+    try {
+        const response = await fetchWithTimeout(`${WEB_APP_URL}?action=test&t=${Date.now()}`, {}, 15000);
+        const latency = Date.now() - startTime;
+        
+        if (response.ok) {
+            APIConfig.connectionStatus = 'connected';
+            APIConfig.lastError = null;
+            return {
+                success: true,
+                message: `✅ Koneksi berhasil! Latensi: ${latency}ms`,
+                latency: latency
+            };
+        } else {
+            throw new Error(`HTTP ${response.status}`);
+        }
+    } catch (error) {
+        APIConfig.connectionStatus = 'error';
+        APIConfig.lastError = error;
+        const errorType = classifyError(error);
+        return {
+            success: false,
+            message: `❌ Koneksi gagal: ${getUserFriendlyErrorMessage(error, errorType)}`,
+            errorType: errorType,
+            latency: Date.now() - startTime
+        };
+    }
+}
+
+/**
+ * Show connection status notification
+ */
+async function showConnectionStatus() {
+    showToast('🔍 Menguji koneksi ke server...', 'info');
+    const result = await testConnection();
+    
+    if (result.success) {
+        showToast(result.message, 'success');
+    } else {
+        showToast(result.message, 'error', 5000);
+        
+        // Tampilkan tips jika error koneksi
+        if (result.errorType === 'network' || result.errorType === 'cors') {
+            setTimeout(() => {
+                showConnectionTips();
+            }, 1000);
+        }
+    }
+    
+    return result;
+}
+
+/**
+ * Show tips for fixing connection issues
+ */
+function showConnectionTips() {
+    const modalId = 'connection-tips-modal';
+    
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal-overlay';
+        modal.onclick = (e) => { if (e.target === modal) closeModal(modalId); };
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width:550px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:white;">
+                <h3 class="modal-title">🔧 Tips Memperbaiki Koneksi</h3>
+                <button class="modal-close" onclick="closeModal('${modalId}')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div style="padding:1.5rem;">
+                <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:1rem;margin-bottom:1.5rem;border-radius:0 8px 8px 0;">
+                    <p style="font-weight:600;color:#92400e;margin-bottom:0.5rem;">📋 Langkah-langkah perbaikan:</p>
+                </div>
+                
+                <ol style="padding-left:1.25rem;color:#374151;line-height:1.8;">
+                    <li style="margin-bottom:0.75rem;">
+                        <strong>Deploy Ulang Web App:</strong>
+                        <ul style="margin-top:0.25rem;padding-left:1rem;font-size:0.875rem;color:#6b7280;">
+                            <li>Buka Google Apps Script Editor</li>
+                            <li>Menu: Deploy > Manage deployments</li>
+                            <li>Edit deployment > Version: New version</li>
+                            <li><strong>Execute as:</strong> Me</li>
+                            <li><strong>Who has access:</strong> Anyone (penting!)</li>
+                        </ul>
+                    </li>
+                    <li style="margin-bottom:0.75rem;">
+                        <strong>Periksa URL:</strong>
+                        <p style="font-family:monospace;font-size:0.8rem;background:#f3f4f6;padding:0.5rem;border-radius:4px;margin-top:0.25rem;word-break:break-all;">
+                            ${WEB_APP_URL.substring(0, 50)}...
+                        </p>
+                        <p style="font-size:0.8rem;color:#6b7280;margin-top:0.25rm;">Pastikan URL ini accessible di browser</p>
+                    </li>
+                    <li style="margin-bottom:0.75rem;">
+                        <strong>Cek Koneksi Internet:</strong>
+                        <p style="font-size:0.875rem;color:#6b7280;">Pastikan stabil dan tidak diblokir firewall</p>
+                    </li>
+                    <li>
+                        <strong>Test Ulang:</strong>
+                        <p style="font-size:0.875rem;color:#6b7280;">Klik tombol "Test Koneksi" setelah melakukan perbaikan</p>
+                    </li>
+                </ol>
+                
+                <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.5rem;padding-top:1rem;border-top:1px solid #e5e7eb;">
+                    <button class="btn btn-primary" onclick="closeModal('${modalId}'); showConnectionStatus();">
+                        🔄 Test Koneksi Lagi
+                    </button>
+                    <button class="btn" style="background:#f1f5f9;color:#475569;" onclick="closeModal('${modalId}')">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    modal.style.display = 'flex';
+}
+
+// Console log untuk debugging
+console.log('🚀 SIMBAKES API Wrapper Loaded');
+console.log('📍 WEB_APP_URL:', WEB_APP_URL.substring(0, 50) + '...');
+console.log('⏱️  Timeout:', APIConfig.timeout / 1000, 'detik');
+console.log('🔄 Max Retries:', APIConfig.maxRetries);
 
 // ===== GOOGLE DRIVE PHOTO HELPER (ENHANCED v2.0) =====
 /**
@@ -5427,49 +5762,11 @@ window.handleImageError = function(img, originalUrl) {
 };
 
 // ===== API FETCH HELPER WITH BETTER ERROR HANDLING =====
+// Updated: Now uses apiFetch() for automatic retry and enhanced error handling
 async function fetchAPI(url, options = {}) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
-    
-    try {
-        const response = await fetch(url, {
-            ...options,
-            signal: controller.signal,
-            mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                ...options.headers
-            }
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.status === 'error') {
-            throw new Error(data.message || 'Server mengembalikan error');
-        }
-        
-        return data;
-    } catch (error) {
-        clearTimeout(timeoutId);
-        
-        if (error.name === 'AbortError') {
-            throw new Error('Timeout: Server terlalu lama merespons (>30 detik)');
-        }
-        
-        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-            throw new Error('Gagal terhubung ke server. Pastikan koneksi internet stabil dan URL Web App sudah benar.');
-        }
-        
-        throw error;
-    }
+    // Gunakan apiFetch() untuk automatic retry dan timeout handling
+    return await apiFetch(url, options);
 }
-
 
 // ===== DASHBOARD v3.0 FUNCTIONS =====
 
@@ -5529,11 +5826,12 @@ function updateLastUpdateTime() {
 
 /**
  * Fetch statistik dashboard dari Google Sheets
+ * Menggunakan apiFetch() untuk retry otomatis
  */
 async function fetchDashboardStats() {
     try {
-        const response = await fetch(`${WEB_APP_URL}?action=dashboardStats&t=${Date.now()}`);
-        const result = await response.json();
+        // Gunakan apiFetch() untuk automatic retry
+        const result = await apiFetch(`${WEB_APP_URL}?action=dashboardStats&t=${Date.now()}`);
         
         if (result.status === 'success') {
             const data = result.data;
@@ -5599,6 +5897,7 @@ function animateValue(elementId, endValue) {
 
 /**
  * Fetch 5 data terbaru dari Google Sheets [WITH PAGINATION]
+ * Menggunakan apiFetch() untuk retry otomatis
  */
 let cachedRecentSubmissions = [];
 
@@ -5606,8 +5905,8 @@ async function fetchRecentSubmissions() {
     const tbody = document.getElementById('recent-submissions-body');
     
     try {
-        const response = await fetch(`${WEB_APP_URL}?action=recentSubmissions&t=${Date.now()}`);
-        const result = await response.json();
+        // Gunakan apiFetch() untuk automatic retry
+        const result = await apiFetch(`${WEB_APP_URL}?action=recentSubmissions&t=${Date.now()}`);
         
         if (result.status === 'success' && result.data.length > 0) {
             // Cache all data for pagination
@@ -5716,8 +6015,8 @@ async function showStatusDetail(statusFilter) {
     PaginationManager.reset('status-detail');
     
     try {
-        const response = await fetch(`${WEB_APP_URL}?action=dataByStatus&status=${statusFilter}&t=${Date.now()}`);
-        const result = await response.json();
+        // Gunakan apiFetch() untuk automatic retry
+        const result = await apiFetch(`${WEB_APP_URL}?action=dataByStatus&status=${statusFilter}&t=${Date.now()}`);
         
         if (result.status === 'success') {
             countEl.textContent = result.count;
@@ -5816,7 +6115,8 @@ async function trackVisitorToSheets() {
             page: 'dashboard'
         });
         
-        await fetch(`${WEB_APP_URL}?${params.toString()}`);
+        // Gunakan fetchWithTimeout untuk visitor tracking (non-critical)
+        await fetchWithTimeout(`${WEB_APP_URL}?${params.toString()}`, {}, 10000);
         
         console.log('🌐 Visitor tracked:', { ip, country });
     } catch (error) {
@@ -5827,11 +6127,12 @@ async function trackVisitorToSheets() {
 
 /**
  * Fetch statistik pengunjung dari Google Sheets
+ * Menggunakan apiFetch() untuk retry otomatis
  */
 async function fetchVisitorStats() {
     try {
-        const response = await fetch(`${WEB_APP_URL}?action=visitorStats&t=${Date.now()}`);
-        const result = await response.json();
+        // Gunakan apiFetch() untuk automatic retry
+        const result = await apiFetch(`${WEB_APP_URL}?action=visitorStats&t=${Date.now()}`);
         
         if (result.status === 'success') {
             const data = result.data;
@@ -6406,6 +6707,7 @@ function loadDataRoadmap() {
 
 /**
  * Fetch Roadmap data from API with pagination, search, filter
+ * Menggunakan apiFetch() untuk retry otomatis dan error handling yang lebih baik
  */
 async function fetchRoadmapData() {
     const tbody = document.getElementById('roadmap-table-body');
@@ -6416,6 +6718,7 @@ async function fetchRoadmapData() {
             <td colspan="12" style="text-align:center;padding:3rem;color:#64748b;">
                 <div class="spinner"></div>
                 <p style="margin-top:1rem;">Memuat data roadmap...</p>
+                <p style="font-size:0.8rem;color:#94a3b8;margin-top:0.5rem;">Menghubungkan ke server...</p>
             </td>
         </tr>
     `;
@@ -6426,8 +6729,8 @@ async function fetchRoadmapData() {
         
         let url = `${WEB_APP_URL}?action=getRoadmapData&t=${Date.now()}`;
         
-        const response = await fetch(url);
-        const result = await response.json();
+        // Gunakan apiFetch() untuk automatic retry dan timeout handling
+        const result = await apiFetch(url);
         
         if (result.status === 'success') {
             roadmapAdminData = result.data || [];
@@ -6468,11 +6771,27 @@ async function fetchRoadmapData() {
         
     } catch (error) {
         console.error('Error fetching roadmap data:', error);
+        
+        // Tampilkan pesan error yang lebih informatif
+        const errorMsg = error.message || 'Terjadi kesalahan tidak diketahui';
+        const isNetworkError = error.isNetworkError;
+        
         tbody.innerHTML = `
             <tr>
                 <td colspan="12" style="text-align:center;padding:3rem;color:#dc2626;">
-                    <p>❌ Gagal memuat data: ${error.message}</p>
-                    <button class="btn btn-primary btn-sm" onclick="loadDataRoadmap()" style="margin-top:1rem;">🔄 Coba Lagi</button>
+                    <div style="font-size:2.5rem;margin-bottom:1rem;">${isNetworkError ? '🌐' : '⚠️'}</div>
+                    <p style="font-weight:600;margin-bottom:0.5rem;">Gagal Memuat Data Roadmap</p>
+                    <p style="font-size:0.875rem;color:#64748b;margin-bottom:1rem;max-width:400px;margin-left:auto;margin-right:auto;">
+                        ${errorMsg}
+                    </p>
+                    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;">
+                        <button class="btn btn-primary btn-sm" onclick="loadDataRoadmap()" style="margin-top:0.5rem;">
+                            🔄 Coba Lagi
+                        </button>
+                        ${isNetworkError ? `<button class="btn btn-sm" onclick="showConnectionStatus()" style="background:#fef3c7;color:#d97706;margin-top:0.5rem;">
+                            🔧 Test Koneksi
+                        </button>` : ''}
+                    </div>
                 </td>
             </tr>
         `;
@@ -6954,13 +7273,23 @@ function openRoadmapEditModal(index) {
 
 /**
  * Submit Roadmap Form (Add/Edit)
+ * Menggunakan apiFetch() untuk retry otomatis
  */
 async function submitRoadmapForm(event) {
     event.preventDefault();
     
+    // Validation
+    const kode = document.getElementById('rm-kode').value.trim();
+    const jurusan = document.getElementById('rm-jurusan').value.trim();
+    
+    if (!kode || !jurusan) {
+        showToast('❌ Kode dan Jurusan wajib diisi!', 'error');
+        return;
+    }
+    
     const formData = {
-        kode: document.getElementById('rm-kode').value.trim(),
-        jurusan: document.getElementById('rm-jurusan').value.trim(),
+        kode: kode,
+        jurusan: jurusan,
         kualifikasi: document.getElementById('rm-kualifikasi').value.trim(),
         jenisPendidikan: document.getElementById('rm-jenis-pendidikan').value,
         perguruanTinggi: document.getElementById('rm-pt').value.trim(),
@@ -6969,12 +7298,6 @@ async function submitRoadmapForm(event) {
         unitPendayaguna: document.getElementById('rm-unit').value.trim(),
         status: document.getElementById('rm-status').value
     };
-    
-    // Validation
-    if (!formData.kode || !formData.jurusan) {
-        showToast('❌ Kode dan Jurusan wajib diisi!', 'error');
-        return;
-    }
     
     try {
         const isEdit = roadmapEditingId !== null;
@@ -6987,7 +7310,15 @@ async function submitRoadmapForm(event) {
         
         console.log('📤 Submitting roadmap:', action, formData);
         
-        const response = await fetch(WEB_APP_URL, {
+        // Disable button dan show loading
+        const btn = document.querySelector('#roadmap-form-modal .btn-primary');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = isEdit ? '⏳ Menyimpan Perubahan...' : '⏳ Menambahkan Data...';
+        }
+        
+        // Gunakan apiFetch() dengan POST method
+        const result = await apiFetch(WEB_APP_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -6995,8 +7326,6 @@ async function submitRoadmapForm(event) {
                 data: formData
             })
         });
-        
-        const result = await response.json();
         
         if (result.status === 'success') {
             showToast(`✅ ${isEdit ? 'Data berhasil diperbarui' : 'Data berhasil ditambahkan'}`, 'success');
@@ -7013,7 +7342,19 @@ async function submitRoadmapForm(event) {
         
     } catch (error) {
         console.error('Error submitting roadmap:', error);
-        showToast(`❌ Gagal menyimpan: ${error.message}`, 'error');
+        showToast(`❌ Gagal menyimpan: ${error.message}`, 'error', 5000);
+        
+        // Tampilkan tips jika network error
+        if (error.isNetworkError) {
+            setTimeout(() => showConnectionTips(), 1500);
+        }
+    } finally {
+        // Restore button
+        const btn = document.querySelector('#roadmap-form-modal .btn-primary');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '💾 Simpan';
+        }
     }
 }
 
@@ -7062,12 +7403,20 @@ function confirmDeleteRoadmap(index, kode) {
 
 /**
  * Delete Roadmap
+ * Menggunakan apiFetch() untuk retry otomatis
  */
 async function deleteRoadmap(index) {
+    // Disable button dan show loading
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Menghapus...';
+    
     try {
         const rowData = roadmapAdminData[index];
         
-        const response = await fetch(WEB_APP_URL, {
+        // Gunakan apiFetch() dengan POST method
+        const result = await apiFetch(WEB_APP_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -7076,8 +7425,6 @@ async function deleteRoadmap(index) {
                 kode: rowData[0]
             })
         });
-        
-        const result = await response.json();
         
         if (result.status === 'success') {
             showToast(`✅ ${result.message}`, 'success');
@@ -7094,7 +7441,16 @@ async function deleteRoadmap(index) {
         
     } catch (error) {
         console.error('Error deleting roadmap:', error);
-        showToast(`❌ Gagal menghapus: ${error.message}`, 'error');
+        showToast(`❌ Gagal menghapus: ${error.message}`, 'error', 5000);
+        
+        // Tampilkan tips jika network error
+        if (error.isNetworkError) {
+            setTimeout(() => showConnectionTips(), 1500);
+        }
+    } finally {
+        // Restore button
+        btn.disabled = false;
+        btn.innerHTML = originalText;
     }
 }
 
@@ -7195,8 +7551,8 @@ async function searchSubmissionData() {
         if (nik) url += `&nik=${encodeURIComponent(nik)}`;
         if (register) url += `&noRegister=${encodeURIComponent(register)}`;
         
-        const response = await fetch(url);
-        const result = await response.json();
+        // Gunakan apiFetch() untuk automatic retry
+        const result = await apiFetch(url);
         
         // Hide loading
         document.getElementById('search-loading').style.display = 'none';
@@ -7805,6 +8161,7 @@ function loadDataPengusul() {
 
 /**
  * Fetch admin data from API with pagination, search, filter
+ * Menggunakan apiFetch() untuk retry otomatis dan error handling yang lebih baik
  */
 async function fetchAdminData() {
     const tbody = document.getElementById('pengusul-table-body');
@@ -7815,6 +8172,7 @@ async function fetchAdminData() {
             <td colspan="29" style="text-align:center;padding:3rem;color:#64748b;">
                 <div class="spinner"></div>
                 <p style="margin-top:1rem;">Memuat data pengusul...</p>
+                <p style="font-size:0.8rem;color:#94a3b8;margin-top:0.5rem;">Menghubungkan ke server...</p>
             </td>
         </tr>
     `;
@@ -7833,8 +8191,8 @@ async function fetchAdminData() {
         if (sortBy) url += `&sortBy=${encodeURIComponent(sortBy)}`;
         if (sortOrder) url += `&sortOrder=${encodeURIComponent(sortOrder)}`;
         
-        const response = await fetch(url);
-        const result = await response.json();
+        // Gunakan apiFetch() untuk automatic retry dan timeout handling
+        const result = await apiFetch(url);
         
         if (result.status === 'success') {
             renderAdminTable(result.data);
@@ -7846,11 +8204,27 @@ async function fetchAdminData() {
         
     } catch (error) {
         console.error('Error fetching admin data:', error);
+        
+        // Tampilkan pesan error yang lebih informatif
+        const errorMsg = error.message || 'Terjadi kesalahan tidak diketahui';
+        const isNetworkError = error.isNetworkError;
+        
         tbody.innerHTML = `
             <tr>
                 <td colspan="29" style="text-align:center;padding:3rem;color:#dc2626;">
-                    <p>❌ Gagal memuat data: ${error.message}</p>
-                    <button class="btn btn-primary btn-sm" onclick="loadDataPengusul()" style="margin-top:1rem;">🔄 Coba Lagi</button>
+                    <div style="font-size:2.5rem;margin-bottom:1rem;">${isNetworkError ? '🌐' : '⚠️'}</div>
+                    <p style="font-weight:600;margin-bottom:0.5rem;">Gagal Memuat Data</p>
+                    <p style="font-size:0.875rem;color:#64748b;margin-bottom:1rem;max-width:400px;margin-left:auto;margin-right:auto;">
+                        ${errorMsg}
+                    </p>
+                    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;">
+                        <button class="btn btn-primary btn-sm" onclick="loadDataPengusul()" style="margin-top:0.5rem;">
+                            🔄 Coba Lagi
+                        </button>
+                        ${isNetworkError ? `<button class="btn btn-sm" onclick="showConnectionStatus()" style="background:#fef3c7;color:#d97706;margin-top:0.5rem;">
+                            🔧 Test Koneksi
+                        </button>` : ''}
+                    </div>
                 </td>
             </tr>
         `;
@@ -8060,8 +8434,7 @@ async function updateAdminStats(pagination) {
     
     // Fetch detailed stats for status breakdown
     try {
-        const response = await fetch(`${WEB_APP_URL}?action=getAllSubmissions&t=${Date.now()}&limit=10000`);
-        const result = await response.json();
+        const result = await apiFetch(`${WEB_APP_URL}?action=getAllSubmissions&t=${Date.now()}&limit=10000`);
         
         if (result.status === 'success' && result.data) {
             const allData = result.data;
@@ -8178,8 +8551,9 @@ async function viewDetailPengusul(rowNumber) {
         
         // Method 2: Fallback - Fetch from API using getAllSubmissions
         console.log('🔄 Mengambil data dari API untuk row:', rowNumber);
-        const response = await fetch(`${WEB_APP_URL}?action=getAllSubmissions&t=${Date.now()}&limit=1000`);
-        const result = await response.json();
+        
+        // Gunakan apiFetch() untuk automatic retry
+        const result = await apiFetch(`${WEB_APP_URL}?action=getAllSubmissions&t=${Date.now()}&limit=1000`);
         
         if (result.status === 'success' && result.data) {
             const foundData = result.data.find(item => item.rowNumber == rowNumber);
@@ -8401,6 +8775,7 @@ function openStatusModal(rowNumber, currentStatus) {
 
 /**
  * Submit status update
+ * Menggunakan apiFetch() untuk retry otomatis
  */
 async function submitStatusUpdate(rowNumber) {
     const selectedStatus = document.querySelector('input[name="new-status"]:checked');
@@ -8412,8 +8787,15 @@ async function submitStatusUpdate(rowNumber) {
     
     const newStatus = selectedStatus.value;
     
+    // Disable button dan show loading
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Menyimpan...';
+    
     try {
-        const response = await fetch(WEB_APP_URL, {
+        // Gunakan apiFetch() dengan POST method
+        const result = await apiFetch(WEB_APP_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -8422,8 +8804,6 @@ async function submitStatusUpdate(rowNumber) {
                 newStatus: newStatus
             })
         });
-        
-        const result = await response.json();
         
         if (result.status === 'success') {
             showToast(`✅ ${result.message}`, 'success');
@@ -8435,7 +8815,16 @@ async function submitStatusUpdate(rowNumber) {
         
     } catch (error) {
         console.error('Error updating status:', error);
-        showToast(`❌ Gagal mengubah status: ${error.message}`, 'error');
+        showToast(`❌ Gagal mengubah status: ${error.message}`, 'error', 5000);
+        
+        // Tampilkan tips jika network error
+        if (error.isNetworkError) {
+            setTimeout(() => showConnectionTips(), 1500);
+        }
+    } finally {
+        // Restore button
+        btn.disabled = false;
+        btn.innerHTML = originalText;
     }
 }
 
@@ -8485,10 +8874,18 @@ function confirmDeletePengusul(rowNumber, namaLengkap) {
 
 /**
  * Delete submission
+ * Menggunakan apiFetch() untuk retry otomatis
  */
 async function deletePengusul(rowNumber) {
+    // Disable button dan show loading
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Menghapus...';
+    
     try {
-        const response = await fetch(WEB_APP_URL, {
+        // Gunakan apiFetch() dengan POST method
+        const result = await apiFetch(WEB_APP_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -8496,8 +8893,6 @@ async function deletePengusul(rowNumber) {
                 rowNumber: rowNumber
             })
         });
-        
-        const result = await response.json();
         
         if (result.status === 'success') {
             showToast(`✅ ${result.message}`, 'success');
@@ -8509,7 +8904,16 @@ async function deletePengusul(rowNumber) {
         
     } catch (error) {
         console.error('Error deleting submission:', error);
-        showToast(`❌ Gagal menghapus: ${error.message}`, 'error');
+        showToast(`❌ Gagal menghapus: ${error.message}`, 'error', 5000);
+        
+        // Tampilkan tips jika network error
+        if (error.isNetworkError) {
+            setTimeout(() => showConnectionTips(), 1500);
+        }
+    } finally {
+        // Restore button
+        btn.disabled = false;
+        btn.innerHTML = originalText;
     }
 }
 
