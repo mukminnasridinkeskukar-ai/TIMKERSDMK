@@ -5207,8 +5207,8 @@ body {
 <div class="music-widget" onclick="toggleMusic()">
     <button class="play-btn" id="playBtnIcon"><i class="fas fa-play" id="iconPlayPause"></i></button>
     <div class="music-info-text">
-        <div class="track-name" id="trackNameDisplay">Energetic Beats</div>
-        <div class="artist-name">Playlist Semangat</div>
+        <div class="track-name" id="trackNameDisplay">Wonders of the Earth</div>
+        <div class="artist-name">Grand_Project</div>
     </div>
     <div class="eq-bars paused" id="eqBars">
         <div class="eq-bar"></div>
@@ -5872,7 +5872,7 @@ body {
                 <!-- Loading State -->
                 <div id="photoLoadingState" style="display: none; text-align: center; padding: 60px 20px;">
                     <div style="width: 56px; height: 56px; border: 4px solid #e5e7eb; border-top-color: #22c55e; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 18px;"></div>
-                    <p style="color: #64748b; font-size: 15px; font-weight: 600;"><i class="fas fa-cloud-download-alt" style="margin-right: 8px;"></i>Memuat foto dari Google Drive...</p>
+                    <p style="color: #64748b; font-size: 15px; font-weight: 600;"><i class="fas fa-cloud-download-alt" style="margin-right: 8px;"></i>Memuat foto dari Database...</p>
                     <p style="color: #94a3b8; font-size: 12px; margin-top: 8px;" id="loadingProgressText">Menghubungkan ke server...</p>
                 </div>
                 
@@ -5913,7 +5913,7 @@ body {
                 <div id="photoEmptyState" style="display: none; text-align: center; padding: 50px 20px; background: #f8fafc; border-radius: 16px; border: 2px dashed #cbd5e1;">
                     <div style="font-size: 48px; margin-bottom: 12px;">📁</div>
                     <h4 style="color: #475569; margin: 0 0 8px; font-size: 16px;">Belum Ada Foto</h4>
-                    <p style="color: #94a3b8; font-size: 13px; margin: 0;">Folder Google Drive kosong atau tidak ada file gambar.</p>
+                    <p style="color: #94a3b8; font-size: 13px; margin: 0;">Database kosong atau tidak ada file gambar.</p>
                 </div>
 
                 <!-- Photo Grid Output - Dinamis dari Drive -->
@@ -7654,7 +7654,7 @@ body {
                     <i class="fas fa-download"></i> Download Dokumen SK JFK
                 </a>
                 <p style="margin-top: 12px; color: var(--gray-500); font-size: 12px;">
-                    <i class="fas fa-info-circle"></i> Dokumen akan terbuka di tab baru (Google Drive)
+                    <i class="fas fa-info-circle"></i> Dokumen akan terbuka di tab baru
                 </p>
             </div>
         </div>
@@ -8487,25 +8487,75 @@ document.querySelectorAll('.modal-popup-overlay, .popup-overlay').forEach(popup 
 // ===== MUSIC TOGGLE =====
 let musicPlaying = false;
 
-// Initialize Audio Object dengan Musik Energetic Beast
+// Initialize Audio Object dengan Musik Wonders of the Earth
 let bgMusic = null;
+let currentAudioIndex = 0;
+
+// Multiple audio sources untuk fallback otomatis
+const AUDIO_SOURCES = [
+    // Primary: Wonders of the Earth by Grand_Project (ID: 550792) - URL ASLI DARI PIXABAY
+    'https://cdn.pixabay.com/download/audio/2026/06/13/audio_73aac427fe.mp3?filename=grand_project-wonders-of-the-earth-550792.mp3',
+    // Fallback 1: Epic Adventure Music
+    'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
+    // Fallback 2: Cinematic Orchestral
+    'https://cdn.pixabay.com/download/audio/2021/11/25/audio_4c5bedb8c0.mp3',
+    // Fallback 3: Beautiful Piano
+    'https://cdn.pixabay.com/download/audio/2022/03/24/audio_6a5f072c70.mp3'
+];
 
 function initMusic() {
     if (!bgMusic) {
         bgMusic = new Audio();
-        // Source: Energetic upbeat music (royalty-free)
-        bgMusic.src = 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3';
         bgMusic.loop = true;
         bgMusic.volume = 0.5;
         bgMusic.preload = 'auto';
         
-        bgMusic.addEventListener('error', function() {
-            console.warn('Audio utama gagal load, mencoba backup...');
-            bgMusic.src = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
-            bgMusic.load();
+        // Set source pertama
+        loadAudioSource(0);
+        
+        // Error handler dengan auto-retry ke next source
+        bgMusic.addEventListener('error', function(e) {
+            console.warn(`[Music] Audio ${currentAudioIndex + 1} gagal, mencoba source lain...`);
+            tryNextAudioSource();
+        });
+        
+        // Success handler
+        bgMusic.addEventListener('canplaythrough', function() {
+            console.log('[Music] ✅ Audio berhasil dimuat:', AUDIO_SOURCES[currentAudioIndex].substring(0, 50) + '...');
         });
         
         bgMusic.load();
+    }
+}
+
+function loadAudioSource(index) {
+    if (index >= 0 && index < AUDIO_SOURCES.length) {
+        currentAudioIndex = index;
+        bgMusic.src = AUDIO_SOURCES[index];
+        console.log('[Music] Mencoba load audio', index + 1, '/', AUDIO_SOURCES.length);
+        bgMusic.load();
+    }
+}
+
+function tryNextAudioSource() {
+    // Coba source berikutnya
+    const nextIndex = currentAudioIndex + 1;
+    
+    if (nextIndex < AUDIO_SOURCES.length) {
+        console.log('[Music] Switching to audio source', nextIndex + 1);
+        loadAudioSource(nextIndex);
+    } else {
+        // Sudah habis semua source
+        console.error('[Music] ❌ Semua audio source gagal');
+        showMusicError();
+    }
+}
+
+function showMusicError() {
+    const trackNameDisplay = document.getElementById('trackNameDisplay');
+    if (trackNameDisplay) {
+        trackNameDisplay.textContent = 'Tidak Tersedia';
+        trackNameDisplay.style.color = '#ef4444';
     }
 }
 
@@ -9497,7 +9547,7 @@ async function loadGalleryPhotos() {
     // Show loading state
     galleryLoadInProgress = true;
     showPhotoState('loading');
-    showDriveStatus('info', '⏳ Menghubungkan ke Google Drive...');
+    showDriveStatus('info', '⏳ Menghubungkan ke Database...');
     document.getElementById('loadingProgressText').textContent = 'Mengakses Google Apps Script...';
     
     // Retry configuration
@@ -9513,7 +9563,7 @@ async function loadGalleryPhotos() {
             
             // Update progress text
             document.getElementById('loadingProgressText').textContent = 
-                attempt > 1 ? `Mencoba lagi (${attempt}/${MAX_RETRIES})...` : 'Memuat foto dari folder Drive...';
+                attempt > 1 ? `Mencoba lagi (${attempt}/${MAX_RETRIES})...` : 'Memuat foto dari Database...';
             
             // Fetch via Apps Script Proxy
             const photos = await fetchViaAppsScriptProxy();
@@ -9569,7 +9619,7 @@ async function loadGalleryPhotos() {
     }
     
     document.getElementById('errorMessage').innerHTML = errorMsg;
-    showDriveStatus('error', '❌ Gagal memuat foto dari Drive');
+    showDriveStatus('error', '❌ Gagal memuat foto dari Database');
     
     galleryLoadInProgress = false;
     updateRefreshButton(false);
