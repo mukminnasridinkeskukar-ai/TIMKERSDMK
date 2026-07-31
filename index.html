@@ -14037,6 +14037,8 @@ const certActivityConfig = {
 /**
  * loadCertTableData() - Load data sertifikat dari Google Sheet
  * Dipanggil saat popup dibuka
+ * 
+ * SUPPORT: CORS + JSONP Fallback untuk kompatibilitas maksimal
  */
 async function loadCertTableData() {
     if (certIsLoading) return;
@@ -14044,48 +14046,179 @@ async function loadCertTableData() {
     certIsLoading = true;
     showCertTableState('loading');
     
+    console.log('[CertTable] Loading data from:', CERT_SHEET_SCRIPT_URL);
+    
     try {
-        // Coba ambil data dari Google Apps Script
-        const response = await fetch(`${CERT_SHEET_SCRIPT_URL}?action=getAll&type=all&t=${Date.now()}`, {
-            method: 'GET',
-            mode: 'cors'
-        });
+        // Method 1: Fetch with CORS (modern browsers)
+        let result = null;
         
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+            
+            const response = await fetch(`${CERT_SHEET_SCRIPT_URL}?action=getAll&type=all&t=${Date.now()}&callback=?`, {
+                method: 'GET',
+                mode: 'cors',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'text/plain'
+                },
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            
+            console.log('[CertTable] Response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const text = await response.text();
+            console.log('[CertTable] Raw response:', text.substring(0, 200));
+            
+            // Parse JSON - handle various formats
+            result = parseJSONResponse(text);
+            
+        } catch (fetchError) {
+            console.warn('[CertTable] Fetch failed, trying JSONP...', fetchError.message);
+            
+            // Method 2: JSONP Fallback (for older browsers or strict CORS)
+            result = await loadViaJSONP();
         }
         
-        const result = await response.json();
-        
-        if (result.success && result.data) {
+        // Process result
+        if (result && result.success && Array.isArray(result.data)) {
+            console.log('[CertTable] ✅ Data loaded successfully! Count:', result.data.length);
+            certTableData = result.data;
+            certFilteredData = [...certTableData];
+            renderCertificateTable(certFilteredData);
+            updateCertResultCount(certFilteredData.length);
+            showCertTableState('data');
+        } else if (result && Array.isArray(result.data)) {
+            // Handle case where data is directly an array without success flag
+            console.log('[CertTable] ✅ Data loaded (direct array)! Count:', result.data.length);
             certTableData = result.data;
             certFilteredData = [...certTableData];
             renderCertificateTable(certFilteredData);
             updateCertResultCount(certFilteredData.length);
             showCertTableState('data');
         } else {
-            throw new Error(result.error || 'Data tidak valid');
+            throw new Error(result?.error || 'Format data tidak sesuai');
         }
         
     } catch (error) {
-        console.warn('[CertTable] API Error:', error.message);
+        console.error('[CertTable] ❌ Error loading data:', error.message);
+        console.error('[CertTable] Error details:', error.stack);
         
-        // Fallback ke demo data jika API gagal (untuk testing)
-        console.log('[CertTable] Using fallback demo data...');
-        certTableData = getDemoCertificateData();
-        certFilteredData = [...certTableData];
-        renderCertificateTable(certFilteredData);
-        updateCertResultCount(certFilteredData.length);
-        showCertTableState('data');
+        // Show error state with details
+        showErrorState(error.message);
+        
+        // Fallback ke demo data setelah delay (untuk testing)
+        setTimeout(() => {
+            console.log('[CertTable] Using fallback demo data...');
+            certTableData = getDemoCertificateData();
+            certFilteredData = [...certTableData];
+            renderCertificateTable(certFilteredData);
+            updateCertResultCount(certFilteredData.length);
+            showCertTableState('data');
+        }, 2000);
     }
     
     certIsLoading = false;
 }
 
 /**
- * searchCertificates() - Pencarian sertifikat berdasarkan Nama atau NIK
+ * parseJSONResponse(text) - Parse JSON response dengan handling berbagai format
  */
-function searchCertificates() {
+function parseJSONResponse(text) {
+    if (!text || text.trim() === '') {
+        throw new Error('Response kosong');
+    }
+    
+    // Remove JSONP wrapper if present
+    let cleanText = text.trim();
+    if (cleanText.startsWith('/*') || cleanText.startsWith('//')) {
+        cleanText = cleanText.replace(/^\/\*[^*]*\*\//, '').replace(/^\/\/.*/, '');
+    }
+    if (cleanText.match(/^[a-zA-Z_][a-zA-Z0-9_]*\(/)) {
+        // JSONP format: callbackName({...})
+        cleanText = cleanText.replace(/^[a-zA-Z_][a-zA-Z0-9_]*\(/, '').replace(\)$/, '');
+    }
+    
+    try {
+        return JSON.parse(cleanText);
+    } catch (e) {
+        console.warn('[CertTable] JSON parse failed, attempting repair...');
+        // Try to fix common issues
+        cleanText = cleanText.replace(/[\n\r\t]/g, '');
+        return JSON.parse(cleanText);
+    }
+}
+
+/**
+ * loadViaJSONP() - Load data via JSONP (CORS bypass)
+ */
+function loadViaJSONP() {
+    return new Promise((resolve, reject) => {
+        const callbackName = 'certJsonpCallback_' + Date.now();
+        const timeout = setTimeout(() => {
+            reject(new Error('JSONP request timed out'));
+            cleanup();
+        }, 15000);
+        
+        function cleanup() {
+            delete window[callbackName];
+            if (script.parentNode) script.parentNode.removeChild(script);
+        }
+        
+        // Define callback
+        window[callbackName] = function(data) {
+            clearTimeout(timeout);
+            cleanup();
+            resolve(data);
+        };
+        
+        // Create script element for JSONP
+        const script = document.createElement('script');
+        script.src = `${CERT_SHEET_SCRIPT_URL}?action=getAll&type=all&t=${Date.now()}&callback=${callbackName}`;
+        script.onerror = function() {
+            clearTimeout(timeout);
+            cleanup();
+            reject(new Error('JSONP script load failed'));
+        };
+        
+        document.head.appendChild(script);
+    });
+}
+
+/**
+ * showErrorState(message) - Show error state with message
+ */
+function showErrorState(message) {
+    const errorEl = document.getElementById('certTableError');
+    const errorMsgEl = document.getElementById('certTableErrorMessage');
+    
+    if (errorEl && errorMsgEl) {
+        errorMsgEl.innerHTML = `
+            <strong>Error:</strong> ${escapeHtml(message)}<br><br>
+            <small style="color:#6b7280;">
+                Pastikan:<br>
+                1. Web App sudah di-deploy dengan akses "Anyone"<br>
+                2. Spreadsheet ID sudah benar<br>
+                3. Sheet nama "Data Sertifikat" ada<br>
+                4. Koneksi internet stabil
+            </small>
+        `;
+        errorEl.style.display = 'block';
+    }
+}
+
+/**
+ * searchCertificates() - Pencarian sertifikat berdasarkan Nama atau NIK
+ * Support: Client-side filter + Server-side query (Google Sheet)
+ */
+async function searchCertificates() {
     const searchInput = document.getElementById('certSearchInput');
     const typeSelect = document.getElementById('certSearchType');
     const clearBtn = document.getElementById('certClearSearch');
@@ -14098,7 +14231,54 @@ function searchCertificates() {
     certCurrentSearchTerm = searchTerm;
     certCurrentFilterType = selectedType;
     
-    // Filter data
+    // Show/hide clear button
+    if (clearBtn) {
+        clearBtn.classList.toggle('visible', searchTerm !== '' || selectedType !== 'all');
+    }
+    
+    // Jika ada search term dan data sudah dimuat dari server, coba server-side search
+    if ((searchTerm !== '' || selectedType !== 'all') && certTableData.length > 0) {
+        // Coba server-side search dulu untuk hasil akurat
+        try {
+            console.log('[CertTable] Searching server:', { searchTerm, type: selectedType });
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            
+            const response = await fetch(
+                `${CERT_SHEET_SCRIPT_URL}?action=search&search=${encodeURIComponent(searchTerm)}&type=${selectedType}&t=${Date.now()}`,
+                {
+                    method: 'GET',
+                    mode: 'cors',
+                    signal: controller.signal
+                }
+            );
+            
+            clearTimeout(timeoutId);
+            
+            if (response.ok) {
+                const text = await response.text();
+                const result = parseJSONResponse(text);
+                
+                if (result && result.success && Array.isArray(result.data)) {
+                    console.log('[CertTable] Server search results:', result.data.length);
+                    certFilteredData = result.data;
+                    renderCertificateTable(certFilteredData);
+                    updateCertResultCount(certFilteredData.length);
+                    
+                    if (certFilteredData.length === 0) {
+                        document.getElementById('certTableOutput').style.display = 'none';
+                        document.getElementById('certTableNoResults').style.display = 'block';
+                    }
+                    return; // Exit early - server results used
+                }
+            }
+        } catch (serverError) {
+            console.warn('[CertTable] Server search failed, using client filter:', serverError.message);
+        }
+    }
+    
+    // Fallback: Client-side filtering
     if (searchTerm === '' && selectedType === 'all') {
         certFilteredData = [...certTableData];
     } else {
@@ -14120,15 +14300,12 @@ function searchCertificates() {
     renderCertificateTable(certFilteredData);
     updateCertResultCount(certFilteredData.length);
     
-    // Show/hide clear button
-    if (clearBtn) {
-        clearBtn.classList.toggle('visible', searchTerm !== '' || selectedType !== 'all');
-    }
-    
     // Show no results state if needed
-    if (certFilteredData.length === 0 && (searchTerm !== '' || selectedType !== 'all')) {
+    if (certFilteredData.length === 0) {
         document.getElementById('certTableOutput').style.display = 'none';
         document.getElementById('certTableNoResults').style.display = 'block';
+    } else {
+        document.getElementById('certTableNoResults').style.display = 'none';
     }
 }
 
