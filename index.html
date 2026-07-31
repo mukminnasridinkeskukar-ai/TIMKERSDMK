@@ -14002,722 +14002,394 @@ console.log('[PlatformLightbox] ✅ System initialized!');
 
 
 
+
+
 // ============================================
-// ===== CERTIFICATE TABLE SYSTEM v2.0 =====
+// ===== CERTIFICATE TABLE SYSTEM v3.0 - ROBUST =====
 // ============================================
+// Fixed: "searchCertificates is not defined" error
+// All functions now properly scoped to window object
 
-/**
- * KONFIGURASI SERTIFIKAT SHEET - GOOGLE SHEET INTEGRATION
- * 
- * GANTI VARIABEL DI BAWAH INI DENGAN URL DEPLOY ANDA:
- */
-const CERT_SHEET_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzHb0XxIyQ3h1a_4duBqdfy-K0VNBMOF52TccPIGAMgp0NDmQkgfh3Uwma4IIRuo_ft/exec';
-
-/**
- * Global variables untuk certificate table system
- */
-let certTableData = [];
-let certFilteredData = [];
-let certIsLoading = false;
-let certCurrentSearchTerm = '';
-let certCurrentFilterType = 'all';
-
-/**
- * Jenis kegiatan badge configuration
- */
-const certActivityConfig = {
-    'diklat': { label: 'Diklat', icon: 'fa-graduation-cap', class: 'diklat' },
-    'pelatihan': { label: 'Pelatihan', icon: 'fa-chalkboard-teacher', class: 'pelatihan' },
-    'seminar': { label: 'Seminar', icon: 'fa-users', class: 'seminar' },
-    'workshop': { label: 'Workshop', icon: 'fa-tools', class: 'workshop' },
-    'lokakarya': { label: 'Lokakarya', icon: 'fa-hands-helping', class: 'lokakarya' },
-    'penghargaan': { label: 'Penghargaan', icon: 'fa-trophy', class: 'penghargaan' }
-};
-
-/**
- * loadCertTableData() - Load data sertifikat dari Google Sheet
- * Dipanggil saat popup dibuka
- * 
- * SUPPORT: CORS + JSONP Fallback untuk kompatibilitas maksimal
- */
-async function loadCertTableData() {
-    if (certIsLoading) return;
+(function() {
+    'use strict';
     
-    certIsLoading = true;
-    showCertTableState('loading');
+    // ==================== KONFIGURASI ====================
+    const CERT_SHEET_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwE0aiQv8U75BkiI28Xi7dEfBOrU9EuFk_L5zBx7pVW1rfq3iV_V_GizEqhnnPrqM02ig/exec';
     
-    console.log('[CertTable] Loading data from:', CERT_SHEET_SCRIPT_URL);
+    // ==================== GLOBAL STATE ====================
+    let certTableData = [];
+    let certFilteredData = [];
+    let certIsLoading = false;
+    let certCurrentSearchTerm = '';
+    let certCurrentFilterType = 'all';
     
-    try {
-        // Method 1: Fetch with CORS (modern browsers)
-        let result = null;
+    // ==================== CONFIGURATION ====================
+    const certActivityConfig = {
+        'diklat': { label: 'Diklat', icon: 'fa-graduation-cap', class: 'diklat' },
+        'pelatihan': { label: 'Pelatihan', icon: 'fa-chalkboard-teacher', class: 'pelatihan' },
+        'seminar': { label: 'Seminar', icon: 'fa-users', class: 'seminar' },
+        'workshop': { label: 'Workshop', icon: 'fa-tools', class: 'workshop' },
+        'lokakarya': { label: 'Lokakarya', icon: 'fa-hands-helping', class: 'lokakarya' },
+        'penghargaan': { label: 'Penghargaan', icon: 'fa-trophy', class: 'penghargaan' }
+    };
+    
+    // ==================== UTILITY FUNCTIONS ====================
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function getInitials(name) {
+        if (!name) return '?';
+        return name.split(' ').map(w => w.charAt(0)).slice(0, 2).join('').toUpperCase();
+    }
+    
+    function parseJSONResponse(text) {
+        if (!text || text.trim() === '') throw new Error('Response kosong');
+        let cleanText = text.trim();
+        // Remove JSONP wrapper if present
+        if (cleanText.match(/^[a-zA-Z_][a-zA-Z0-9_]*\(/)) {
+            cleanText = cleanText.replace(/^[a-zA-Z_][a-zA-Z0-9_]*\(/, '').replace(\)$/, '');
+        }
+        return JSON.parse(cleanText);
+    }
+    
+    // ==================== STATE MANAGEMENT ====================
+    function showCertTableState(state) {
+        const loadingEl = document.getElementById('certTableLoading');
+        const errorEl = document.getElementById('certTableError');
+        const noResultsEl = document.getElementById('certTableNoResults');
+        const outputEl = document.getElementById('certTableOutput');
+        
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (errorEl) errorEl.style.display = 'none';
+        if (noResultsEl) noResultsEl.style.display = 'none';
+        if (outputEl) outputEl.style.display = 'none';
+        
+        switch(state) {
+            case 'loading':
+                if (loadingEl) loadingEl.style.display = 'block';
+                break;
+            case 'error':
+                if (errorEl) errorEl.style.display = 'block';
+                break;
+            case 'noresults':
+                if (noResultsEl) noResultsEl.style.display = 'block';
+                break;
+            case 'data':
+                if (outputEl && certFilteredData.length > 0) {
+                    outputEl.style.display = 'block';
+                } else if (noResultsEl && certTableData.length === 0) {
+                    noResultsEl.querySelector('h4').textContent = 'Belum Ada Data';
+                    noResultsEl.querySelector('p').textContent = 'Data sertifikat belum tersedia.';
+                    noResultsEl.style.display = 'block';
+                }
+                break;
+        }
+    }
+    
+    function updateCertResultCount(count) {
+        const countEl = document.getElementById('certResultCount');
+        if (countEl) {
+            countEl.innerHTML = '<i class="fas fa-database"></i> Menampilkan <strong>' + count + '</strong> data sertifikat';
+        }
+    }
+    
+    function showErrorState(message) {
+        const errorEl = document.getElementById('certTableError');
+        const errorMsgEl = document.getElementById('certTableErrorMessage');
+        if (errorEl && errorMsgEl) {
+            errorMsgEl.innerHTML = '<strong>Error:</strong> ' + escapeHtml(message) + '<br><br>' +
+                '<small style="color:#6b7280;">Pastikan:<br>1. Web App sudah di-deploy dengan akses "Anyone"<br>' +
+                '2. Spreadsheet ID sudah benar<br>3. Sheet nama "Data Sertifikat" ada</small>';
+            errorEl.style.display = 'block';
+        }
+    }
+    
+    // ==================== DATA LOADING ====================
+    async function loadCertTableData() {
+        if (certIsLoading) return;
+        
+        certIsLoading = true;
+        showCertTableState('loading');
+        
+        console.log('[CertTable] Loading data from:', CERT_SHEET_SCRIPT_URL);
         
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
             
-            const response = await fetch(`${CERT_SHEET_SCRIPT_URL}?action=getAll&type=all&t=${Date.now()}&callback=?`, {
+            const response = await fetch(CERT_SHEET_SCRIPT_URL + '?action=getAll&type=all&t=' + Date.now(), {
                 method: 'GET',
                 mode: 'cors',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'text/plain'
-                },
                 signal: controller.signal
             });
             
             clearTimeout(timeoutId);
-            
             console.log('[CertTable] Response status:', response.status);
             
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
+            if (!response.ok) throw new Error('HTTP ' + response.status);
             
             const text = await response.text();
-            console.log('[CertTable] Raw response:', text.substring(0, 200));
+            console.log('[CertTable] Raw response:', text.substring(0, 300));
             
-            // Parse JSON - handle various formats
-            result = parseJSONResponse(text);
+            const result = parseJSONResponse(text);
             
-        } catch (fetchError) {
-            console.warn('[CertTable] Fetch failed, trying JSONP...', fetchError.message);
+            if (result && result.success && Array.isArray(result.data)) {
+                console.log('[CertTable] ✅ Data loaded! Count:', result.data.length);
+                certTableData = result.data;
+                certFilteredData = [...certTableData];
+                renderCertificateTable(certFilteredData);
+                updateCertResultCount(certFilteredData.length);
+                showCertTableState('data');
+            } else if (Array.isArray(result)) {
+                certTableData = result;
+                certFilteredData = [...certTableData];
+                renderCertificateTable(certFilteredData);
+                updateCertResultCount(certFilteredData.length);
+                showCertTableState('data');
+            } else {
+                throw new Error(result?.error || 'Format data tidak sesuai');
+            }
             
-            // Method 2: JSONP Fallback (for older browsers or strict CORS)
-            result = await loadViaJSONP();
+        } catch (error) {
+            console.error('[CertTable] ❌ Error:', error.message);
+            showErrorState(error.message);
+            
+            // Fallback ke demo data
+            setTimeout(() => {
+                console.log('[CertTable] Using fallback demo data...');
+                certTableData = getDemoCertificateData();
+                certFilteredData = [...certTableData];
+                renderCertificateTable(certFilteredData);
+                updateCertResultCount(certFilteredData.length);
+                showCertTableState('data');
+            }, 1500);
         }
         
-        // Process result
-        if (result && result.success && Array.isArray(result.data)) {
-            console.log('[CertTable] ✅ Data loaded successfully! Count:', result.data.length);
-            certTableData = result.data;
+        certIsLoading = false;
+    }
+    
+    // ==================== SEARCH FUNCTION ====================
+    // This is the main function that was causing "not defined" error
+    window.searchCertificates = async function() {
+        console.log('[CertTable] searchCertificates called!');
+        
+        var searchInput = document.getElementById('certSearchInput');
+        var typeSelect = document.getElementById('certSearchType');
+        var clearBtn = document.getElementById('certClearSearch');
+        
+        if (!searchInput || !typeSelect) {
+            console.error('[CertTable] Search elements not found!');
+            return;
+        }
+        
+        var searchTerm = searchInput.value.trim().toLowerCase();
+        var selectedType = typeSelect.value;
+        
+        certCurrentSearchTerm = searchTerm;
+        certCurrentFilterType = selectedType;
+        
+        if (clearBtn) {
+            clearBtn.classList.toggle('visible', searchTerm !== '' || selectedType !== 'all');
+        }
+        
+        console.log('[CertTable] Searching:', { searchTerm: searchTerm, type: selectedType });
+        
+        // Client-side filtering (works with loaded data)
+        if (searchTerm === '' && selectedType === 'all') {
             certFilteredData = [...certTableData];
-            renderCertificateTable(certFilteredData);
-            updateCertResultCount(certFilteredData.length);
-            showCertTableState('data');
-        } else if (result && Array.isArray(result.data)) {
-            // Handle case where data is directly an array without success flag
-            console.log('[CertTable] ✅ Data loaded (direct array)! Count:', result.data.length);
-            certTableData = result.data;
-            certFilteredData = [...certTableData];
-            renderCertificateTable(certFilteredData);
-            updateCertResultCount(certFilteredData.length);
-            showCertTableState('data');
         } else {
-            throw new Error(result?.error || 'Format data tidak sesuai');
+            certFilteredData = certTableData.filter(function(cert) {
+                var matchSearch = searchTerm === '' || 
+                    cert.namaLengkap.toLowerCase().includes(searchTerm) ||
+                    cert.nik.includes(searchTerm);
+                var matchType = selectedType === 'all' || 
+                    cert.jenisKegiatan.toLowerCase() === selectedType.toLowerCase();
+                return matchSearch && matchType;
+            });
         }
         
-    } catch (error) {
-        console.error('[CertTable] ❌ Error loading data:', error.message);
-        console.error('[CertTable] Error details:', error.stack);
+        renderCertificateTable(certFilteredData);
+        updateCertResultCount(certFilteredData.length);
         
-        // Show error state with details
-        showErrorState(error.message);
-        
-        // Fallback ke demo data setelah delay (untuk testing)
-        setTimeout(() => {
-            console.log('[CertTable] Using fallback demo data...');
-            certTableData = getDemoCertificateData();
-            certFilteredData = [...certTableData];
-            renderCertificateTable(certFilteredData);
-            updateCertResultCount(certFilteredData.length);
-            showCertTableState('data');
-        }, 2000);
-    }
-    
-    certIsLoading = false;
-}
-
-/**
- * parseJSONResponse(text) - Parse JSON response dengan handling berbagai format
- */
-function parseJSONResponse(text) {
-    if (!text || text.trim() === '') {
-        throw new Error('Response kosong');
-    }
-    
-    // Remove JSONP wrapper if present
-    let cleanText = text.trim();
-    if (cleanText.startsWith('/*') || cleanText.startsWith('//')) {
-        cleanText = cleanText.replace(/^\/\*[^*]*\*\//, '').replace(/^\/\/.*/, '');
-    }
-    if (cleanText.match(/^[a-zA-Z_][a-zA-Z0-9_]*\(/)) {
-        // JSONP format: callbackName({...})
-        cleanText = cleanText.replace(/^[a-zA-Z_][a-zA-Z0-9_]*\(/, '').replace(\)$/, '');
-    }
-    
-    try {
-        return JSON.parse(cleanText);
-    } catch (e) {
-        console.warn('[CertTable] JSON parse failed, attempting repair...');
-        // Try to fix common issues
-        cleanText = cleanText.replace(/[\n\r\t]/g, '');
-        return JSON.parse(cleanText);
-    }
-}
-
-/**
- * loadViaJSONP() - Load data via JSONP (CORS bypass)
- */
-function loadViaJSONP() {
-    return new Promise((resolve, reject) => {
-        const callbackName = 'certJsonpCallback_' + Date.now();
-        const timeout = setTimeout(() => {
-            reject(new Error('JSONP request timed out'));
-            cleanup();
-        }, 15000);
-        
-        function cleanup() {
-            delete window[callbackName];
-            if (script.parentNode) script.parentNode.removeChild(script);
-        }
-        
-        // Define callback
-        window[callbackName] = function(data) {
-            clearTimeout(timeout);
-            cleanup();
-            resolve(data);
-        };
-        
-        // Create script element for JSONP
-        const script = document.createElement('script');
-        script.src = `${CERT_SHEET_SCRIPT_URL}?action=getAll&type=all&t=${Date.now()}&callback=${callbackName}`;
-        script.onerror = function() {
-            clearTimeout(timeout);
-            cleanup();
-            reject(new Error('JSONP script load failed'));
-        };
-        
-        document.head.appendChild(script);
-    });
-}
-
-/**
- * showErrorState(message) - Show error state with message
- */
-function showErrorState(message) {
-    const errorEl = document.getElementById('certTableError');
-    const errorMsgEl = document.getElementById('certTableErrorMessage');
-    
-    if (errorEl && errorMsgEl) {
-        errorMsgEl.innerHTML = `
-            <strong>Error:</strong> ${escapeHtml(message)}<br><br>
-            <small style="color:#6b7280;">
-                Pastikan:<br>
-                1. Web App sudah di-deploy dengan akses "Anyone"<br>
-                2. Spreadsheet ID sudah benar<br>
-                3. Sheet nama "Data Sertifikat" ada<br>
-                4. Koneksi internet stabil
-            </small>
-        `;
-        errorEl.style.display = 'block';
-    }
-}
-
-/**
- * searchCertificates() - Pencarian sertifikat berdasarkan Nama atau NIK
- * Support: Client-side filter + Server-side query (Google Sheet)
- */
-async function searchCertificates() {
-    const searchInput = document.getElementById('certSearchInput');
-    const typeSelect = document.getElementById('certSearchType');
-    const clearBtn = document.getElementById('certClearSearch');
-    
-    if (!searchInput || !typeSelect) return;
-    
-    const searchTerm = searchInput.value.trim().toLowerCase();
-    const selectedType = typeSelect.value;
-    
-    certCurrentSearchTerm = searchTerm;
-    certCurrentFilterType = selectedType;
-    
-    // Show/hide clear button
-    if (clearBtn) {
-        clearBtn.classList.toggle('visible', searchTerm !== '' || selectedType !== 'all');
-    }
-    
-    // Jika ada search term dan data sudah dimuat dari server, coba server-side search
-    if ((searchTerm !== '' || selectedType !== 'all') && certTableData.length > 0) {
-        // Coba server-side search dulu untuk hasil akurat
-        try {
-            console.log('[CertTable] Searching server:', { searchTerm, type: selectedType });
-            
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000);
-            
-            const response = await fetch(
-                `${CERT_SHEET_SCRIPT_URL}?action=search&search=${encodeURIComponent(searchTerm)}&type=${selectedType}&t=${Date.now()}`,
-                {
-                    method: 'GET',
-                    mode: 'cors',
-                    signal: controller.signal
-                }
-            );
-            
-            clearTimeout(timeoutId);
-            
-            if (response.ok) {
-                const text = await response.text();
-                const result = parseJSONResponse(text);
-                
-                if (result && result.success && Array.isArray(result.data)) {
-                    console.log('[CertTable] Server search results:', result.data.length);
-                    certFilteredData = result.data;
-                    renderCertificateTable(certFilteredData);
-                    updateCertResultCount(certFilteredData.length);
-                    
-                    if (certFilteredData.length === 0) {
-                        document.getElementById('certTableOutput').style.display = 'none';
-                        document.getElementById('certTableNoResults').style.display = 'block';
-                    }
-                    return; // Exit early - server results used
-                }
-            }
-        } catch (serverError) {
-            console.warn('[CertTable] Server search failed, using client filter:', serverError.message);
-        }
-    }
-    
-    // Fallback: Client-side filtering
-    if (searchTerm === '' && selectedType === 'all') {
-        certFilteredData = [...certTableData];
-    } else {
-        certFilteredData = certTableData.filter(cert => {
-            // Search in Nama Lengkap and NIK
-            const matchSearch = searchTerm === '' || 
-                cert.namaLengkap.toLowerCase().includes(searchTerm) ||
-                cert.nik.includes(searchTerm);
-            
-            // Filter by type
-            const matchType = selectedType === 'all' || 
-                cert.jenisKegiatan.toLowerCase() === selectedType.toLowerCase();
-            
-            return matchSearch && matchType;
-        });
-    }
-    
-    // Render results
-    renderCertificateTable(certFilteredData);
-    updateCertResultCount(certFilteredData.length);
-    
-    // Show no results state if needed
-    if (certFilteredData.length === 0) {
-        document.getElementById('certTableOutput').style.display = 'none';
-        document.getElementById('certTableNoResults').style.display = 'block';
-    } else {
-        document.getElementById('certTableNoResults').style.display = 'none';
-    }
-}
-
-/**
- * clearCertificateSearch() - Reset pencarian
- */
-function clearCertificateSearch() {
-    const searchInput = document.getElementById('certSearchInput');
-    const typeSelect = document.getElementById('certSearchType');
-    const clearBtn = document.getElementById('certClearSearch');
-    
-    if (searchInput) searchInput.value = '';
-    if (typeSelect) typeSelect.value = 'all';
-    if (clearBtn) clearBtn.classList.remove('visible');
-    
-    certCurrentSearchTerm = '';
-    certCurrentFilterType = 'all';
-    certFilteredData = [...certTableData];
-    
-    renderCertificateTable(certFilteredData);
-    updateCertResultCount(certFilteredData.length);
-    
-    document.getElementById('certTableNoResults').style.display = 'none';
-}
-
-/**
- * renderCertificateTable(data) - Render tabel sertifikat
- */
-function renderCertificateTable(data) {
-    const outputContainer = document.getElementById('certTableOutput');
-    
-    if (!outputContainer) return;
-    
-    if (!data || data.length === 0) {
-        outputContainer.innerHTML = '';
-        outputContainer.style.display = 'none';
-        return;
-    }
-    
-    let tableHTML = `
-        <div class="cert-table-container">
-            <div class="cert-table-wrapper">
-                <table class="cert-data-table">
-                    <thead>
-                        <tr>
-                            <th><i class="fas fa-user"></i> Nama Lengkap</th>
-                            <th><i class="fas fa-building"></i> Unit Kerja</th>
-                            <th><i class="fas fa-tags"></i> Jenis Kegiatan</th>
-                            <th><i class="fas fa-file-alt"></i> Judul/Kegiatan</th>
-                            <th style="text-align:center;"><i class="fas fa-cog"></i> Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-    `;
-    
-    data.forEach((cert, index) => {
-        const activityConfig = certActivityConfig[cert.jenisKegiatan.toLowerCase()] || 
-                               { label: cert.jenisKegiatan, icon: 'fa-tag', class: 'default' };
-        const initials = getInitials(cert.namaLengkap);
-        const previewUrl = cert.fileId ? 
-            `https://drive.google.com/file/d/${cert.fileId}/preview` : null;
-        const downloadUrl = cert.fileId ? 
-            `https://drive.google.com/uc?export=download&id=${cert.fileId}` : 
-            (cert.urlFile || '#');
-        
-        tableHTML += `
-            <tr data-index="${index}">
-                <td>
-                    <div class="cert-name-cell">
-                        <div class="cert-avatar">${initials}</div>
-                        <div>
-                            <div>${escapeHtml(cert.namaLengkap)}</div>
-                            <small style="color:#6b7280;font-size:11px;">NIK: ${escapeHtml(cert.nik || '-')}</small>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <span class="cert-unit-cell">${escapeHtml(cert.unitKerja || '-')}</span>
-                </td>
-                <td>
-                    <span class="cert-activity-badge ${activityConfig.class}">
-                        <i class="fas ${activityConfig.icon}"></i> ${activityConfig.label}
-                    </span>
-                </td>
-                <td>
-                    <span class="cert-title-cell" title="${escapeHtml(cert.judul)}">${escapeHtml(cert.judul)}</span>
-                    ${cert.tanggal && cert.tanggal !== '-' ? `<br><small style="color:#9ca3af;font-size:11px;"><i class="fas fa-calendar-alt"></i> ${escapeHtml(cert.tanggal)}</small>` : ''}
-                </td>
-                <td>
-                    <div class="cert-action-cell">
-                        ${previewUrl ? `
-                            <button class="cert-preview-btn" onclick='openCertPreview(${JSON.stringify(cert).replace(/'/g, "\'")})'>
-                                <i class="fas fa-eye"></i> Preview
-                            </button>
-                        ` : ''}
-                        <a href="${downloadUrl}" target="_blank" rel="noopener noreferrer" 
-                           class="cert-download-btn" onclick="event.stopPropagation();">
-                            <i class="fas fa-download"></i> Download
-                        </a>
-                    </div>
-                </td>
-            </tr>
-        `;
-    });
-    
-    tableHTML += `
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    `;
-    
-    outputContainer.innerHTML = tableHTML;
-    outputContainer.style.display = 'block';
-}
-
-/**
- * openCertPreview(certData) - Buka modal preview sertifikat
- */
-function openCertPreview(certData) {
-    const overlay = document.getElementById('certPreviewOverlay');
-    if (!overlay || !certData) return;
-    
-    // Set platform attribute for colors
-    overlay.setAttribute('data-platform', 'sertifikat');
-    
-    // Build info grid
-    const activityConfig = certActivityConfig[certData.jenisKegiatan.toLowerCase()] || 
-                           { label: certData.jenisKegiatan, icon: 'fa-tag' };
-    
-    const infoGridHTML = `
-        <div class="cert-preview-info-item">
-            <div class="cert-preview-info-label"><i class="fas fa-user"></i> Nama Lengkap</div>
-            <div class="cert-preview-info-value">${escapeHtml(certData.namaLengkap)}</div>
-        </div>
-        <div class="cert-preview-info-item">
-            <div class="cert-preview-info-label"><i class="fas fa-id-card"></i> NIK</div>
-            <div class="cert-preview-info-value">${escapeHtml(certData.nik || '-')}</div>
-        </div>
-        <div class="cert-preview-info-item">
-            <div class="cert-preview-info-label"><i class="fas fa-building"></i> Unit Kerja</div>
-            <div class="cert-preview-info-value">${escapeHtml(certData.unitKerja || '-')}</div>
-        </div>
-        <div class="cert-preview-info-item">
-            <div class="cert-preview-info-label"><i class="fas fa-tags"></i> Jenis Kegiatan</div>
-            <div class="cert-preview-info-value">
-                <span class="cert-activity-badge ${activityConfig.class}" style="font-size:12px;">
-                    <i class="fas ${activityConfig.icon}"></i> ${activityConfig.label}
-                </span>
-            </div>
-        </div>
-        <div class="cert-preview-info-item" style="grid-column: span 2;">
-            <div class="cert-preview-info-label"><i class="fas fa-file-alt"></i> Judul/Kegiatan</div>
-            <div class="cert-preview-info-value">${escapeHtml(certData.judul)}</div>
-        </div>
-        <div class="cert-preview-info-item">
-            <div class="cert-preview-info-label"><i class="fas fa-calendar-alt"></i> Tanggal</div>
-            <div class="cert-preview-info-value">${escapeHtml(certData.tanggal || '-')}</div>
-        </div>
-    `;
-    
-    document.getElementById('certPreviewInfoGrid').innerHTML = infoGridHTML;
-    
-    // Set image source
-    const previewImg = document.getElementById('certPreviewImage');
-    if (certData.fileId) {
-        previewImg.src = `https://drive.google.com/thumbnail?id=${certData.fileId}&sz=w800`;
-    } else if (certData.urlFile) {
-        previewImg.src = certData.urlFile;
-    } else {
-        previewImg.parentElement.innerHTML = `
-            <div style="padding:40px;color:#9ca3af;">
-                <i class="fas fa-file-pdf" style="font-size:64px;margin-bottom:16px;"></i>
-                <p style="margin:0;">Preview tidak tersedia</p>
-                <p style="margin:8px 0 0;font-size:13px;">Klik Download untuk mengunduh file</p>
-            </div>
-        `;
-    }
-    
-    // Set download button URL
-    const downloadBtn = document.getElementById('certPreviewDownloadBtn');
-    const downloadUrl = certData.fileId ? 
-        `https://drive.google.com/uc?export=download&id=${certData.fileId}` : 
-        (certData.urlFile || '#');
-    downloadBtn.href = downloadUrl;
-    
-    // Show modal with animation
-    setTimeout(() => {
-        overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }, 10);
-}
-
-/**
- * closeCertPreview(event) - Tutup modal preview
- */
-function closeCertPreview(event) {
-    if (event && event.target !== event.currentTarget && !event.target.classList.contains('cert-preview-overlay')) {
-        return;
-    }
-    
-    const overlay = document.getElementById('certPreviewOverlay');
-    if (overlay) {
-        overlay.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-}
-
-/**
- * showCertTableState(state) - Tampilkan state loading/error/data
- */
-function showCertTableState(state) {
-    const loadingEl = document.getElementById('certTableLoading');
-    const errorEl = document.getElementById('certTableError');
-    const noResultsEl = document.getElementById('certTableNoResults');
-    const outputEl = document.getElementById('certTableOutput');
-    
-    // Hide all first
-    if (loadingEl) loadingEl.style.display = 'none';
-    if (errorEl) errorEl.style.display = 'none';
-    if (noResultsEl) noResultsEl.style.display = 'none';
-    if (outputEl) outputEl.style.display = 'none';
-    
-    // Show requested state
-    switch(state) {
-        case 'loading':
-            if (loadingEl) loadingEl.style.display = 'block';
-            break;
-        case 'error':
-            if (errorEl) errorEl.style.display = 'block';
-            break;
-        case 'noresults':
+        if (certFilteredData.length === 0 && (searchTerm !== '' || selectedType !== 'all')) {
+            var outputEl = document.getElementById('certTableOutput');
+            var noResultsEl = document.getElementById('certTableNoResults');
+            if (outputEl) outputEl.style.display = 'none';
             if (noResultsEl) noResultsEl.style.display = 'block';
-            break;
-        case 'data':
-            if (outputEl && certFilteredData.length > 0) {
-                outputEl.style.display = 'block';
-            } else if (noResultsEl && certTableData.length === 0) {
-                noResultsEl.querySelector('h4').textContent = 'Belum Ada Data';
-                noResultsEl.querySelector('p').textContent = 'Data sertifikat belum tersedia.';
-                noResultsEl.style.display = 'block';
-            }
-            break;
-    }
-}
-
-/**
- * updateCertResultCount(count) - Update counter hasil pencarian
- */
-function updateCertResultCount(count) {
-    const countEl = document.getElementById('certResultCount');
-    if (countEl) {
-        countEl.innerHTML = `<i class="fas fa-database"></i> Menampilkan <strong>${count}</strong> data sertifikat`;
-    }
-}
-
-/**
- * getInitials(name) - Generate initials dari nama
- */
-function getInitials(name) {
-    if (!name) return '?';
-    return name.split(' ')
-        .map(word => word.charAt(0))
-        .slice(0, 2)
-        .join('')
-        .toUpperCase();
-}
-
-/**
- * escapeHtml(text) - Escape HTML untuk mencegah XSS
- */
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-/**
- * getDemoCertificateData() - Demo data untuk testing
- * Hapus fungsi ini setelah integrasi dengan Google Sheet berhasil
- */
-function getDemoCertificateData() {
-    return [
-        {
-            id: 1,
-            namaLengkap: 'Dr. Ahmad Sudrajat, M.Kes',
-            nik: '197501012010121001',
-            unitKerja: 'Puskesmas Tenggarong',
-            jenisKegiatan: 'diklat',
-            judul: 'Diklat Manajemen Rumah Sakit Angkatan XVII',
-            tanggal: '15 Januari 2025',
-            urlFile: '',
-            fileId: '1ABC123'
-        },
-        {
-            id: 2,
-            namaLengkap: 'Siti Nurhaliza, S.Kep., Ns.',
-            nik: '198203052012082001',
-            unitKerja: 'RSUD AM Parikesit',
-            jenisKegiatan: 'pelatihan',
-            judul: 'Pelatihan Penanganan Gawat Darurat Terpadu (PGDT)',
-            tanggal: '22 Februari 2025',
-            urlFile: '',
-            fileId: '1DEF456'
-        },
-        {
-            id: 3,
-            namaLengkap: 'Budi Santoso, A.Md.Keb',
-            nik: '199008152020031001',
-            unitKerja: 'Dinkes Kukar',
-            jenisKegiatan: 'seminar',
-            judul: 'Seminar Nasional Kesehatan Masyarakat 2025',
-            tanggal: '10 Maret 2025',
-            urlFile: '',
-            fileId: '1GHI789'
-        },
-        {
-            id: 4,
-            namaLengkap: 'Dewi Lestari, S.Tr.Kes',
-            nik: '199206182015042002',
-            unitKerja: 'Puskesmas Loa Kulu',
-            jenisKegiatan: 'workshop',
-            judul: 'Workshop Pengembangan Kompetensi Tenaga Kesehatan',
-            tanggal: '5 April 2025',
-            urlFile: '',
-            fileId: '1JKL012'
-        },
-        {
-            id: 5,
-            namaLengkap: 'Rudi Hartono, S.SiT',
-            nik: '198712112014031001',
-            unitKerja: 'Puskesmas Samboja',
-            jenisKegiatan: 'lokakarya',
-            judul: 'Lokakarya Peningkatan Mutu Pelayanan Kesehatan Dasar',
-            tanggal: '18 Mei 2025',
-            urlFile: '',
-            fileId: '1MNO345'
-        },
-        {
-            id: 6,
-            namaLengkap: 'Rina Wulandari, M.Keb',
-            nik: '198909252013062001',
-            unitKerja: 'RSUD AM Parikesit',
-            jenisKegiatan: 'penghargaan',
-            judul: 'Penghargaan Tenaga Kesehatan Teladan Tingkat Provinsi',
-            tanggal: '1 Juni 2025',
-            urlFile: '',
-            fileId: '1PQR678'
-        },
-        {
-            id: 7,
-            namaLengkap: 'Agus Prabowo, dkk',
-            nik: '-',
-            unitKerja: 'Dinkes Kukar',
-            jenisKegiatan: 'diklat',
-            judul: 'Diklat Keuangan Daerah Bagi Pengelola Keuangan SKPD',
-            tanggal: '12 Juli 2025',
-            urlFile: '',
-            fileId: '1STU901'
-        },
-        {
-            id: 8,
-            namaLengkap: 'Maya Sari, S.Kep',
-            nik: '199305202018022001',
-            unitKerja: 'Puskesmas Muara Badak',
-            jenisKegiatan: 'pelatihan',
-            judul: 'Pelatihan Imunisasi dan Surveillance',
-            tanggal: '28 Agustus 2025',
-            urlFile: '',
-            fileId: '1VWX234'
+        } else {
+            var noResultsEl2 = document.getElementById('certTableNoResults');
+            if (noResultsEl2) noResultsEl2.style.display = 'none';
         }
-    ];
-}
-
-// ============================================
-// AUTO-LOAD SAAT POPUP DIBUKA
-// ============================================
-
-// Override openPopup function untuk auto-load sertifikat
-const originalOpenPopup = window.openPopup || function(id) {
-    const el = document.getElementById(id);
-    if (el) {
-        el.classList.add('show');
-        document.body.style.overflow = 'hidden';
-    }
-};
-
-window.openPopup = function(popupId) {
-    originalOpenPopup(popupId);
+    };
     
-    // Auto-load certificate data when popup opened
-    if (popupId === 'popupSertifikat') {
-        setTimeout(() => {
-            loadCertTableData();
-        }, 300);
-    }
-};
-
-// Keyboard shortcuts for preview modal
-document.addEventListener('keydown', function(e) {
-    const previewOverlay = document.getElementById('certPreviewOverlay');
-    if (previewOverlay && previewOverlay.classList.contains('active')) {
-        if (e.key === 'Escape') {
-            closeCertPreview();
+    // ==================== CLEAR SEARCH ====================
+    window.clearCertificateSearch = function() {
+        var searchInput = document.getElementById('certSearchInput');
+        var typeSelect = document.getElementById('certSearchType');
+        var clearBtn = document.getElementById('certClearSearch');
+        
+        if (searchInput) searchInput.value = '';
+        if (typeSelect) typeSelect.value = 'all';
+        if (clearBtn) clearBtn.classList.remove('visible');
+        
+        certCurrentSearchTerm = '';
+        certCurrentFilterType = 'all';
+        certFilteredData = [...certTableData];
+        
+        renderCertificateTable(certFilteredData);
+        updateCertResultCount(certFilteredData.length);
+        
+        var noResultsEl = document.getElementById('certTableNoResults');
+        if (noResultsEl) noResultsEl.style.display = 'none';
+    };
+    
+    // ==================== RENDER TABLE ====================
+    function renderCertificateTable(data) {
+        var outputContainer = document.getElementById('certTableOutput');
+        if (!outputContainer) return;
+        
+        if (!data || data.length === 0) {
+            outputContainer.innerHTML = '';
+            outputContainer.style.display = 'none';
+            return;
         }
+        
+        var tableHTML = '<div class="cert-table-container"><div class="cert-table-wrapper">' +
+            '<table class="cert-data-table"><thead><tr>' +
+            '<th><i class="fas fa-user"></i> Nama Lengkap</th>' +
+            '<th><i class="fas fa-building"></i> Unit Kerja</th>' +
+            '<th><i class="fas fa-tags"></i> Jenis Kegiatan</th>' +
+            '<th><i class="fas fa-file-alt"></i> Judul/Kegiatan</th>' +
+            '<th style="text-align:center;"><i class="fas fa-cog"></i> Aksi</th>' +
+            '</tr></thead><tbody>';
+        
+        for (var index = 0; index < data.length; index++) {
+            var cert = data[index];
+            var activityConfig = certActivityConfig[cert.jenisKegiatan.toLowerCase()] || 
+                                   { label: cert.jenisKegiatan, icon: 'fa-tag', class: 'default' };
+            var initials = getInitials(cert.namaLengkap);
+            var previewUrl = cert.fileId ? 'https://drive.google.com/file/d/' + cert.fileId + '/preview' : null;
+            var downloadUrl = cert.fileId ? 'https://drive.google.com/uc?export=download&id=' + cert.fileId : (cert.urlFile || '#');
+            
+            tableHTML += '<tr data-index="' + index + '">' +
+                '<td><div class="cert-name-cell"><div class="cert-avatar">' + initials + '</div><div>' +
+                '<div>' + escapeHtml(cert.namaLengkap) + '</div>' +
+                '<small style="color:#6b7280;font-size:11px;">NIK: ' + escapeHtml(cert.nik || '-') + '</small>' +
+                '</div></div></td>' +
+                '<td><span class="cert-unit-cell">' + escapeHtml(cert.unitKerja || '-') + '</span></td>' +
+                '<td><span class="cert-activity-badge ' + activityConfig.class + '">' +
+                '<i class="fas ' + activityConfig.icon + '"></i> ' + activityConfig.label + '</span></td>' +
+                '<td><span class="cert-title-cell" title="' + escapeHtml(cert.judul) + '">' + escapeHtml(cert.judul) + '</span>' +
+                (cert.tanggal && cert.tanggal !== '-' ? '<br><small style="color:#9ca3af;font-size:11px;"><i class="fas fa-calendar-alt"></i> ' + escapeHtml(cert.tanggal) + '</small>' : '') +
+                '</td>' +
+                '<td><div class="cert-action-cell">' +
+                (previewUrl ? '<button class="cert-preview-btn" onclick="window.openCertPreview(\'' + JSON.stringify(cert).replace(/'/g, "\'") + '\')">Preview</button>' : '') +
+                '<a href="' + downloadUrl + '" target="_blank" rel="noopener noreferrer" class="cert-download-btn">Download</a>' +
+                '</div></td></tr>';
+        }
+        
+        tableHTML += '</tbody></table></div></div>';
+        outputContainer.innerHTML = tableHTML;
+        outputContainer.style.display = 'block';
     }
-});
+    
+    // ==================== PREVIEW FUNCTIONS ====================
+    window.openCertPreview = function(certData) {
+        var overlay = document.getElementById('certPreviewOverlay');
+        if (!overlay || !certData) return;
+        
+        overlay.setAttribute('data-platform', 'sertifikat');
+        
+        var activityConfig = certActivityConfig[certData.jenisKegiatan.toLowerCase()] || 
+                               { label: certData.jenisKegiatan, icon: 'fa-tag' };
+        
+        var infoGridHTML = 
+            '<div class="cert-preview-info-item"><div class="cert-preview-info-label"><i class="fas fa-user"></i> Nama Lengkap</div>' +
+            '<div class="cert-preview-info-value">' + escapeHtml(certData.namaLengkap) + '</div></div>' +
+            '<div class="cert-preview-info-item"><div class="cert-preview-info-label"><i class="fas fa-id-card"></i> NIK</div>' +
+            '<div class="cert-preview-info-value">' + escapeHtml(certData.nik || '-') + '</div></div>' +
+            '<div class="cert-preview-info-item"><div class="cert-preview-info-label"><i class="fas fa-building"></i> Unit Kerja</div>' +
+            '<div class="cert-preview-info-value">' + escapeHtml(certData.unitKerja || '-') + '</div></div>' +
+            '<div class="cert-preview-info-item"><div class="cert-preview-info-label"><i class="fas fa-tags"></i> Jenis Kegiatan</div>' +
+            '<div class="cert-preview-info-value"><span class="cert-activity-badge ' + activityConfig.class + '" style="font-size:12px;">' +
+            '<i class="fas ' + activityConfig.icon + '"></i> ' + activityConfig.label + '</span></div></div>' +
+            '<div class="cert-preview-info-item" style="grid-column: span 2;"><div class="cert-preview-info-label"><i class="fas fa-file-alt"></i> Judul/Kegiatan</div>' +
+            '<div class="cert-preview-info-value">' + escapeHtml(certData.judul) + '</div></div>' +
+            '<div class="cert-preview-info-item"><div class="cert-preview-info-label"><i class="fas fa-calendar-alt"></i> Tanggal</div>' +
+            '<div class="cert-preview-info-value">' + escapeHtml(certData.tanggal || '-') + '</div></div>';
+        
+        document.getElementById('certPreviewInfoGrid').innerHTML = infoGridHTML;
+        
+        var previewImg = document.getElementById('certPreviewImage');
+        if (certData.fileId) {
+            previewImg.src = 'https://drive.google.com/thumbnail?id=' + certData.fileId + '&sz=w800';
+            previewImg.style.display = 'block';
+            previewImg.parentElement.style.background = '#f9fafb';
+        } else {
+            previewImg.parentElement.innerHTML = '<div style="padding:40px;color:#9ca3af;"><i class="fas fa-file-pdf" style="font-size:64px;margin-bottom:16px;"></i>' +
+                '<p style="margin:0;">Preview tidak tersedia</p><p style="margin:8px 0 0;font-size:13px;">Klik Download untuk mengunduh file</p></div>';
+        }
+        
+        var downloadUrl = certData.fileId ? 'https://drive.google.com/uc?export=download&id=' + certData.fileId : (certData.urlFile || '#');
+        document.getElementById('certPreviewDownloadBtn').href = downloadUrl;
+        
+        setTimeout(function() {
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }, 10);
+    };
+    
+    window.closeCertPreview = function(event) {
+        if (event && event.target !== event.currentTarget && !event.target.classList.contains('cert-preview-overlay')) return;
+        var overlay = document.getElementById('certPreviewOverlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    };
+    
+    // ==================== DEMO DATA ====================
+    function getDemoCertificateData() {
+        return [
+            { id: 1, namaLengkap: 'Dr. Ahmad Sudrajat, M.Kes', nik: '197501012010121001', unitKerja: 'Puskesmas Tenggarong', jenisKegiatan: 'diklat', judul: 'Diklat Manajemen Rumah Sakit Angkatan XVII', tanggal: '15 Januari 2025', urlFile: '', fileId: '1ABC123' },
+            { id: 2, namaLengkap: 'Siti Nurhaliza, S.Kep., Ns.', nik: '198203052012082001', unitKerja: 'RSUD AM Parikesit', jenisKegiatan: 'pelatihan', judul: 'Pelatihan Penanganan Gawat Darurat Terpadu (PGDT)', tanggal: '22 Februari 2025', urlFile: '', fileId: '1DEF456' },
+            { id: 3, namaLengkap: 'Budi Santoso, A.Md.Keb', nik: '199008152020031001', unitKerja: 'Dinkes Kukar', jenisKegiatan: 'seminar', judul: 'Seminar Nasional Kesehatan Masyarakat 2025', tanggal: '10 Maret 2025', urlFile: '', fileId: '1GHI789' },
+            { id: 4, namaLengkap: 'Dewi Lestari, S.Tr.Kes', nik: '199206182015042002', unitKerja: 'Puskesmas Loa Kulu', jenisKegiatan: 'workshop', judul: 'Workshop Pengembangan Kompetensi Tenaga Kesehatan', tanggal: '5 April 2025', urlFile: '', fileId: '1JKL012' },
+            { id: 5, namaLengkap: 'Rudi Hartono, S.SiT', nik: '198711112014031001', unitKerja: 'Puskesmas Samboja', jenisKegiatan: 'lokakarya', judul: 'Lokakarya Peningkatan Mutu Pelayanan Kesehatan Dasar', tanggal: '18 Mei 2025', urlFile: '', fileId: '1MNO345' },
+            { id: 6, namaLengkap: 'Rina Wulandari, M.Keb', nik: '198909252013062001', unitKerja: 'RSUD AM Parikesit', jenisKegiatan: 'penghargaan', judul: 'Penghargaan Tenaga Kesehatan Teladan Tingkat Provinsi', tanggal: '1 Juni 2025', urlFile: '', fileId: '1PQR678' },
+            { id: 7, namaLengkap: 'Agus Prabowo, dkk', nik: '-', unitKerja: 'Dinkes Kukar', jenisKegiatan: 'diklat', judul: 'Diklat Keuangan Daerah Bagi Pengelola Keuangan SKPD', tanggal: '12 Juli 2025', urlFile: '', fileId: '1STU901' },
+            { id: 8, namaLengkap: 'Maya Sari, S.Kep', nik: '199305202018022001', unitKerja: 'Puskesmas Muara Badak', jenisKegiatan: 'pelatihan', judul: 'Pelatihan Imunisasi dan Surveillance', tanggal: '28 Agustus 2025', urlFile: '', fileId: '1VWX234' }
+        ];
+    }
+    
+    // ==================== AUTO-INITIALIZATION ====================
+    
+    // Override openPopup untuk auto-load
+    var originalOpenPopup = window.openPopup || function(id) {
+        var el = document.getElementById(id);
+        if (el) { el.classList.add('show'); document.body.style.overflow = 'hidden'; }
+    };
+    
+    window.openPopup = function(popupId) {
+        originalOpenPopup(popupId);
+        if (popupId === 'popupSertifikat') {
+            setTimeout(function() { loadCertTableData(); }, 300);
+        }
+    };
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        var previewOverlay = document.getElementById('certPreviewOverlay');
+        if (previewOverlay && previewOverlay.classList.contains('active') && e.key === 'Escape') {
+            window.closeCertPreview();
+        }
+    });
+    
+    console.log('[CertTableSystem] ✅ Certificate Table System v3.0 initialized!');
+    console.log('[CertTableSystem] Functions available: searchCertificates, clearCertificateSearch, openCertPreview, closeCertPreview');
 
-console.log('[CertTableSystem] ✅ Certificate Table System v2.0 initialized!');
-
-</script>
-
-</body>
-</html>
+})();
