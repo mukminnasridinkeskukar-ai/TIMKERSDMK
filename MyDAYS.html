@@ -983,7 +983,7 @@
 
     <script>
         // ========== CONFIGURATION ==========
-        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwFljXdWq7BtPtGmlRRbP7M7LrI7RhP8qKUqJjklaENZagBCUQiwvTBbiEEvtnCbrZQrw/exec';
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCdtzAi5DUgkgxKqdvaBtSoF2LmAYVjp9C8DhgYn62yZ28VgGqUNElVgBy2sEFy-uP6Q/exec';
         let allData = [];
 
         // ========== INITIALIZATION ==========
@@ -1080,8 +1080,20 @@
 
                 updateProgress(30, 'Mengupload file...');
 
-                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { method: 'POST', body: formData, mimeType: 'multipart/form-data' });
+                // Fetch dengan konfigurasi yang benar
+                const response = await fetch(GOOGLE_APPS_SCRIPT_URL + '?t=' + Date.now(), {
+                    method: 'POST',
+                    body: formData,
+                    mode: 'cors',
+                    redirect: 'follow'
+                });
+                
                 updateProgress(70, 'Memproses data...');
+                
+                // Cek status response
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
                 
                 const result = await response.json();
                 updateProgress(100, 'Selesai!');
@@ -1089,10 +1101,14 @@
                 if (result.success) {
                     showMessage('success', `✅ ${result.message || 'Laporan berhasil dikirim!'}`);
                     resetForm();
-                } else { throw new Error(result.message || 'Terjadi kesalahan'); }
+                } else { throw new Error(result.message || 'Terjadi kesalahan dari server'); }
             } catch (error) {
-                console.error('Error:', error);
-                showMessage('error', `❌ ${error.message || 'Gagal mengirim laporan.'}`);
+                console.error('Error detail:', error);
+                let errorMsg = error.message;
+                if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
+                    errorMsg = 'Gagal terhubung ke server. Pastikan: (1) File HTML dibuka via web (Google Drive/Netlify), bukan langsung dari komputer. (2) Koneksi internet stabil.';
+                }
+                showMessage('error', `❌ ${errorMsg}`);
             } finally { setTimeout(() => showProgress(false), 2000); }
         }
 
@@ -1105,7 +1121,16 @@
             loadingEl.style.display = 'block'; emptyEl.style.display = 'none'; tableEl.style.display = 'none';
 
             try {
-                const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=getAllData`);
+                // Tambah timestamp untuk menghindari cache
+                const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=getAllData&t=${Date.now()}`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                
                 const result = await response.json();
 
                 loadingEl.style.display = 'none';
@@ -1119,7 +1144,7 @@
                     emptyEl.style.display = 'block'; countEl.textContent = '(0)';
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error load data:', error);
                 loadingEl.style.display = 'none'; emptyEl.style.display = 'block';
             }
         }
@@ -1212,11 +1237,22 @@
         async function downloadPDF(nomorRegister) {
             try {
                 showMessage('success', '⏳ Sedang menyiapkan PDF...');
-                const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=generatePDF&nomorRegister=${encodeURIComponent(nomorRegister)}`);
+                const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=generatePDF&nomorRegister=${encodeURIComponent(nomorRegister)}&t=${Date.now()}`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                
                 const result = await response.json();
                 if (result.success && result.pdfUrl) { window.open(result.pdfUrl, '_blank'); hideMessage(); }
                 else throw new Error(result.message || 'Gagal membuat PDF');
-            } catch (error) { showMessage('error', `❌ ${error.message}`); }
+            } catch (error) { 
+                console.error('Error download PDF:', error);
+                showMessage('error', `❌ ${error.message}`); 
+            }
         }
 
         function showMessage(type, text) {
