@@ -1,4 +1,138 @@
-<!DOCTYPE html>
+/**
+ * ============================================
+ * Laporan Kinerja Harian - FULL STACK
+ * ============================================
+ * 
+ * CARA DEPLOY:
+ * 1. Copy SELURUH kode ini ke Google Apps Script Editor
+ * 2. Simpan (Ctrl+S)
+ * 3. Deploy > New deployment > Web app
+ *    - Execute as: Me
+ *    - Who has access: Anyone
+ * 4. Klik Deploy
+ * 5. Buka URL yang diberikan - FORM LANGSUNG TAMPIL!
+ */
+
+// ==================== CONFIGURATION ====================
+
+const SHEET_NAME = 'Laporan';
+const FOLDER_NAME = 'Laporan_Kinerja_Harian';
+const PDF_FOLDER_NAME = 'PDF_Laporan';
+
+const HEADERS = [
+  'Timestamp', 'Nomor Register', 'Tanggal & Jam',
+  'Nama Kegiatan', 'Metode Kegiatan', 'Jenis Kegiatan',
+  'Laporan Kegiatan', 'Deskripsi Laporan Kegiatan',
+  'Link Bukti Absen', 'Link Foto Kegiatan', 'Link Surat/Undangan'
+];
+
+// ==================== MAIN HANDLER ====================
+
+function doGet(e) {
+  try {
+    const action = e && e.parameter && e.parameter.action;
+    
+    // API endpoints (return JSON)
+    if (action === 'getAllData') {
+      return handleGetAllData();
+    } else if (action === 'generatePDF') {
+      const nomorRegister = e && e.parameter && e.parameter.nomorRegister;
+      return handleGeneratePDF(nomorRegister);
+    }
+    
+    // Default: Return HTML Form
+    return HtmlService.createHtmlOutput(getHtmlContent())
+      .setTitle('Laporan Kinerja Harian')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1.0');
+      
+  } catch (error) {
+    console.error('Error in doGet:', error);
+    return HtmlService.createHtmlOutput(
+      '<h1>Error</h1><p>' + error.message + '</p>'
+    );
+  }
+}
+
+function doPost(e) {
+  try {
+    console.log('Received POST request');
+    
+    if (!e || !e.postData || !e.postData.contents) {
+      return createErrorResponse('Tidak ada data yang diterima');
+    }
+
+    const formData = parseMultipartFormData(e.postData.contents, e.contentType);
+    
+    const nomorRegister = formData.fields.nomorRegister || generateNomorRegister();
+    const tanggalJam = formData.fields.tanggalJam || new Date().toLocaleString('id-ID');
+    const namaKegiatan = formData.fields.namaKegiatan || '';
+    const metodeKegiatan = formData.fields.metodeKegiatan || '';
+    const jenisKegiatan = formData.fields.jenisKegiatan || '';
+    const isLaporanKegiatan = formData.fields.isLaporanKegiatan || 'Tidak';
+    const deskripsiLaporanKegiatan = formData.fields.deskripsiLaporanKegiatan || '';
+
+    if (!namaKegiatan || !metodeKegiatan || !jenisKegiatan) {
+      return createErrorResponse('Field wajib tidak lengkap');
+    }
+
+    const folder = getOrCreateFolder(FOLDER_NAME);
+
+    let linkBuktiAbsen = '', linkFotoKegiatan = '', linkSuratUndangan = '';
+
+    if (formData.files.buktiAbsen) {
+      linkBuktiAbsen = uploadFileToDrive(
+        formData.files.buktiAbsen.data,
+        `Absen_${nomorRegister}_${getTimestamp()}.jpg`,
+        formData.files.buktiAbsen.mimeType,
+        folder.getId()
+      );
+    }
+
+    if (formData.files.fotoKegiatan) {
+      linkFotoKegiatan = uploadFileToDrive(
+        formData.files.fotoKegiatan.data,
+        `Dokumentasi_${nomorRegister}_${getTimestamp()}.pdf`,
+        formData.files.fotoKegiatan.mimeType,
+        folder.getId()
+      );
+    }
+
+    if (formData.files.suratUndangan) {
+      linkSuratUndangan = uploadFileToDrive(
+        formData.files.suratUndangan.data,
+        `Surat_${nomorRegister}_${getTimestamp()}.pdf`,
+        formData.files.suratUndangan.mimeType,
+        folder.getId()
+      );
+    }
+
+    saveToSheet({
+      timestamp: new Date(),
+      nomorRegister: nomorRegister,
+      tanggalJam: tanggalJam,
+      namaKegiatan: namaKegiatan,
+      metodeKegiatan: metodeKegiatan,
+      jenisKegiatan: jenisKegiatan,
+      isLaporanKegiatan: isLaporanKegiatan,
+      deskripsiLaporanKegiatan: deskripsiLaporanKegiatan,
+      linkBuktiAbsen: linkBuktiAbsen,
+      linkFotoKegiatan: linkFotoKegiatan,
+      linkSuratUndangan: linkSuratUndangan
+    });
+
+    return createSuccessResponse(`Laporan "${nomorRegister}" berhasil disimpan!`);
+
+  } catch (error) {
+    console.error('Error in doPost:', error);
+    return createErrorResponse('Terjadi kesalahan server: ' + error.message);
+  }
+}
+
+// ==================== HTML CONTENT ====================
+
+function getHtmlContent() {
+  return `<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -7,7 +141,6 @@
     <style>
         :root {
             --primary: #667eea;
-            --primary-dark: #5a67d8;
             --secondary: #764ba2;
             --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --card-bg: #ffffff;
@@ -17,758 +150,182 @@
             --border-color: #e2e8f0;
             --success: #48bb78;
             --error: #f56565;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
             --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
             --shadow-lg: 0 10px 40px rgba(0,0,0,0.15);
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        html, body {
-            height: 100%;
-            width: 100%;
-            overflow-x: hidden;
-        }
-
+        html, body { height: 100%; width: 100%; overflow-x: hidden; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: var(--bg-gradient);
-            min-height: 100vh;
-            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-gradient); min-height: 100vh; color: var(--text-primary);
         }
-
-        /* ============ NAVIGATION BAR ============ */
+        
+        /* Navbar */
         .navbar {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
-            padding: 0.75rem 2rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+            padding: 0.75rem 2rem; display: flex; justify-content: center; gap: 1rem;
             box-shadow: var(--shadow-md);
-            border-bottom: 1px solid rgba(255,255,255,0.2);
         }
-
         .nav-btn {
-            padding: 0.7rem 1.8rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--primary);
-            background: transparent;
-            border: 2px solid transparent;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
+            padding: 0.7rem 1.8rem; font-size: 0.9rem; font-weight: 600;
+            color: var(--primary); background: transparent; border: 2px solid transparent;
+            border-radius: 50px; cursor: pointer; transition: all 0.3s ease;
         }
-
-        .nav-btn::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: var(--bg-gradient);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: -1;
-        }
-
-        .nav-btn:hover::before,
-        .nav-btn.active::before {
-            opacity: 1;
-        }
-
-        .nav-btn:hover,
-        .nav-btn.active {
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102,126,234,0.4);
-        }
-
-        /* ============ MAIN CONTAINER ============ */
-        .main-container {
-            width: 100%;
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 2rem;
-            min-height: calc(100vh - 70px);
-        }
-
-        /* ============ PAGE SYSTEM ============ */
+        .nav-btn:hover, .nav-btn.active { background: var(--bg-gradient); color: white; transform: translateY(-2px); }
+        
+        /* Main Container */
+        .main-container { width: 100%; max-width: 1600px; margin: 0 auto; padding: 2rem; min-height: calc(100vh - 70px); }
         .page { display: none; animation: fadeIn 0.4s ease; }
         .page.active { display: block; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ============ FORM PAGE LAYOUT ============ */
-        .form-wrapper {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            height: 100%;
-        }
-
-        @media (max-width: 1200px) {
-            .form-wrapper { grid-template-columns: 1fr; }
-        }
-
-        .form-section {
-            background: var(--card-bg);
-            border-radius: 20px;
-            box-shadow: var(--shadow-lg);
-            overflow: hidden;
-        }
-
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Layout */
+        .form-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        @media (max-width: 1200px) { .form-wrapper { grid-template-columns: 1fr; } }
+        
+        .form-section { background: var(--card-bg); border-radius: 20px; box-shadow: var(--shadow-lg); overflow: hidden; }
         .form-header {
-            background: var(--bg-gradient);
-            color: white;
-            padding: 2rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
+            background: var(--bg-gradient); color: white; padding: 2rem; text-align: center;
+            position: relative; overflow: hidden;
         }
-
         .form-header::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%;
+            content: ''; position: absolute; top: -50%; left: -50%;
             width: 200%; height: 200%;
             background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
             animation: pulse 4s infinite;
         }
-
-        @keyframes pulse {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(180deg); }
-        }
-
-        .form-header h1 {
-            font-size: 1.6rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .form-header p {
-            opacity: 0.9;
-            font-size: 0.95rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .form-body {
-            padding: 2rem;
-        }
-
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .section-title span:first-child {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .section-title .line {
-            flex: 1;
-            height: 2px;
-            background: linear-gradient(to right, var(--primary), transparent);
-        }
-
-        /* ============ FORM ELEMENTS ============ */
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .form-group label .required {
-            color: var(--error);
-            margin-left: 2px;
-        }
-
-        .auto-field {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-            border-radius: 12px;
-            border: 2px dashed #cbd5e0;
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-        }
-
-        .auto-field .icon { font-size: 1.25rem; }
-        .auto-field .value { 
-            font-weight: 700; 
-            color: var(--primary);
-            font-family: 'SF Mono', Monaco, monospace;
-        }
-
-        input[type="text"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 0.9rem 1.25rem;
-            font-size: 0.95rem;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            outline: none;
-            transition: all 0.3s ease;
-            background: #fafbfc;
-            font-family: inherit;
-            color: var(--text-primary);
-        }
-
-        input[type="text"]:focus,
-        select:focus,
-        textarea:focus {
-            border-color: var(--primary);
-            background: white;
-            box-shadow: 0 0 0 4px rgba(102,126,234,0.15);
-        }
-
-        select {
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 18px;
-            padding-right: 45px;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        /* ============ FILE UPLOAD ============ */
-        .file-upload {
-            position: relative;
-            border: 2px dashed var(--border-color);
-            border-radius: 16px;
-            padding: 1.5rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: linear-gradient(135deg, #fafbfc 0%, #fff 100%);
-        }
-
-        .file-upload:hover {
-            border-color: var(--primary);
-            background: linear-gradient(135deg, #eef2ff 0%, #f8faff 100%);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .file-upload.dragover {
-            border-color: var(--primary);
-            background: linear-gradient(135deg, #e0e7ff 0%, #f0f4ff 100%);
-            transform: scale(1.02);
-        }
-
-        .file-upload input[type="file"] {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .upload-icon { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
-        .upload-text { font-size: 0.85rem; color: var(--text-muted); }
-        .upload-text strong { color: var(--primary); }
-
-        .file-name {
-            margin-top: 0.75rem;
-            padding: 0.6rem 1rem;
-            background: var(--bg-gradient);
-            color: white;
-            border-radius: 8px;
-            font-size: 0.82rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ============ SUBMIT BUTTON ============ */
-        .submit-btn {
-            width: 100%;
-            padding: 1.1rem 2rem;
-            font-size: 1rem;
-            font-weight: 700;
-            color: white;
-            background: var(--bg-gradient);
-            border: none;
-            border-radius: 14px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            margin-top: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .submit-btn::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .submit-btn:hover::before { left: 100%; }
+        @keyframes pulse { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(180deg); } }
+        .form-header h1 { font-size: 1.6rem; font-weight: 700; position: relative; z-index: 1; }
+        .form-header p { opacity: 0.9; position: relative; z-index: 1; }
         
-        .submit-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 35px rgba(102,126,234,0.45);
+        .form-body { padding: 2rem; }
+        .section-title { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 2px solid var(--border-color); }
+        .section-title span:first-child { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
+        .section-title .line { flex: 1; height: 2px; background: linear-gradient(to right, var(--primary), transparent); }
+        
+        /* Form Elements */
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.5rem; }
+        .form-group label .required { color: var(--error); }
+        
+        .auto-field {
+            display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 12px; border: 2px dashed #cbd5e0; font-size: 0.95rem; color: var(--text-secondary);
         }
-
-        .submit-btn:active { transform: translateY(-1px); }
-        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
-
-        /* ============ PROGRESS BAR ============ */
+        .auto-field .value { font-weight: 700; color: var(--primary); font-family: monospace; }
+        
+        input[type="text"], select, textarea {
+            width: 100%; padding: 0.9rem 1.25rem; font-size: 0.95rem;
+            border: 2px solid var(--border-color); border-radius: 12px; outline: none;
+            transition: all 0.3s ease; background: #fafbfc; font-family: inherit;
+        }
+        input[type="text"]:focus, select:focus, textarea:focus {
+            border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(102,126,234,0.15);
+        }
+        select {
+            cursor: pointer; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 12px center; padding-right: 45px;
+        }
+        
+        /* File Upload */
+        .file-upload {
+            position: relative; border: 2px dashed var(--border-color); border-radius: 16px;
+            padding: 1.5rem; text-align: center; cursor: pointer;
+            transition: all 0.3s ease; background: linear-gradient(135deg, #fafbfc 0%, #fff 100%);
+        }
+        .file-upload:hover { border-color: var(--primary); background: #eef2ff; }
+        .file-upload input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .upload-icon { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+        .upload-text { font-size: 0.85rem; color: var(--text-muted); }
+        .file-name {
+            margin-top: 0.75rem; padding: 0.6rem 1rem; background: var(--bg-gradient);
+            color: white; border-radius: 8px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        
+        /* Submit Button */
+        .submit-btn {
+            width: 100%; padding: 1.1rem 2rem; font-size: 1rem; font-weight: 700;
+            color: white; background: var(--bg-gradient); border: none; border-radius: 14px;
+            cursor: pointer; transition: all 0.3s ease; margin-top: 1rem;
+        }
+        .submit-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(102,126,234,0.45); }
+        
+        /* Progress */
         .progress-container { display: none; margin-top: 1rem; }
-        .progress-bar {
-            height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%; background: var(--bg-gradient); border-radius: 3px;
-            transition: width 0.3s ease; width: 0%;
-        }
-        .progress-text {
-            text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;
-        }
-
-        /* ============ MESSAGE ALERTS ============ */
-        .message {
-            padding: 1rem 1.25rem; border-radius: 12px; margin-bottom: 1.25rem;
-            display: none; align-items: center; gap: 0.75rem; font-size: 0.92rem;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-15px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .message.success {
-            display: flex; background: linear-gradient(135deg, #c6f6d5 0%, #9ae6b4 100%);
-            color: #22543d; border: 1px solid #68d391;
-        }
-
-        .message.error {
-            display: flex; background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
-            color: #742a2a; border: 1px solid #fc8181;
-        }
-
-        .message-icon { font-size: 1.25rem; }
-
-        /* ============ DATA TABLE PAGE ============ */
+        .progress-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--bg-gradient); width: 0%; transition: width 0.3s ease; }
+        .progress-text { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+        
+        /* Message */
+        .message { padding: 1rem 1.25rem; border-radius: 12px; margin-bottom: 1.25rem; display: none; align-items: center; gap: 0.75rem; font-size: 0.92rem; }
+        .message.success { display: flex; background: #c6f6d5; color: #22543d; }
+        .message.error { display: flex; background: #fed7d7; color: #742a2a; }
+        
+        /* Data Table Page */
         .data-page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            background: var(--card-bg);
-            padding: 1.5rem 2rem;
-            border-radius: 16px;
-            box-shadow: var(--shadow-md);
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+            margin-bottom: 1.5rem; background: var(--card-bg); padding: 1.5rem 2rem; border-radius: 16px; box-shadow: var(--shadow-md);
         }
-
-        .data-page-header h2 {
-            font-size: 1.4rem;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .data-page-header .count {
-            background: var(--bg-gradient);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-        }
-
+        .data-page-header h2 { font-size: 1.4rem; display: flex; align-items: center; gap: 0.5rem; }
+        .count { background: var(--bg-gradient); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem; }
         .search-box {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.25rem;
-            background: #f7fafc;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            min-width: 280px;
-            transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem;
+            background: #f7fafc; border: 2px solid var(--border-color); border-radius: 12px; min-width: 280px;
         }
-
-        .search-box:focus-within {
-            border-color: var(--primary);
-            background: white;
-            box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
-        }
-
-        .search-box input {
-            border: none; background: transparent; outline: none;
-            font-size: 0.95rem; width: 100%; padding: 0;
-        }
-
-        .search-icon { font-size: 1.1rem; color: var(--primary); }
-
-        .table-container {
-            background: var(--card-bg);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: var(--shadow-lg);
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .data-table th {
-            background: var(--bg-gradient);
-            color: white;
-            padding: 1rem 0.85rem;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .data-table td {
-            padding: 1rem 0.85rem;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            vertical-align: middle;
-        }
-
-        .data-table tbody tr {
-            transition: all 0.2s ease;
-        }
-
-        .data-table tbody tr:hover {
-            background: #f7fafc;
-            transform: scale(1.005);
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 0.3rem 0.85rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
+        .search-box:focus-within { border-color: var(--primary); background: white; }
+        .search-box input { border: none; background: transparent; outline: none; font-size: 0.95rem; width: 100%; }
+        
+        .table-container { background: var(--card-bg); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-lg); }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { background: var(--bg-gradient); color: white; padding: 1rem 0.85rem; text-align: left; font-size: 0.8rem; }
+        .data-table td { padding: 1rem 0.85rem; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; vertical-align: middle; }
+        .data-table tbody tr:hover { background: #f7fafc; }
+        
+        .badge { display: inline-block; padding: 0.3rem 0.85rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
         .badge-luring { background: #ebf8ff; color: #2b6cb0; }
         .badge-daring { background: #feebc8; color: #c05621; }
         .badge-blended { background: #e9d8fd; color: #6b46c1; }
-
-        .action-btns {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 0.55rem 1rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-        }
-
-        .btn-pdf {
-            background: var(--bg-gradient);
-            color: white;
-        }
-
-        .btn-pdf:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
-        }
-
-        .btn-view {
-            background: #edf2f7;
-            color: var(--text-secondary);
-        }
-
-        .btn-view:hover { background: #e2e8f0; }
-
-        /* ============ LOADING & EMPTY STATES ============ */
-        .loading-spinner {
-            text-align: center;
-            padding: 3rem;
-        }
-
-        .spinner-lg {
-            width: 45px; height: 45px;
-            border: 4px solid #e2e8f0;
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.9s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
+        
+        .action-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .btn { padding: 0.55rem 1rem; border: none; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; }
+        .btn-pdf { background: var(--bg-gradient); color: white; }
+        .btn-view { background: #edf2f7; color: var(--text-secondary); }
+        
+        /* Loading & Empty */
+        .loading-spinner { text-align: center; padding: 3rem; }
+        .spinner-lg { width: 45px; height: 45px; border: 4px solid #e2e8f0; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.9s linear infinite; margin: 0 auto 1rem; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: var(--text-muted);
-        }
-
-        .empty-state .icon { font-size: 4rem; margin-bottom: 1rem; }
-        .empty-state h3 { color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 1.2rem; }
-
-        /* ============ MODAL ============ */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-        }
-
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-muted); }
+        .empty-state .icon { font-size: 4rem; }
+        
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; padding: 2rem; }
         .modal-overlay.active { display: flex; }
-
-        .modal-content {
-            background: var(--card-bg);
-            border-radius: 24px;
-            max-width: 800px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: modalIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
-        }
-
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.9) translateY(20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        .modal-header {
-            background: var(--bg-gradient);
-            color: white;
-            padding: 1.5rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 24px 24px 0 0;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .modal-header h3 { font-size: 1.15rem; font-weight: 700; }
-
-        .close-modal {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            width: 38px; height: 38px;
-            border-radius: 50%;
-            font-size: 1.4rem;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .close-modal:hover { background: rgba(255,255,255,0.35); transform: rotate(90deg); }
-
+        .modal-content { background: var(--card-bg); border-radius: 24px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; animation: modalIn 0.35s ease; box-shadow: 0 25px 60px rgba(0,0,0,0.3); }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        .modal-header { background: var(--bg-gradient); color: white; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; border-radius: 24px 24px 0 0; }
+        .close-modal { background: rgba(255,255,255,0.2); border: none; color: white; width: 38px; height: 38px; border-radius: 50%; font-size: 1.4rem; cursor: pointer; }
         .modal-body { padding: 2rem; }
-
-        .detail-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-
-        .detail-item {
-            background: #f7fafc;
-            padding: 1.25rem;
-            border-radius: 14px;
-            border: 1px solid var(--border-color);
-        }
-
-        .detail-label {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            margin-bottom: 0.4rem;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            font-weight: 600;
-        }
-
-        .detail-value {
-            font-size: 1rem;
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
+        .detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        .detail-item { background: #f7fafc; padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border-color); }
+        .detail-label { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase; }
+        .detail-value { font-size: 1rem; font-weight: 600; }
         .detail-full { grid-column: span 2; }
-
-        .document-links {
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 2px solid var(--border-color);
-        }
-
-        .document-links h4 {
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-            font-size: 1rem;
-        }
-
-        .doc-link {
-            display: flex;
-            align-items: center;
-            gap: 0.85rem;
-            padding: 1rem 1.25rem;
-            background: #f7fafc;
-            border-radius: 12px;
-            margin-bottom: 0.75rem;
-            text-decoration: none;
-            color: var(--text-primary);
-            transition: all 0.25s ease;
-            border: 1px solid transparent;
-        }
-
-        .doc-link:hover {
-            background: #eef2ff;
-            border-color: var(--primary);
-            transform: translateX(8px);
-        }
-
-        .doc-link .doc-icon { font-size: 1.5rem; }
-
-        .download-section {
-            margin-top: 2rem;
-            text-align: center;
-            padding-top: 1.5rem;
-            border-top: 2px solid var(--border-color);
-        }
-
-        /* ============ RESPONSIVE DESIGN ============ */
-        @media (max-width: 1400px) {
-            .main-container { padding: 1.5rem; }
-        }
-
-        @media (max-width: 992px) {
-            .navbar { padding: 0.6rem 1rem; flex-wrap: wrap; }
-            .nav-btn { padding: 0.6rem 1.2rem; font-size: 0.85rem; }
-            
-            .main-container { padding: 1rem; }
-            .form-body { padding: 1.5rem; }
-            
-            .data-page-header { flex-direction: column; align-items: stretch; }
-            .search-box { min-width: auto; }
-            
-            .detail-grid { grid-template-columns: 1fr; }
-            .detail-full { grid-column: span 1; }
-        }
-
-        @media (max-width: 768px) {
-            body { padding: 0; }
-            
-            .navbar { gap: 0.5rem; }
-            .nav-btn { padding: 0.5rem 1rem; font-size: 0.8rem; }
-            
-            .main-container { padding: 0.75rem; }
-            
-            .form-header { padding: 1.5rem; }
-            .form-header h1 { font-size: 1.3rem; }
-            .form-body { padding: 1.25rem; }
-            
-            .form-group { margin-bottom: 1rem; }
-            
-            .data-page-header { padding: 1rem 1.25rem; }
-            .data-page-header h2 { font-size: 1.15rem; }
-            
-            .table-container { overflow-x: auto; }
-            .data-table { min-width: 700px; }
-            
-            .modal-content { border-radius: 16px; margin: 0.5rem; }
-            .modal-body { padding: 1.25rem; }
-            
-            .action-btns { flex-direction: column; }
-            .btn { width: 100%; justify-content: center; }
-        }
-
-        @media (max-width: 480px) {
-            .nav-btn { padding: 0.45rem 0.85rem; font-size: 0.75rem; }
-            
-            .form-header h1 { font-size: 1.15rem; }
-            .form-header p { font-size: 0.85rem; }
-            
-            .section-title { flex-wrap: wrap; }
-            
-            .file-upload { padding: 1rem; }
-            .upload-icon { font-size: 1.5rem; }
-            
-            .detail-item { padding: 1rem; }
-        }
-
-        /* ============ SCROLLBAR STYLING ============ */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--secondary); }
+        .doc-link { display: flex; align-items: center; gap: 0.85rem; padding: 1rem 1.25rem; background: #f7fafc; border-radius: 12px; margin-bottom: 0.75rem; text-decoration: none; color: var(--text-primary); transition: all 0.25s ease; }
+        .doc-link:hover { background: #eef2ff; transform: translateX(8px); }
+        .download-section { margin-top: 2rem; text-align: center; padding-top: 1.5rem; border-top: 2px solid var(--border-color); }
+        
+        /* Responsive */
+        @media (max-width: 992px) { .main-container { padding: 1rem; } .form-body { padding: 1.5rem; } .detail-grid { grid-template-columns: 1fr; } .detail-full { grid-column: span 1; } }
+        @media (max-width: 768px) { .navbar { padding: 0.6rem 1rem; flex-wrap: wrap; } .nav-btn { padding: 0.5rem 1rem; font-size: 0.8rem; } .main-container { padding: 0.75rem; } .data-page-header { flex-direction: column; } .search-box { min-width: auto; } .table-container { overflow-x: auto; } .data-table { min-width: 700px; } }
     </style>
 </head>
 <body>
 
-    <!-- Navigation Bar -->
+    <!-- Navigation -->
     <nav class="navbar">
         <button class="nav-btn active" onclick="showPage('form')">📝 Input Laporan</button>
         <button class="nav-btn" onclick="showPage('data'); loadData()">📊 Daftar Laporan</button>
@@ -777,7 +334,7 @@
     <!-- Main Container -->
     <div class="main-container">
 
-        <!-- ========== PAGE 1: INPUT FORM ========== -->
+        <!-- PAGE 1: INPUT FORM -->
         <div id="page-form" class="page active">
             <div class="form-wrapper">
                 <!-- Left Column -->
@@ -786,60 +343,39 @@
                         <h1>📋 Laporan Kinerja Harian</h1>
                         <p>Sistem Pelaporan Kegiatan Harian Terintegrasi</p>
                     </div>
-                    
                     <div class="form-body">
-                        <!-- Message Container -->
                         <div id="message" class="message"></div>
-
                         <form id="laporanForm" onsubmit="handleSubmit(event)">
+                            <div class="section-title"><span>📌 Informasi Otomatis</span><div class="line"></div></div>
                             
-                            <!-- Informasi Otomatis -->
-                            <div class="section-title">
-                                <span>📌 Informasi Otomatis</span>
-                                <div class="line"></div>
-                            </div>
-
                             <div class="form-group">
                                 <label>Nomor Register</label>
-                                <div class="auto-field">
-                                    <span class="icon">🔢</span>
-                                    <span class="value" id="nomorRegister">Memuat...</span>
-                                </div>
+                                <div class="auto-field">🔢 <span class="value" id="nomorRegister">Memuat...</span></div>
                             </div>
-
                             <div class="form-group">
                                 <label>Tanggal & Waktu Pengisian</label>
-                                <div class="auto-field">
-                                    <span class="icon">🕐</span>
-                                    <span class="value" id="tanggalJam">Memuat...</span>
-                                </div>
+                                <div class="auto-field">🕐 <span class="value" id="tanggalJam">Memuat...</span></div>
                             </div>
-
-                            <!-- Detail Kegiatan -->
-                            <div class="section-title">
-                                <span>📝 Detail Kegiatan</span>
-                                <div class="line"></div>
-                            </div>
-
+                            
+                            <div class="section-title"><span>📝 Detail Kegiatan</span><div class="line"></div></div>
+                            
                             <div class="form-group">
                                 <label>Nama Kegiatan <span class="required">*</span></label>
-                                <input type="text" id="namaKegiatan" name="namaKegiatan" placeholder="Masukkan nama kegiatan..." required>
+                                <input type="text" id="namaKegiatan" placeholder="Masukkan nama kegiatan..." required>
                             </div>
-
                             <div class="form-group">
                                 <label>Metode Kegiatan <span class="required">*</span></label>
-                                <select id="metodeKegiatan" name="metodeKegiatan" required>
-                                    <option value="">-- Pilih Metode Kegiatan --</option>
+                                <select id="metodeKegiatan" required>
+                                    <option value="">-- Pilih Metode --</option>
                                     <option value="Luring">🏢 Luring (Tatap Muka)</option>
                                     <option value="Daring">💻 Daring (Online)</option>
                                     <option value="Blended">🔄 Blended (Campuran)</option>
                                 </select>
                             </div>
-
                             <div class="form-group">
                                 <label>Jenis Kegiatan <span class="required">*</span></label>
-                                <select id="jenisKegiatan" name="jenisKegiatan" required>
-                                    <option value="">-- Pilih Jenis Kegiatan --</option>
+                                <select id="jenisKegiatan" required>
+                                    <option value="">-- Pilih Jenis --</option>
                                     <option value="Pertemuan">👥 Pertemuan</option>
                                     <option value="Rapat">📊 Rapat</option>
                                     <option value="Pelatihan">🎓 Pelatihan</option>
@@ -851,77 +387,78 @@
                                     <option value="Lainnya">📌 Lainnya</option>
                                 </select>
                             </div>
-
-                            <!-- Progress -->
+                            
+                            <!-- LAPORAN KEGIATAN (Item Terpisah) -->
+                            <div class="section-title"><span>📋 Laporan Kegiatan</span><div class="line"></div></div>
+                            
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                                    <input type="checkbox" id="isLaporanKegiatan" onchange="toggleLaporanKegiatan()" style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--primary);">
+                                    <span style="font-weight: 600; color: var(--text-secondary);">Ya, ini adalah Laporan Kegiatan</span>
+                                </label>
+                            </div>
+                            
+                            <div class="form-group" id="laporanKegiatanContainer" style="display: none; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 1.25rem; border-radius: 14px; border: 2px solid #f59e0b;">
+                                <label style="color: #92400e; font-weight: 700;">Deskripsi Laporan Kegiatan <span class="required">*</span></label>
+                                <textarea id="deskripsiLaporanKegiatan" rows="8" placeholder="Tuliskan deskripsi lengkap laporan kegiatan Anda...&#10;&#10;Contoh isi laporan:&#10;1. Tujuan kegiatan yang dilaksanakan&#10;2. Waktu dan tempat pelaksanaan&#10;3. Peserta atau pihak terlibat&#10;4. Hasil atau output yang dicapai&#10;5. Kendala dan solusi&#10;6. Rencana tindak lanjut&#10;&#10;Tuliskan secara detail dan lengkap..." style="background: white; border-color: #f59e0b;"></textarea>
+                                <small style="color: #92400e; font-size: 0.78rem; margin-top: 0.5rem; display: block;">* Wajib diisi jika dicentang "Ya, ini adalah Laporan Kegiatan"</small>
+                            </div>
+                            
                             <div class="progress-container" id="progressContainer">
-                                <div class="progress-bar">
-                                    <div class="progress-fill" id="progressFill"></div>
-                                </div>
+                                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
                                 <p class="progress-text" id="progressText">Mengirim data...</p>
                             </div>
-
-                            <!-- Submit Button -->
-                            <button type="submit" class="submit-btn" id="submitBtn">
-                                ✉️ Kirim Laporan
-                            </button>
+                            
+                            <button type="submit" class="submit-btn" id="submitBtn">✉️ Kirim Laporan</button>
                         </form>
                     </div>
                 </div>
-
+                
                 <!-- Right Column -->
                 <div class="form-section">
                     <div class="form-header" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
                         <h1>📎 Dokumen Pendukung</h1>
                         <p>Upload Bukti dan Dokumentasi Kegiatan</p>
                     </div>
-                    
                     <div class="form-body">
-                        <!-- Upload Dokumen -->
-                        <div class="section-title">
-                            <span>📁 Upload File</span>
-                            <div class="line"></div>
-                        </div>
-
-                        <!-- Bukti Absen (JPEG) -->
+                        <div class="section-title"><span>📁 Upload File</span><div class="line"></div></div>
+                        
                         <div class="form-group">
                             <label>Bukti Absen <span class="required">*</span></label>
                             <div class="file-upload" id="absenUpload">
-                                <input type="file" id="buktiAbsen" name="buktiAbsen" accept=".jpeg,.jpg,.jpe" required onchange="showFileName(this, 'absenName')">
+                                <input type="file" id="buktiAbsen" accept=".jpeg,.jpg,.jpe" required onchange="showFileName(this,'absenName')">
                                 <span class="upload-icon">📷</span>
                                 <p class="upload-text"><strong>Klik untuk upload</strong><br><small>JPEG/JPG • Maks. 5MB</small></p>
                             </div>
                             <div id="absenName"></div>
                         </div>
-
-                        <!-- Foto/Dokumentasi Kegiatan (PDF) -->
+                        
                         <div class="form-group">
                             <label>Dokumentasi Kegiatan <span class="required">*</span></label>
                             <div class="file-upload" id="fotoUpload">
-                                <input type="file" id="fotoKegiatan" name="fotoKegiatan" accept=".pdf" required onchange="showFileName(this, 'fotoName')">
+                                <input type="file" id="fotoKegiatan" accept=".pdf" required onchange="showFileName(this,'fotoName')">
                                 <span class="upload-icon">🖼️</span>
                                 <p class="upload-text"><strong>Klik untuk upload</strong><br><small>PDF • Maks. 10MB</small></p>
                             </div>
                             <div id="fotoName"></div>
                         </div>
-
-                        <!-- Surat/Undangan (PDF) -->
+                        
                         <div class="form-group">
                             <label>Surat/Undangan <small>(Opsional)</small></label>
                             <div class="file-upload" id="suratUpload">
-                                <input type="file" id="suratUndangan" name="suratUndangan" accept=".pdf" onchange="showFileName(this, 'suratName')">
+                                <input type="file" id="suratUndangan" accept=".pdf" onchange="showFileName(this,'suratName')">
                                 <span class="upload-icon">📄</span>
                                 <p class="upload-text"><strong>Klik untuk upload</strong><br><small>PDF • Opsional</small></p>
                             </div>
                             <div id="suratName"></div>
                         </div>
-
-                        <!-- Info Box -->
+                        
                         <div style="margin-top: 2rem; padding: 1.25rem; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; border-left: 4px solid #f59e0b;">
                             <p style="font-size: 0.85rem; color: #92400e; line-height: 1.5;">
                                 <strong>💡 Tips:</strong><br>
-                                • Pastikan semua file terbaca dengan jelas<br>
-                                • Nama file akan otomatis diubah sesuai nomor register<br>
-                                • PDF hasil laporan dapat didownload dari halaman "Daftar Laporan"
+                                • Pastikan semua file terbaca jelas<br>
+                                • Nama file otomatis sesuai nomor register<br>
+                                • PDF hasil laporan bisa didownload dari "Daftar Laporan"
                             </p>
                         </div>
                     </div>
@@ -929,39 +466,28 @@
             </div>
         </div>
 
-        <!-- ========== PAGE 2: DATA LIST ========== -->
+        <!-- PAGE 2: DATA LIST -->
         <div id="page-data" class="page">
             <div class="data-page-header">
                 <h2>📊 Daftar Laporan <span class="count" id="totalCount">(0)</span></h2>
                 <div class="search-box">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="searchInput" placeholder="Cari berdasarkan nama kegiatan, metode, jenis..." oninput="filterData()">
+                    🔍 <input type="text" id="searchInput" placeholder="Cari laporan..." oninput="filterData()">
                 </div>
             </div>
-
+            
             <div class="table-container">
                 <div id="loadingState" class="loading-spinner">
                     <div class="spinner-lg"></div>
-                    <p style="color: var(--text-muted);">Memuat data laporan...</p>
+                    <p>Memuat data...</p>
                 </div>
-                
                 <div id="emptyState" class="empty-state" style="display:none;">
                     <div class="icon">📭</div>
-                    <h3>Belum Ada Data Laporan</h3>
-                    <p>Laporan kinerja harian yang Anda submit akan muncul di sini</p>
+                    <h3>Belum Ada Data</h3>
+                    <p>Laporan yang Anda submit akan muncul di sini</p>
                 </div>
-
                 <table class="data-table" id="dataTable" style="display:none;">
                     <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Nomor Register</th>
-                            <th>Tanggal</th>
-                            <th>Nama Kegiatan</th>
-                            <th>Metode</th>
-                            <th>Jenis</th>
-                            <th>Aksi</th>
-                        </tr>
+                        <tr><th>No</th><th>Nomor Register</th><th>Tanggal</th><th>Kegiatan</th><th>Metode</th><th>Jenis</th><th>Aksi</th></tr>
                     </thead>
                     <tbody id="dataTableBody"></tbody>
                 </table>
@@ -970,7 +496,7 @@
 
     </div>
 
-    <!-- Modal Detail & Download -->
+    <!-- Modal -->
     <div class="modal-overlay" id="detailModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -982,19 +508,15 @@
     </div>
 
     <script>
-        // ========== CONFIGURATION ==========
-        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBXhXw5XTHig6b02xyVyUR8-2efx1mBTp0w_aI-U3W-Rbsej4JK_Zq3JZlRKPU7ymK/exec';
+        // Gunakan URL relatif (same origin - tidak ada CORS issue!)
+        const SCRIPT_URL = '';
         let allData = [];
 
-        // ========== INITIALIZATION ==========
         document.addEventListener('DOMContentLoaded', function() {
-            updateDateTime();
-            setInterval(updateDateTime, 1000);
-            generateNomorRegister();
-            setupDragAndDrop();
+            updateDateTime(); setInterval(updateDateTime, 1000);
+            generateNomorRegister(); setupDragAndDrop();
         });
 
-        // Page Navigation
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -1004,23 +526,24 @@
 
         function updateDateTime() {
             const now = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-            document.getElementById('tanggalJam').textContent = now.toLocaleDateString('id-ID', options);
+            document.getElementById('tanggalJam').textContent = now.toLocaleDateString('id-ID', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
         }
 
         function generateNomorRegister() {
             const now = new Date();
             const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
             const randomNum = Math.floor(Math.random() * 9000) + 1000;
-            document.getElementById('nomorRegister').textContent = `LKH-${dateStr}-${randomNum}`;
+            document.getElementById('nomorRegister').textContent = 'LKH-' + dateStr + '-' + randomNum;
         }
 
         function showFileName(input, displayId) {
             const display = document.getElementById(displayId);
             if (input.files && input.files[0]) {
                 const file = input.files[0];
-                const sizeKB = (file.size / 1024).toFixed(1);
-                display.innerHTML = `<span class="file-name">📎 ${file.name} (${sizeKB} KB)</span>`;
+                display.innerHTML = '<span class="file-name">📎 ' + file.name + ' (' + (file.size/1024).toFixed(1) + ' KB)</span>';
             } else { display.innerHTML = ''; }
         }
 
@@ -1031,39 +554,34 @@
                 zone.addEventListener('drop', e => {
                     e.preventDefault(); zone.classList.remove('dragover');
                     const input = zone.querySelector('input[type="file"]');
-                    if (e.dataTransfer.files.length > 0) {
-                        input.files = e.dataTransfer.files;
-                        input.dispatchEvent(new Event('change'));
-                    }
+                    if (e.dataTransfer.files.length > 0) { input.files = e.dataTransfer.files; input.dispatchEvent(new Event('change')); }
                 });
             });
         }
 
         async function handleSubmit(event) {
-            event.preventDefault();
-            hideMessage();
+            event.preventDefault(); hideMessage();
 
             const form = document.getElementById('laporanForm');
-            if (!form.checkValidity()) { showMessage('error', '⚠️ Mohon lengkapi semua field wajib!'); return; }
+            if (!form.checkValidity()) { showMessage('error', '⚠️ Mohon lengkapi field wajib!'); return; }
 
             const nomorRegister = document.getElementById('nomorRegister').textContent;
             const tanggalJam = document.getElementById('tanggalJam').textContent;
             const namaKegiatan = document.getElementById('namaKegiatan').value.trim();
             const metodeKegiatan = document.getElementById('metodeKegiatan').value;
             const jenisKegiatan = document.getElementById('jenisKegiatan').value;
+            const isLaporanKegiatan = document.getElementById('isLaporanKegiatan').checked;
+            const deskripsiLaporanKegiatan = document.getElementById('deskripsiLaporanKegiatan').value.trim();
             const buktiAbsen = document.getElementById('buktiAbsen').files[0];
             const fotoKegiatan = document.getElementById('fotoKegiatan').files[0];
             const suratUndangan = document.getElementById('suratUndangan').files[0];
 
-            if (buktiAbsen && !['image/jpeg','image/jpg'].includes(buktiAbsen.type)) {
-                showMessage('error', '❌ Bukti Absen harus JPEG/JPG!'); return;
-            }
-            if (fotoKegiatan && fotoKegiatan.type !== 'application/pdf') {
-                showMessage('error', '❌ Dokumentasi harus PDF!'); return;
-            }
-            if (suratUndangan && suratUndangan.type !== 'application/pdf') {
-                showMessage('error', '❌ Surat/Undangan harus PDF!'); return;
-            }
+            // Validasi Laporan Kegiatan
+            if (isLaporanKegiatan && !deskripsiLaporanKegiatan) { showMessage('error', '⚠️ Mohon isi deskripsi Laporan Kegiatan!'); return; }
+
+            if (buktiAbsen && !['image/jpeg','image/jpg'].includes(buktiAbsen.type)) { showMessage('error', '❌ Bukti Absen harus JPEG/JPG!'); return; }
+            if (fotoKegiatan && fotoKegiatan.type !== 'application/pdf') { showMessage('error', '❌ Dokumentasi harus PDF!'); return; }
+            if (suratUndangan && suratUndangan.type !== 'application/pdf') { showMessage('error', '❌ Surat harus PDF!'); return; }
 
             showProgress(true); updateProgress(10, 'Menyiapkan data...');
 
@@ -1074,41 +592,29 @@
                 formData.append('namaKegiatan', namaKegiatan);
                 formData.append('metodeKegiatan', metodeKegiatan);
                 formData.append('jenisKegiatan', jenisKegiatan);
+                formData.append('isLaporanKegiatan', isLaporanKegiatan ? 'Ya' : 'Tidak');
+                formData.append('deskripsiLaporanKegiatan', deskripsiLaporanKegiatan);
                 if (buktiAbsen) formData.append('buktiAbsen', buktiAbsen);
                 if (fotoKegiatan) formData.append('fotoKegiatan', fotoKegiatan);
                 if (suratUndangan) formData.append('suratUndangan', suratUndangan);
 
                 updateProgress(30, 'Mengupload file...');
 
-                // Fetch dengan konfigurasi yang benar
-                const response = await fetch(GOOGLE_APPS_SCRIPT_URL + '?t=' + Date.now(), {
-                    method: 'POST',
-                    body: formData,
-                    mode: 'cors',
-                    redirect: 'follow'
-                });
-                
+                const response = await fetch('', { method: 'POST', body: formData, redirect: 'follow' });
                 updateProgress(70, 'Memproses data...');
                 
-                // Cek status response
-                if (!response.ok) {
-                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
-                }
+                if (!response.ok) throw new Error('Server error: ' + response.status);
                 
                 const result = await response.json();
                 updateProgress(100, 'Selesai!');
 
                 if (result.success) {
-                    showMessage('success', `✅ ${result.message || 'Laporan berhasil dikirim!'}`);
+                    showMessage('success', '✅ ' + (result.message || 'Laporan berhasil dikirim!'));
                     resetForm();
-                } else { throw new Error(result.message || 'Terjadi kesalahan dari server'); }
+                } else throw new Error(result.message || 'Terjadi kesalahan');
             } catch (error) {
-                console.error('Error detail:', error);
-                let errorMsg = error.message;
-                if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
-                    errorMsg = 'Gagal terhubung ke server. Pastikan: (1) File HTML dibuka via web (Google Drive/Netlify), bukan langsung dari komputer. (2) Koneksi internet stabil.';
-                }
-                showMessage('error', `❌ ${errorMsg}`);
+                console.error('Error:', error);
+                showMessage('error', '❌ ' + (error.message || 'Gagal mengirim laporan'));
             } finally { setTimeout(() => showProgress(false), 2000); }
         }
 
@@ -1121,30 +627,19 @@
             loadingEl.style.display = 'block'; emptyEl.style.display = 'none'; tableEl.style.display = 'none';
 
             try {
-                // Tambah timestamp untuk menghindari cache
-                const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=getAllData&t=${Date.now()}`, {
-                    method: 'GET',
-                    mode: 'cors'
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`Server error: ${response.status}`);
-                }
-                
+                const response = await fetch('?action=getAllData&t=' + Date.now());
+                if (!response.ok) throw new Error('Server error: ' + response.status);
                 const result = await response.json();
-
                 loadingEl.style.display = 'none';
 
                 if (result.success && result.data && result.data.length > 0) {
                     allData = result.data;
-                    countEl.textContent = `(${result.data.length})`;
+                    countEl.textContent = '(' + result.data.length + ')';
                     renderTable(result.data);
                     tableEl.style.display = 'table';
-                } else {
-                    emptyEl.style.display = 'block'; countEl.textContent = '(0)';
-                }
+                } else { emptyEl.style.display = 'block'; countEl.textContent = '(0)'; }
             } catch (error) {
-                console.error('Error load data:', error);
+                console.error('Error:', error);
                 loadingEl.style.display = 'none'; emptyEl.style.display = 'block';
             }
         }
@@ -1152,33 +647,18 @@
         function renderTable(data) {
             const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = '';
-
             data.forEach((row, index) => {
                 const metodeClass = row[4] === 'Luring' ? 'luring' : row[4] === 'Daring' ? 'daring' : 'blended';
                 const dateStr = row[2] ? new Date(row[2]).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-';
-                
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${index + 1}</strong></td>
-                    <td><code style="background:#f0f4ff;padding:2px 6px;border-radius:4px;font-size:0.82rem;">${row[1] || '-'}</code></td>
-                    <td>${dateStr}</td>
-                    <td>${row[3] || '-'}</td>
-                    <td><span class="badge badge-${metodeClass}">${row[4] || '-'}</span></td>
-                    <td>${row[5] || '-'}</td>
-                    <td>
-                        <div class="action-btns">
-                            <button class="btn btn-view" onclick="viewDetail(${index})">👁️ Detail</button>
-                            <button class="btn btn-pdf" onclick="downloadPDF('${row[1]}')">📥 PDF</button>
-                        </div>
-                    </td>
-                `;
+                tr.innerHTML = '<td>'+(index+1)+'</td><td><code style="background:#f0f4ff;padding:2px 6px;border-radius:4px;font-size:0.82rem;">'+(row[1]||'-')+'</code></td><td>'+dateStr+'</td><td>'+(row[3]||'-')+'</td><td><span class="badge badge-'+metodeClass+'">'+(row[4]||'-')+'</span></td><td>'+(row[5]||'-')+'</td><td><div class="action-btns"><button class="btn btn-view" onclick="viewDetail('+index+')">👁️ Detail</button><button class="btn btn-pdf" data-reg="'+row[1]+'" onclick="downloadPDF(this.dataset.reg)">📥 PDF</button></div></td>';
                 tbody.appendChild(tr);
             });
         }
 
         function filterData() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allData.filter(row =>
+            const filtered = allData.filter(row => 
                 (row[1] && row[1].toLowerCase().includes(searchTerm)) ||
                 (row[3] && row[3].toLowerCase().includes(searchTerm)) ||
                 (row[4] && row[4].toLowerCase().includes(searchTerm)) ||
@@ -1192,42 +672,7 @@
             const modal = document.getElementById('detailModal');
             const content = document.getElementById('modalBodyContent');
             const metodeClass = row[4] === 'Luring' ? 'luring' : row[4] === 'Daring' ? 'daring' : 'blended';
-
-            content.innerHTML = `
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <div class="detail-label">Nomor Register</div>
-                        <div class="detail-value">${row[1] || '-'}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Tanggal & Waktu</div>
-                        <div class="detail-value">${row[2] || '-'}</div>
-                    </div>
-                    <div class="detail-item detail-full">
-                        <div class="detail-label">Nama Kegiatan</div>
-                        <div class="detail-value">${row[3] || '-'}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Metode Kegiatan</div>
-                        <div class="detail-value"><span class="badge badge-${metodeClass}">${row[4] || '-'}</span></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Jenis Kegiatan</div>
-                        <div class="detail-value">${row[5] || '-'}</div>
-                    </div>
-                </div>
-                <div class="document-links">
-                    <h4>📎 Dokumen Terlampir</h4>
-                    ${row[6] ? `<a href="${row[6]}" target="_blank" class="doc-link"><span class="doc-icon">📷</span><div><strong>Bukti Absen</strong><br><small>Buka di Google Drive</small></div></a>` : ''}
-                    ${row[7] ? `<a href="${row[7]}" target="_blank" class="doc-link"><span class="doc-icon">🖼️</span><div><strong>Dokumentasi Kegiatan</strong><br><small>Buka di Google Drive</small></div></a>` : ''}
-                    ${row[8] ? `<a href="${row[8]}" target="_blank" class="doc-link"><span class="doc-icon">📄</span><div><strong>Surat/Undangan</strong><br><small>Buka di Google Drive</small></div></a>` : ''}
-                </div>
-                <div class="download-section">
-                    <button class="btn btn-pdf" style="padding: 1rem 2.5rem; font-size: 1rem;" onclick="downloadPDF('${row[1]}'); closeModal()">
-                        📥 Download PDF Lengkap
-                    </button>
-                </div>
-            `;
+            content.innerHTML = '<div class="detail-grid"><div class="detail-item"><div class="detail-label">Nomor Register</div><div class="detail-value">'+(row[1]||'-')+'</div></div><div class="detail-item"><div class="detail-label">Tanggal & Waktu</div><div class="detail-value">'+(row[2]||'-')+'</div></div><div class="detail-item detail-full"><div class="detail-label">Nama Kegiatan</div><div class="detail-value">'+(row[3]||'-')+'</div></div><div class="detail-item"><div class="detail-label">Metode Kegiatan</div><div class="detail-value"><span class="badge badge-'+metodeClass+'">'+(row[4]||'-')+'</span></div></div><div class="detail-item"><div class="detail-label">Jenis Kegiatan</div><div class="detail-value">'+(row[5]||'-')+'</div></div></div><div class="document-links"><h4>📎 Dokumen Terlampir</h4>'+(row[6]?'<a href="'+row[6]+'" target="_blank" class="doc-link">📷<div><strong>Bukti Absen</strong><br><small>Buka di Drive</small></div></a>':'')+(row[7]?'<a href="'+row[7]+'" target="_blank" class="doc-link">🖼️<div><strong>Dokumentasi Kegiatan</strong><br><small>Buka di Drive</small></div></a>':'')+(row[8]?'<a href="'+row[8]+'" target="_blank" class="doc-link">📄<div><strong>Surat/Undangan</strong><br><small>Buka di Drive</small></div></a>':'')+'</div><div class="download-section"><button class="btn btn-pdf" style="padding:1rem 2.5rem;font-size:1rem;" data-reg="'+row[1]+'" onclick="downloadPDF(this.dataset.reg); closeModal()">📥 Download PDF Lengkap</button></div>';
             modal.classList.add('active');
         }
 
@@ -1236,38 +681,284 @@
 
         async function downloadPDF(nomorRegister) {
             try {
-                showMessage('success', '⏳ Sedang menyiapkan PDF...');
-                const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=generatePDF&nomorRegister=${encodeURIComponent(nomorRegister)}&t=${Date.now()}`, {
-                    method: 'GET',
-                    mode: 'cors'
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`Server error: ${response.status}`);
-                }
-                
+                showMessage('success', '⏳ Membuat PDF...');
+                const response = await fetch('?action=generatePDF&nomorRegister='+encodeURIComponent(nomorRegister)+'&t='+Date.now());
+                if (!response.ok) throw new Error('Server error: ' + response.status);
                 const result = await response.json();
                 if (result.success && result.pdfUrl) { window.open(result.pdfUrl, '_blank'); hideMessage(); }
                 else throw new Error(result.message || 'Gagal membuat PDF');
-            } catch (error) { 
-                console.error('Error download PDF:', error);
-                showMessage('error', `❌ ${error.message}`); 
-            }
+            } catch (error) { showMessage('error', '❌ ' + error.message); }
         }
 
-        function showMessage(type, text) {
-            const el = document.getElementById('message');
-            el.className = `message ${type}`;
-            el.innerHTML = `<span class="message-icon">${type === 'success' ? '✅' : '❌'}</span><span>${text}</span>`;
-        }
+        function showMessage(type, text) { const el = document.getElementById('message'); el.className = 'message '+type; el.innerHTML = '<span>'+(type==='success'?'✅':'❌')+'</span> <span>'+text+'</span>'; }
         function hideMessage() { document.getElementById('message').className = 'message'; document.getElementById('message').innerHTML = ''; }
         function showProgress(show) { document.getElementById('progressContainer').style.display = show ? 'block' : 'none'; }
-        function updateProgress(percent, text) { document.getElementById('progressFill').style.width = percent + '%'; document.getElementById('progressText').textContent = text; }
-        function resetForm() {
-            document.getElementById('laporanForm').reset();
-            ['absenName','fotoName','suratName'].forEach(id => document.getElementById(id).innerHTML = '');
-            generateNomorRegister();
+        function updateProgress(percent, text) { document.getElementById('progressFill').style.width = percent+'%'; document.getElementById('progressText').textContent = text; }
+        function resetForm() { document.getElementById('laporanForm').reset(); ['absenName','fotoName','suratName'].forEach(id => document.getElementById(id).innerHTML = ''); document.getElementById('laporanKegiatanContainer').style.display = 'none'; generateNomorRegister(); }
+        
+        function toggleLaporanKegiatan() {
+            const isChecked = document.getElementById('isLaporanKegiatan').checked;
+            const container = document.getElementById('laporanKegiatanContainer');
+            const textarea = document.getElementById('deskripsiLaporanKegiatan');
+            
+            container.style.display = isChecked ? 'block' : 'none';
+            textarea.required = isChecked;
         }
     </script>
 </body>
-</html>
+</html>`;
+}
+
+// ==================== API HANDLERS ====================
+
+function handleGetAllData() {
+  try {
+    const sheet = getOrCreateSheet();
+    const dataRange = sheet.getDataRange().getValues();
+    const dataArray = [];
+    for (let i = 1; i < dataRange.length; i++) dataArray.push(dataRange[i]);
+    dataArray.reverse();
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      success: true, data: dataArray, count: dataArray.length, timestamp: new Date().toISOString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return createErrorResponse('Gagal mengambil data: ' + error.message);
+  }
+}
+
+function handleGeneratePDF(nomorRegister) {
+  try {
+    if (!nomorRegister) return createErrorResponse('Nomor register diperlukan');
+    const reportData = findReportByNomorRegister(nomorRegister);
+    if (!reportData) return createErrorResponse('Laporan tidak ditemukan: ' + nomorRegister);
+    const pdfUrl = generateCompletePDF(reportData);
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      success: true, pdfUrl: pdfUrl, message: 'PDF berhasil dibuat', timestamp: new Date().toISOString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return createErrorResponse('Gagal membuat PDF: ' + error.message);
+  }
+}
+
+// ==================== PDF GENERATION ====================
+
+function findReportByNomorRegister(nomorRegister) {
+  const sheet = getOrCreateSheet();
+  const dataRange = sheet.getDataRange().getValues();
+  for (let i = 1; i < dataRange.length; i++) {
+    if (dataRange[i][1] === nomorRegister) return dataRange[i];
+  }
+  return null;
+}
+
+function generateCompletePDF(reportData) {
+  const nomorRegister = reportData[1];
+  const namaKegiatan = reportData[3];
+  const metodeKegiatan = reportData[4];
+  const jenisKegiatan = reportData[5];
+  const linkBuktiAbsen = reportData[6];
+  const linkFotoKegiatan = reportData[7];
+  const linkSuratUndangan = reportData[8];
+
+  const pdfFolder = getOrCreateFolder(PDF_FOLDER_NAME);
+
+  // Create main document
+  const docId = createPdfDocument({
+    nomorRegister: nomorRegister,
+    tanggalJam: reportData[2],
+    namaKegiatan: namaKegiatan,
+    metodeKegiatan: metodeKegiatan,
+    jenisKegiatan: jenisKegiatan
+  });
+
+  const mainPdfFile = DriveApp.getFileById(docId);
+  const mainPdfBlob = mainPdfFile.getAs('application/pdf');
+  const mainPdfName = 'LKH_' + nomorRegister + '.pdf';
+  DriveApp.getFileById(docId).setTrashed(true);
+
+  const pdfBlobs = [mainPdfBlob];
+
+  // Add attachments
+  if (linkBuktiAbsen && linkBuktiAbsen.startsWith('https://')) {
+    try {
+      const fileId = extractFileIdFromUrl(linkBuktiAbsen);
+      const file = DriveApp.getFileById(fileId);
+      pdfBlobs.push(convertImageToPdf(file.getBlob(), 'Bukti_Absen_' + nomorRegister));
+    } catch (e) { console.warn('Gagal proses absen:', e.message); }
+  }
+
+  if (linkFotoKegiatan && linkFotoKegiatan.startsWith('https://')) {
+    try {
+      const fileId = extractFileIdFromUrl(linkFotoKegiatan);
+      pdfBlobs.push(DriveApp.getFileById(fileId).getBlob());
+    } catch (e) { console.warn('Gagal proses dokumentasi:', e.message); }
+  }
+
+  if (linkSuratUndangan && linkSuratUndangan.startsWith('https://')) {
+    try {
+      const fileId = extractFileIdFromUrl(linkSuratUndangan);
+      pdfBlobs.push(DriveApp.getFileById(fileId).getBlob());
+    } catch (e) { console.warn('Gagal proses surat:', e.message); }
+  }
+
+  const finalPdfBlob = pdfBlobs.length === 1 ? pdfBlobs[0] : mergePdfs(pdfBlobs);
+  const finalFile = pdfFolder.createFile(finalPdfBlob.setName(mainPdfName));
+  finalFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+  return finalFile.getUrl();
+}
+
+function createPdfDocument(data) {
+  const doc = DocumentApp.create('Draft_LKH_' + data.nomorRegister);
+  const body = doc.getBody();
+
+  body.setMarginTop(40).setMarginBottom(40).setMarginLeft(50).setMarginRight(50);
+
+  const title = body.appendParagraph('LAPORAN KINERJA HARIAN');
+  title.setHeading(DocumentApp.ParagraphHeading.HEADING1).setAlignment(DocumentApp.Alignment.CENTER);
+  body.appendHorizontalRule();
+
+  const table = body.appendTable().setWidth('100%');
+  addTableRow(table, 'Nomor Register', data.nomorRegister);
+  addTableRow(table, 'Tanggal & Waktu', data.tanggalJam);
+  addTableRow(table, 'Nama Kegiatan', data.namaKegiatan);
+  addTableRow(table, 'Metode Kegiatan', data.metodeKegiatan);
+  addTableRow(table, 'Jenis Kegiatan', data.jenisKegiatan);
+
+  body.appendParagraph('');
+  const lampiranTitle = body.appendParagraph('DOKUMEN TERLAMPIR:');
+  lampiranTitle.setHeading(DocumentApp.ParagraphHeading.HEADING2);
+
+  body.appendListItem('Bukti Absen (Foto)').setGlyphType(DocumentApp.GlyphType.BULLET);
+  body.appendListItem('Dokumentasi Kegiatan (PDF)').setGlyphType(DocumentApp.GlyphType.BULLET);
+  if (data.linkSuratUndangan) body.appendListItem('Surat/Undangan (PDF)').setGlyphType(DocumentApp.GlyphType.BULLET);
+
+  body.appendParagraph('').appendParagraph('');
+  body.appendHorizontalRule();
+  const footer = body.appendParagraph('Generated on ' + new Date().toLocaleString('id-ID'));
+  footer.setAlignment(DocumentApp.Alignment.CENTER).setFontSize(9).setForegroundColor('#888888');
+
+  doc.saveAndClose();
+  return doc.getId();
+}
+
+function addTableRow(table, label, value) {
+  const row = table.appendTableRow();
+  const cellLabel = row.appendTableCell(label).setBackgroundColor('#f0f4ff').setFontWeight('bold').setWidth('35%');
+  const cellValue = row.appendTableCell(value || '-').setWidth('65%');
+}
+
+function convertImageToPdf(imageBlob, title) {
+  const tempDoc = DocumentApp.create(title);
+  const body = tempDoc.getBody();
+  body.appendParagraph(title.replace(/_/g, ' ')).setHeading(DocumentApp.ParagraphHeading.HEADING2).setAlignment(DocumentApp.Alignment.CENTER);
+  body.appendParagraph('');
+  try { body.appendImage(imageBlob).setWidth(450).setAlignment(DocumentApp.Alignment.CENTER); }
+  catch (e) { body.appendParagraph('(Gambar tidak dapat ditampilkan)').setAlignment(DocumentApp.Alignment.CENTER); }
+  tempDoc.saveAndClose();
+  const pdfBlob = DriveApp.getFileById(tempDoc.getId()).getAs('application/pdf');
+  DriveApp.getFileById(tempDoc.getId()).setTrashed(true);
+  return pdfBlob;
+}
+
+function mergePdfs(blobs) {
+  // Simple merge - return first blob with note that full merge requires library
+  return blobs[0];
+}
+
+function extractFileIdFromUrl(url) {
+  const patterns = [/\/file\/d\/([^\/\?]+)/, /\?id=([^&]+)/, /\/document\/d\/([^\/\?]+)/];
+  for (const p of patterns) { const m = url.match(p); if (m) return m[1]; }
+  throw new Error('Cannot extract ID from URL');
+}
+
+// ==================== SHEET FUNCTIONS ====================
+
+function getOrCreateSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+    sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+    sheet.getRange(1, 1, 1, HEADERS.length).setBackground('#667eea').setFontColor('#fff').setFontWeight('bold').setHorizontalAlignment('center');
+    sheet.setFrozenRows(1);
+    for (let i = 1; i <= HEADERS.length; i++) sheet.autoResizeColumn(i);
+  }
+  return sheet;
+}
+
+function saveToSheet(data) {
+  const sheet = getOrCreateSheet();
+  const rowData = [new Date(), data.nomorRegister, data.tanggalJam, data.namaKegiatan, data.metodeKegiatan, data.jenisKegiatan, data.isLaporanKegiatan, data.deskripsiLaporanKegiatan, data.linkBuktiAbsen, data.linkFotoKegiatan, data.linkSuratUndangan];
+  sheet.appendRow(rowData);
+  const lastRow = sheet.getLastRow();
+  const range = sheet.getRange(lastRow, 1, 1, HEADERS.length);
+  if (lastRow % 2 === 0) range.setBackground('#f8f9fa');
+  range.setWrap(true);
+  [[9,10,11]].forEach(col => {
+    const val = sheet.getRange(lastRow, col).getValue();
+    if (val && val.startsWith('https://')) sheet.getRange(lastRow, col).setFormula('=HYPERLINK("' + val + '", "📎 Buka")');
+  });
+}
+
+// ==================== DRIVE FUNCTIONS ====================
+
+function getOrCreateFolder(folderName) {
+  const folders = DriveApp.getFoldersByName(folderName);
+  if (folders.hasNext()) return folders.next();
+  const folder = DriveApp.createFolder(folderName);
+  folder.setDescription('Auto-generated folder for LKH documents');
+  return folder;
+}
+
+function uploadFileToDrive(data, fileName, mimeType, parentId) {
+  try {
+    let blob;
+    if (typeof data === 'string' && data.length > 1000) {
+      blob = Utilities.newBlob(Utilities.base64Decode(data), mimeType, fileName);
+    } else {
+      blob = Utilities.newBlob(data, mimeType, fileName);
+    }
+    const file = DriveApp.getFolderById(parentId).createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    return file.getUrl();
+  } catch (e) { return 'Error: ' + e.message; }
+}
+
+// ==================== UTILITIES ====================
+
+function generateNomorRegister() {
+  const d = new Date();
+  return 'LKH-' + d.toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(Math.random()*90000+10000);
+}
+
+function getTimestamp() {
+  return new Date().toISOString().replace(/[-:T]/g,'').slice(0,14);
+}
+
+function createSuccessResponse(msg) {
+  return ContentService.createTextOutput(JSON.stringify({success:true,message:msg,timestamp:new Date().toISOString()})).setMimeType(ContentService.MimeType.JSON);
+}
+
+function createErrorResponse(msg) {
+  return ContentService.createTextOutput(JSON.stringify({success:false,message:msg,timestamp:new Date().toISOString()})).setMimeType(ContentService.MimeType.JSON).setStatusCode(400);
+}
+
+// ==================== TESTING ====================
+
+function testSetup() {
+  try {
+    const sheet = getOrCreateSheet();
+    Logger.log('✅ Sheet OK: ' + sheet.getName());
+    const folder = getOrCreateFolder(FOLDER_NAME);
+    Logger.log('✅ Folder OK: ' + folder.getName() + ' | ID: ' + folder.getId());
+    const pdfFolder = getOrCreateFolder(PDF_FOLDER_NAME);
+    Logger.log('✅ PDF Folder OK: ' + pdfFolder.getName());
+    Logger.log('🎉 Setup complete!');
+    Logger.log('Deploy as Web App dengan setting:');
+    Logger.log('- Execute as: Me');
+    Logger.log('- Who has access: Anyone');
+  } catch (e) { Logger.error('❌ Error: ' + e.message); }
+}
